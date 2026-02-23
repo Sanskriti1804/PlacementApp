@@ -22,9 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.components.AppLogo
 import com.example.placementprojectmp.ui.components.GlowingProgressBar
-import com.example.placementprojectmp.ui.theme.BackgroundBlack
-import com.example.placementprojectmp.ui.theme.TextPrimary
-import com.example.placementprojectmp.ui.theme.TextSecondary
 
 @Composable
 fun LoadingScreen(
@@ -38,7 +35,9 @@ fun LoadingScreen(
     }
     LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(2500)
-        onNavigateToAbout?.invoke()
+        if (onNavigateToAbout != null) {
+            onNavigateToAbout()
+        }
     }
     val animatedProgress by animateFloatAsState(
         targetValue = progress,
@@ -49,7 +48,7 @@ fun LoadingScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundBlack)
+            .background(MaterialTheme.colorScheme.background)
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -63,13 +62,13 @@ fun LoadingScreen(
                 "Preparing your experience…"
             },
             style = MaterialTheme.typography.titleMedium,
-            color = TextPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Upgrading your interface…",
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(24.dp))
         GlowingProgressBar(progress = animatedProgress)

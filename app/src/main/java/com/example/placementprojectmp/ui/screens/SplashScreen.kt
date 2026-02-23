@@ -31,7 +31,9 @@ fun SplashScreen(
     }
     LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(2200)
-        onNavigateToAbout?.invoke()
+        if (onNavigateToAbout != null) {
+            onNavigateToAbout()
+        }
     }
     val alpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,

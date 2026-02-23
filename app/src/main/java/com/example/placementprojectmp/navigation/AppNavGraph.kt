@@ -13,7 +13,6 @@ import com.example.placementprojectmp.ui.screens.AboutAppScreen
 import com.example.placementprojectmp.ui.screens.LoadingScreen
 import com.example.placementprojectmp.ui.screens.LoginScreen
 import com.example.placementprojectmp.ui.screens.SplashScreen
-import kotlinx.coroutines.delay
 
 @Composable
 fun AppNavGraph(
@@ -71,7 +70,7 @@ fun AppNavGraph(
                     if (!hasNavigated) {
                         hasNavigated = true
                         navController.navigate(Routes.About) {
-                            popUpTo(Routes.Login) { inclusive = true }
+                            popUpTo(Routes.About) { inclusive = true }
                         }
                     }
                 }

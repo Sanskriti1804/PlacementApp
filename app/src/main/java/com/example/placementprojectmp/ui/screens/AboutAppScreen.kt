@@ -34,9 +34,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.components.AppLogo
 import com.example.placementprojectmp.ui.components.LiquidBackground
-import com.example.placementprojectmp.ui.theme.NeonBlue
-import com.example.placementprojectmp.ui.theme.TextPrimary
-import com.example.placementprojectmp.ui.theme.TextSecondary
 
 private val TABS = listOf("Jobs", "Internship", "Opportunity")
 
@@ -60,7 +57,7 @@ fun AboutAppScreen(
             Text(
                 text = "Placement",
                 style = MaterialTheme.typography.displayLarge,
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(8.dp))
             // Pagination dots
@@ -72,7 +69,7 @@ fun AboutAppScreen(
                 repeat(3) { index ->
                     val selected = index == 0
                     val color by animateColorAsState(
-                        targetValue = if (selected) NeonBlue else TextSecondary.copy(alpha = 0.5f),
+                        targetValue = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                         animationSpec = tween(200),
                         label = "dot"
                     )
@@ -90,12 +87,12 @@ fun AboutAppScreen(
             TabRow(
                 selectedTabIndex = selectedTab,
                 containerColor = androidx.compose.ui.graphics.Color.Transparent,
-                contentColor = TextPrimary,
+                contentColor = MaterialTheme.colorScheme.onSurface,
                 indicator = { tabPositions ->
                     SecondaryIndicator(
                         modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
                         height = 3.dp,
-                        color = NeonBlue
+                        color = MaterialTheme.colorScheme.primary
                     )
                 },
                 divider = {}
@@ -108,7 +105,7 @@ fun AboutAppScreen(
                             Text(
                                 text = title,
                                 style = MaterialTheme.typography.titleMedium,
-                                color = if (selectedTab == index) TextPrimary else TextSecondary
+                                color = if (selectedTab == index) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     )
@@ -125,7 +122,7 @@ fun AboutAppScreen(
                 Text(
                     text = "Content for ${TABS[selectedTab]}",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             if (onNavigateToLogin != null) {
