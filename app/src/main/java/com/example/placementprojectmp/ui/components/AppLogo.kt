@@ -17,7 +17,7 @@ fun AppLogo(
     tint: androidx.compose.ui.graphics.Color? = null
 ) {
     Image(
-        painter = painterResource(R.drawable.ic_launcher_foreground),
+        painter = painterResource(R.drawable.app_logo),
         contentDescription = "App logo",
         modifier = modifier.size(size),
         colorFilter = tint?.let { ColorFilter.tint(it) }
