@@ -27,6 +27,7 @@ fun AppNavGraph(
         startDestination = Routes.Splash,
         modifier = modifier
     ) {
+        // 1. Splash → About (splash is removed from back stack)
         composable(Routes.Splash) {
             var hasNavigated by remember { mutableStateOf(false) }
             SplashScreen(
@@ -42,10 +43,24 @@ fun AppNavGraph(
             )
         }
 
+        // 2. About → Login
         composable(Routes.About) {
             AboutAppScreen(
                 modifier = modifier,
                 onNavigateToRoleSelection = {
+                    navController.navigate(Routes.Login) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        // 3. Login → Role Selection (after auth)
+        composable(Routes.Login) {
+            LoginScreen(
+                modifier = modifier,
+                selectedRole = "user",
+                onNavigateToLoading = {
                     navController.navigate(Routes.RoleSelection) {
                         launchSingleTop = true
                     }
@@ -53,29 +68,7 @@ fun AppNavGraph(
             )
         }
 
-        composable(Routes.RoleSelection) {
-            RoleSelectionScreen(
-                modifier = modifier,
-                onNavigateToLogin = { role ->
-                    navController.navigate("login?role=$role") {
-                        launchSingleTop = true
-                    }
-                }
-            )
-        }
-
-        composable(Routes.Login) {
-            LoginScreen(
-                modifier = modifier,
-                selectedRole = "user",
-                onNavigateToLoading = {
-                    navController.navigate(Routes.Loading) {
-                        launchSingleTop = true
-                    }
-                }
-            )
-        }
-
+        // Optional: deep-link Login with role
         composable(
             route = Routes.LoginWithRole,
             arguments = listOf(
@@ -87,10 +80,49 @@ fun AppNavGraph(
                 modifier = modifier,
                 selectedRole = role,
                 onNavigateToLoading = {
-                    navController.navigate(Routes.Loading) {
+                    navController.navigate(Routes.RoleSelection) {
                         launchSingleTop = true
                     }
                 }
+            )
+        }
+
+        // 4. Role Selection → Role-based Dashboard (role-based routing)
+        composable(Routes.RoleSelection) {
+            RoleSelectionScreen(
+                modifier = modifier,
+                onNavigateToLogin = { role ->
+                    val dashboardRoute = Routes.dashboardForRole(role)
+                    if (dashboardRoute != null) {
+                        navController.navigate(dashboardRoute) {
+                            launchSingleTop = true
+                            popUpTo(Routes.RoleSelection) { inclusive = true }
+                        }
+                    }
+                }
+            )
+        }
+
+        // 5. Role-based dashboards (placeholder: replace with module-specific NavHost/screens when ready)
+        composable(Routes.DashboardStudent) {
+            LoadingScreen(
+                modifier = modifier,
+                isSignUp = false,
+                onNavigateToAbout = null
+            )
+        }
+        composable(Routes.DashboardAdmin) {
+            LoadingScreen(
+                modifier = modifier,
+                isSignUp = false,
+                onNavigateToAbout = null
+            )
+        }
+        composable(Routes.DashboardManagement) {
+            LoadingScreen(
+                modifier = modifier,
+                isSignUp = false,
+                onNavigateToAbout = null
             )
         }
 
