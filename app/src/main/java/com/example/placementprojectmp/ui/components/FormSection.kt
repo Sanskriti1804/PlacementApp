@@ -12,11 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.placementprojectmp.ui.screens.EducationInformationForm
 import com.example.placementprojectmp.ui.screens.PersonalInformationForm
 
 /**
  * Form content area for profile form tabs.
- * Personal tab shows Personal Information Form; other tabs show placeholder.
+ * Personal tab shows Personal Information Form; Education shows Education Form; others placeholder.
  */
 @Composable
 fun FormSection(
@@ -38,7 +39,7 @@ fun FormSection(
         ) {
             when (tab) {
                 ProfileFormTab.Personal -> PersonalInformationForm(modifier = Modifier.fillMaxWidth())
-                ProfileFormTab.Education,
+                ProfileFormTab.Education -> EducationInformationForm(modifier = Modifier.fillMaxWidth())
                 ProfileFormTab.Skills,
                 ProfileFormTab.Experience -> { /* placeholder for other tabs */ }
             }
