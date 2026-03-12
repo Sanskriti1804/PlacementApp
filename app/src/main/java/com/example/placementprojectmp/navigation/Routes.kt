@@ -17,7 +17,7 @@ object Routes {
     const val Loading = "loading"
     const val Profile = "profile"
     const val AcademicDetails = "academic"
-    const val Preparation = "preparation"
+    const val Preparation =  "preparation"
     const val Chatbot = "chatbot"
     const val StudentDetails = "student_details"
     const val Opportunities = "opportunities"
@@ -26,6 +26,7 @@ object Routes {
     const val DashboardStudent = "dashboard/student"
     const val DashboardAdmin = "dashboard/admin"
     const val DashboardManagement = "dashboard/management"
+    const val StudentProfileForm = "dashboard/studentform"
 
 
     /**
