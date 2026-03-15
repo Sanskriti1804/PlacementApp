@@ -61,7 +61,8 @@ fun ApplicationStatusScreenCard(
     modifier: Modifier = Modifier,
     item: ApplicationStatusScreenItem,
     logoResId: Int = 0,
-    onReminderClick: () -> Unit = {}
+    onReminderClick: () -> Unit = {},
+    onCompanyClick: ((ApplicationStatusScreenItem) -> Unit)? = null
 ) {
     var expanded by remember { mutableStateOf(false) }
     var showReminderCard by remember { mutableStateOf(false) }
@@ -94,7 +95,15 @@ fun ApplicationStatusScreenCard(
                 verticalAlignment = Alignment.Top
             ) {
                 Row(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .then(
+                            if (onCompanyClick != null) Modifier.clickable(
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() }
+                            ) { onCompanyClick(item) }
+                            else Modifier
+                        ),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {

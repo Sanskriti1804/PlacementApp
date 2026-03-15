@@ -78,13 +78,19 @@ fun StudentMainContainer(
                 .padding(paddingValues)
         ) {
             composable(Routes.StudentRoutes.Applications) {
-                ApplicationStatusScreen(modifier = modifier)
+                ApplicationStatusScreen(
+                    modifier = modifier,
+                    onApplicationClick = { outerNavController?.navigate(Routes.ApplicationScreen) }
+                )
             }
             composable(Routes.StudentRoutes.Opportunities) {
                 OpportunitiesScreen(modifier = modifier)
             }
             composable(Routes.StudentRoutes.Dashboard) {
-                StudentDashboardScreen(modifier = modifier)
+                StudentDashboardScreen(
+                    modifier = modifier,
+                    onNavigateToChatbot = { outerNavController?.navigate(Routes.Chatbot) }
+                )
             }
             composable(Routes.StudentRoutes.Prepare) {
                 PreparationScreen(
@@ -98,7 +104,11 @@ fun StudentMainContainer(
                 )
             }
             composable(Routes.StudentRoutes.StudentProfile) {
-                ProfileScreen(modifier = modifier)
+                ProfileScreen(
+                    modifier = modifier,
+                    onCompleteProfileClick = { outerNavController?.navigate(Routes.StudentProfileForm) },
+                    onIntroCardClick = { outerNavController?.navigate(Routes.PersonalInformationFormScreen) }
+                )
             }
         }
     }

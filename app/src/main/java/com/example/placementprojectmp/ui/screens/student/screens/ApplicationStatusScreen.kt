@@ -47,12 +47,14 @@ private val dummyApplications = listOf(
 
 /**
  * Application Status screen: TopBar, header (title + description), LazyColumn of status cards.
+ * Tapping company name/logo on a card navigates to ApplicationScreen via onApplicationClick.
  */
 @Composable
 fun ApplicationStatusScreen(
     modifier: Modifier = Modifier,
     onMenuClick: () -> Unit = {},
-    onNotificationClick: () -> Unit = {}
+    onNotificationClick: () -> Unit = {},
+    onApplicationClick: (ApplicationStatusScreenItem) -> Unit = {}
 ) {
     LazyColumn(
         modifier = modifier
@@ -91,7 +93,8 @@ fun ApplicationStatusScreen(
         items(dummyApplications) { item ->
             ApplicationStatusScreenCard(
                 modifier = Modifier.padding(horizontal = 20.dp),
-                item = item
+                item = item,
+                onCompanyClick = onApplicationClick
             )
         }
     }

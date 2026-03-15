@@ -21,13 +21,15 @@ import com.example.placementprojectmp.ui.components.SocialPlatformRow
 
 /**
  * Profile screen: TopBar, Profile Header, Completion Card, Social Platforms, Recent Work + Skills.
- * All sections in a LazyColumn; uses existing theme and AppTopBar.
+ * Tapping "Complete your profile" opens StudentProfileFormScreen; tapping intro card opens PersonalInformationFormScreen.
  */
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     onMenuClick: () -> Unit = {},
-    onNotificationClick: () -> Unit = {}
+    onNotificationClick: () -> Unit = {},
+    onCompleteProfileClick: (() -> Unit)? = null,
+    onIntroCardClick: (() -> Unit)? = null
 ) {
     LazyColumn(
         modifier = modifier
@@ -47,7 +49,8 @@ fun ProfileScreen(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 userName = "Alex Johnson",
                 role = "Android Developer",
-                handle = "@alexdev"
+                handle = "@alexdev",
+                onClick = onIntroCardClick
             )
         }
         item {
@@ -61,7 +64,8 @@ fun ProfileScreen(
                     ProfileCompletionItem("Portfolio", false),
                     ProfileCompletionItem("Resume", false),
                     ProfileCompletionItem("Skills", true)
-                )
+                ),
+                onTitleClick = onCompleteProfileClick
             )
         }
         item {

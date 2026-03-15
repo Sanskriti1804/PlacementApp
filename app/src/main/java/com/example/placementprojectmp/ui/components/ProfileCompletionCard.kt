@@ -5,6 +5,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.theme.NeonBlue
 
@@ -49,7 +51,8 @@ fun ProfileCompletionCard(
         ProfileCompletionItem("Portfolio", false),
         ProfileCompletionItem("Resume", false),
         ProfileCompletionItem("Skills", true)
-    )
+    ),
+    onTitleClick: (() -> Unit)? = null
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -58,24 +61,49 @@ fun ProfileCompletionCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable { expanded = !expanded }
             .padding(16.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(
+                    if (onTitleClick == null) Modifier.clickable(
+                        role = Role.Button,
+                        onClick = { expanded = !expanded },
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    )
+                    else Modifier
+                ),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (onTitleClick != null) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = if (onTitleClick != null) Modifier
+                    .clickable(
+                        role = Role.Button,
+                        onClick = onTitleClick,
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    )
+                else Modifier
             )
             Icon(
                 imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                 contentDescription = if (expanded) "Collapse" else "Expand",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable(
+                        role = Role.Button,
+                        onClick = { expanded = !expanded },
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    )
             )
         }
         Spacer(modifier = Modifier.height(12.dp))

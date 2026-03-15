@@ -228,6 +228,9 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
         composable(Routes.StudentProfileForm) {
             StudentProfileFormScreen(modifier = modifier)
         }
+        composable(Routes.PersonalInformationFormScreen) {
+            StudentProfileFormScreen(modifier = modifier)
+        }
         composable(Routes.ApplicationScreen) {
             ApplicationScreen(modifier = modifier)
         }

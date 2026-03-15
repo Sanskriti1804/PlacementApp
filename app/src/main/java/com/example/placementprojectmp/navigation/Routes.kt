@@ -64,6 +64,7 @@ object Routes {
     const val DashboardAdmin = "dashboard/admin"
     const val DashboardManagement = "dashboard/management"
     const val StudentProfileForm = "dashboard/studentform"
+    const val PersonalInformationFormScreen = "personal_information_screen"
     const val ApplicationScreen = "application_screen"
     const val ApplicationStatusScreen = "application_status_screen"
     const val PyqQuestions = "pyq_questions"

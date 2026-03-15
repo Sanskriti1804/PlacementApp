@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -16,13 +17,19 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.components.AppTopBar
@@ -43,7 +50,8 @@ import androidx.compose.material3.MaterialTheme
 fun StudentDashboardScreen(
     modifier: Modifier = Modifier,
     onMenuClick: () -> Unit = {},
-    onNotificationClick: () -> Unit = {}
+    onNotificationClick: () -> Unit = {},
+    onNavigateToChatbot: () -> Unit = {}
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedDomains by remember { mutableStateOf(setOf<String>()) }
@@ -74,13 +82,14 @@ fun StudentDashboardScreen(
         "Resources" to Icons.Default.Folder
     )
 
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(bottom = 24.dp),
-        contentPadding = PaddingValues(bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
-    ) {
+    Box(modifier = modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 24.dp),
+            contentPadding = PaddingValues(bottom = 88.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
         item {
             AppTopBar(
                 onMenuClick = onMenuClick,
@@ -162,6 +171,25 @@ fun StudentDashboardScreen(
             ApplicationsSection(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 applications = applications
+            )
+        }
+        }
+        FloatingActionButton(
+            onClick = onNavigateToChatbot,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 20.dp, bottom = 24.dp),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            shape = CircleShape,
+            elevation = FloatingActionButtonDefaults.elevation(
+                defaultElevation = 6.dp,
+                pressedElevation = 8.dp
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Default.SmartToy,
+                contentDescription = "AIDA Chatbot"
             )
         }
     }
