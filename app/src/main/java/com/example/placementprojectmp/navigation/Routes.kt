@@ -27,7 +27,13 @@ object Routes {
 
     /** Student module – student dashboard and student-only screens. */
     object StudentRoutes {
+        /** Container with bottom nav; start destination of Student graph. */
+        const val Main = "student_main"
+        const val Applications = "applications_screen"
+        const val Opportunities = "opportunities_screen"
         const val Dashboard = "student_dashboard_screen"
+        const val Prepare = "prepare_screen"
+        const val StudentProfile = "student_profile_screen"
     }
 
     /** Staff module – placeholder for future staff screens. */

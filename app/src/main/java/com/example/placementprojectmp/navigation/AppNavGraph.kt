@@ -31,6 +31,7 @@ import com.example.placementprojectmp.ui.screens.PyqQuestionsScreen
 import com.example.placementprojectmp.ui.screens.AptitudeTestDetailsScreen
 import com.example.placementprojectmp.ui.screens.AptitudeTestPlayerScreen
 import com.example.placementprojectmp.ui.screens.AptitudeTestResultScreen
+import com.example.placementprojectmp.ui.screens.StudentMainContainer
 
 /**
  * Root navigation host with four graphs: Startup, Student, Staff, System.
@@ -152,8 +153,11 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
 ) {
     navigation(
         route = Routes.GraphRoutes.Student,
-        startDestination = Routes.StudentRoutes.Dashboard
+        startDestination = Routes.StudentRoutes.Main
     ) {
+        composable(Routes.StudentRoutes.Main) {
+            StudentMainContainer(modifier = modifier, outerNavController = navController)
+        }
         composable(Routes.StudentRoutes.Dashboard) {
             StudentDashboardScreen(modifier = modifier)
         }
