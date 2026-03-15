@@ -9,8 +9,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.placementprojectmp.ui.screens.AboutAppScreen
 import com.example.placementprojectmp.ui.screens.AcademicPerdormanceScreen
 import com.example.placementprojectmp.ui.screens.LoadingScreen
@@ -31,6 +32,10 @@ import com.example.placementprojectmp.ui.screens.AptitudeTestDetailsScreen
 import com.example.placementprojectmp.ui.screens.AptitudeTestPlayerScreen
 import com.example.placementprojectmp.ui.screens.AptitudeTestResultScreen
 
+/**
+ * Root navigation host with four graphs: Startup, Student, Staff, System.
+ * Start destination is StartupGraph; role-based navigation from startup sends users to Student or Staff graph.
+ */
 @Composable
 fun AppNavGraph(
     navController: NavHostController = rememberNavController(),
@@ -38,51 +43,59 @@ fun AppNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Routes.Preparation,
+        startDestination = Routes.GraphRoutes.Startup,
         modifier = modifier
     ) {
-        // 1. Splash → About (splash is removed from back stack)
-        composable(Routes.Splash) {
+        startupGraph(navController, modifier)
+        studentGraph(navController, modifier)
+        staffGraph(modifier)
+        systemGraph(modifier)
+    }
+}
+
+private fun androidx.navigation.NavGraphBuilder.startupGraph(
+    navController: NavHostController,
+    modifier: androidx.compose.ui.Modifier
+) {
+    navigation(
+        route = Routes.GraphRoutes.Startup,
+        startDestination = Routes.StartupRoutes.Splash
+    ) {
+        composable(Routes.StartupRoutes.Splash) {
             var hasNavigated by remember { mutableStateOf(false) }
             SplashScreen(
                 modifier = modifier,
                 onNavigateToAbout = {
                     if (!hasNavigated) {
                         hasNavigated = true
-                        navController.navigate(Routes.About) {
-                            popUpTo(Routes.Splash) { inclusive = true }
+                        navController.navigate(Routes.StartupRoutes.About) {
+                            popUpTo(Routes.StartupRoutes.Splash) { inclusive = true }
                         }
                     }
                 }
             )
         }
-
-        // 2. About → Login
-        composable(Routes.About) {
+        composable(Routes.StartupRoutes.About) {
             AboutAppScreen(
                 modifier = modifier,
                 onNavigateToRoleSelection = {
-                    navController.navigate(Routes.Login) {
+                    navController.navigate(Routes.StartupRoutes.Login) {
                         launchSingleTop = true
                     }
                 }
             )
         }
-
-        // 3. Login → Role Selection (after auth)
-        composable(Routes.Login) {
+        composable(Routes.StartupRoutes.Login) {
             LoginScreen(
                 modifier = modifier,
                 selectedRole = "user",
                 onNavigateToLoading = {
-                    navController.navigate(Routes.RoleSelection) {
+                    navController.navigate(Routes.StartupRoutes.RoleSelection) {
                         launchSingleTop = true
                     }
                 }
             )
         }
-
-        // Optional: deep-link Login with role
         composable(
             route = Routes.LoginWithRole,
             arguments = listOf(
@@ -94,147 +107,28 @@ fun AppNavGraph(
                 modifier = modifier,
                 selectedRole = role,
                 onNavigateToLoading = {
-                    navController.navigate(Routes.RoleSelection) {
+                    navController.navigate(Routes.StartupRoutes.RoleSelection) {
                         launchSingleTop = true
                     }
                 }
             )
         }
-
-        // 4. Role Selection → Role-based Dashboard (role-based routing)
-        composable(Routes.RoleSelection) {
+        composable(Routes.StartupRoutes.RoleSelection) {
             RoleSelectionScreen(
                 modifier = modifier,
                 onNavigateToLogin = { role ->
-                    val dashboardRoute = Routes.dashboardForRole(role)
-                    if (dashboardRoute != null) {
-                        navController.navigate(dashboardRoute) {
-                            launchSingleTop = true
-                            popUpTo(Routes.RoleSelection) { inclusive = true }
+                    when (role.lowercase()) {
+                        "student" -> navController.navigate(Routes.GraphRoutes.Student) {
+                            popUpTo(Routes.GraphRoutes.Startup) { inclusive = true }
+                        }
+                        else -> navController.navigate(Routes.GraphRoutes.Staff) {
+                            popUpTo(Routes.GraphRoutes.Startup) { inclusive = true }
                         }
                     }
                 }
             )
         }
-
-        // 5. Role-based dashboards
-        composable(Routes.DashboardStudent) {
-            StudentDashboardScreen(modifier = modifier)
-        }
-        composable(Routes.DashboardAdmin) {
-            LoadingScreen(
-                modifier = modifier,
-                isSignUp = false,
-                onNavigateToAbout = null
-            )
-        }
-        composable(Routes.DashboardManagement) {
-            LoadingScreen(
-                modifier = modifier,
-                isSignUp = false,
-                onNavigateToAbout = null
-            )
-        }
-
-        composable(Routes.Profile) {
-            ProfileScreen(modifier = modifier)
-        }
-
-        composable(Routes.AcademicDetails) {
-            AcademicPerdormanceScreen(modifier = modifier)
-        }
-
-        composable(Routes.Preparation) {
-            PreparationScreen(
-                modifier = modifier,
-                onNavigateToPyqQuestions = { company ->
-                    navController.navigate("pyq_questions/$company")
-                },
-                onNavigateToAptitudeTestDetails = { testId ->
-                    navController.navigate("aptitude_test_details_screen/$testId")
-                }
-            )
-        }
-
-        composable(
-            route = Routes.AptitudeTestDetailsWithId,
-            arguments = listOf(
-                navArgument("testId") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val testId = backStackEntry.arguments?.getString("testId") ?: ""
-            AptitudeTestDetailsScreen(
-                modifier = modifier,
-                testId = testId,
-                onStartTest = {
-                    navController.navigate("aptitude_test_player_screen/$testId")
-                }
-            )
-        }
-
-        composable(
-            route = Routes.AptitudeTestPlayerWithId,
-            arguments = listOf(
-                navArgument("testId") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val testId = backStackEntry.arguments?.getString("testId") ?: ""
-            AptitudeTestPlayerScreen(
-                modifier = modifier,
-                testId = testId,
-                onSubmit = {
-                    navController.navigate(Routes.AptitudeTestResult) {
-                        popUpTo("aptitude_test_player_screen/$testId") { inclusive = true }
-                    }
-                }
-            )
-        }
-
-        composable(Routes.AptitudeTestResult) {
-            AptitudeTestResultScreen(
-                modifier = modifier,
-                testId = null
-            )
-        }
-
-        composable(
-            route = Routes.PyqQuestionsWithCompany,
-            arguments = listOf(
-                navArgument("company") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val company = backStackEntry.arguments?.getString("company") ?: ""
-            PyqQuestionsScreen(
-                modifier = modifier,
-                companyName = company
-            )
-        }
-
-        composable(Routes.Chatbot) {
-            ChatbotScreen(modifier = modifier)
-        }
-
-        composable(Routes.StudentDetails) {
-            StudentDetailsScreen(modifier = modifier)
-        }
-
-        composable(Routes.Opportunities) {
-            OpportunitiesScreen(modifier = modifier)
-        }
-
-        composable(Routes.StudentProfileForm) {
-            StudentProfileFormScreen(modifier = modifier)
-        }
-
-        composable(Routes.ApplicationScreen) {
-            ApplicationScreen(modifier = modifier)
-        }
-
-        composable(Routes.ApplicationStatusScreen) {
-            ApplicationStatusScreen(modifier = modifier)
-        }
-
-        composable(Routes.Loading) {
+        composable(Routes.StartupRoutes.Loading) {
             var hasNavigated by remember { mutableStateOf(false) }
             LoadingScreen(
                 modifier = modifier,
@@ -242,12 +136,125 @@ fun AppNavGraph(
                 onNavigateToAbout = {
                     if (!hasNavigated) {
                         hasNavigated = true
-                        navController.navigate(Routes.About) {
-                            popUpTo(Routes.About) { inclusive = true }
+                        navController.navigate(Routes.StartupRoutes.About) {
+                            popUpTo(Routes.StartupRoutes.Loading) { inclusive = true }
                         }
                     }
                 }
             )
+        }
+    }
+}
+
+private fun androidx.navigation.NavGraphBuilder.studentGraph(
+    navController: NavHostController,
+    modifier: androidx.compose.ui.Modifier
+) {
+    navigation(
+        route = Routes.GraphRoutes.Student,
+        startDestination = Routes.StudentRoutes.Dashboard
+    ) {
+        composable(Routes.StudentRoutes.Dashboard) {
+            StudentDashboardScreen(modifier = modifier)
+        }
+        composable(Routes.Profile) {
+            ProfileScreen(modifier = modifier)
+        }
+        composable(Routes.AcademicDetails) {
+            AcademicPerdormanceScreen(modifier = modifier)
+        }
+        composable(Routes.Preparation) {
+            PreparationScreen(
+                modifier = modifier,
+                onNavigateToPyqQuestions = { company ->
+                    navController.navigate("${Routes.PyqQuestions}/$company")
+                },
+                onNavigateToAptitudeTestDetails = { testId ->
+                    navController.navigate("${Routes.AptitudeTestDetails}/$testId")
+                }
+            )
+        }
+        composable(
+            route = Routes.AptitudeTestDetailsWithId,
+            arguments = listOf(navArgument("testId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val testId = backStackEntry.arguments?.getString("testId") ?: ""
+            AptitudeTestDetailsScreen(
+                modifier = modifier,
+                testId = testId,
+                onStartTest = {
+                    navController.navigate("${Routes.AptitudeTestPlayer}/$testId")
+                }
+            )
+        }
+        composable(
+            route = Routes.AptitudeTestPlayerWithId,
+            arguments = listOf(navArgument("testId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val testId = backStackEntry.arguments?.getString("testId") ?: ""
+            AptitudeTestPlayerScreen(
+                modifier = modifier,
+                testId = testId,
+                onSubmit = {
+                    navController.navigate(Routes.AptitudeTestResult) {
+                        popUpTo("${Routes.AptitudeTestPlayer}/$testId") { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable(Routes.AptitudeTestResult) {
+            AptitudeTestResultScreen(modifier = modifier, testId = null)
+        }
+        composable(
+            route = Routes.PyqQuestionsWithCompany,
+            arguments = listOf(navArgument("company") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val company = backStackEntry.arguments?.getString("company") ?: ""
+            PyqQuestionsScreen(modifier = modifier, companyName = company)
+        }
+        composable(Routes.Chatbot) {
+            ChatbotScreen(modifier = modifier)
+        }
+        composable(Routes.StudentDetails) {
+            StudentDetailsScreen(modifier = modifier)
+        }
+        composable(Routes.Opportunities) {
+            OpportunitiesScreen(modifier = modifier)
+        }
+        composable(Routes.StudentProfileForm) {
+            StudentProfileFormScreen(modifier = modifier)
+        }
+        composable(Routes.ApplicationScreen) {
+            ApplicationScreen(modifier = modifier)
+        }
+        composable(Routes.ApplicationStatusScreen) {
+            ApplicationStatusScreen(modifier = modifier)
+        }
+    }
+}
+
+private fun androidx.navigation.NavGraphBuilder.staffGraph(
+    modifier: androidx.compose.ui.Modifier
+) {
+    navigation(
+        route = Routes.GraphRoutes.Staff,
+        startDestination = Routes.StaffRoutes.Root
+    ) {
+        composable(Routes.StaffRoutes.Root) {
+            // Placeholder – no UI yet
+        }
+    }
+}
+
+private fun androidx.navigation.NavGraphBuilder.systemGraph(
+    modifier: androidx.compose.ui.Modifier
+) {
+    navigation(
+        route = Routes.GraphRoutes.System,
+        startDestination = Routes.SystemRoutes.Root
+    ) {
+        composable(Routes.SystemRoutes.Root) {
+            // Placeholder – for future error, maintenance, force update screens
         }
     }
 }

@@ -4,11 +4,42 @@ package com.example.placementprojectmp.navigation
  * Navigation routes for the app. Single source of truth for NavGraph.
  * Flow: Splash → About → Login → RoleSelection → Role-based Dashboard
  *
- * START DESTINATION: Change the line below to launch any screen when the app opens.
- * Options: Splash, About, Login, RoleSelection, Loading, Profile,
- *          AcademicDetails, Preparation, Chatbot, StudentDetails, Opportunities, DashboardStudent, DashboardAdmin, DashboardManagement
+ * Modular navigation uses GraphRoutes and per-module route groups (Startup, Student, Staff, System).
  */
 object Routes {
+
+    /** Root-level graph route names for modular navigation. */
+    object GraphRoutes {
+        const val Startup = "startup"
+        const val Student = "student"
+        const val Staff = "staff"
+        const val System = "system"
+    }
+
+    /** Startup (shared) module – initial app screens. */
+    object StartupRoutes {
+        const val Splash = "splash_screen"
+        const val About = "about_app_screen"
+        const val RoleSelection = "role_selection_screen"
+        const val Login = "login_screen"
+        const val Loading = "loading_screen"
+    }
+
+    /** Student module – student dashboard and student-only screens. */
+    object StudentRoutes {
+        const val Dashboard = "student_dashboard_screen"
+    }
+
+    /** Staff module – placeholder for future staff screens. */
+    object StaffRoutes {
+        const val Root = "staff_root"
+    }
+
+    /** System module – placeholder for error, maintenance, force update, etc. */
+    object SystemRoutes {
+        const val Root = "system_root"
+    }
+
     const val Splash = "splash"
     const val About = "about"
     const val Login = "login"
