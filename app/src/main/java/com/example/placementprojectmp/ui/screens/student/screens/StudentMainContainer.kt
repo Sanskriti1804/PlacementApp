@@ -1,7 +1,6 @@
-package com.example.placementprojectmp.ui.screens
+package com.example.placementprojectmp.ui.screens.student.screens
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -10,7 +9,6 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.School
@@ -48,11 +47,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.placementprojectmp.navigation.Routes
-import com.example.placementprojectmp.ui.components.AppLogo
 
 /**
  * Main container for the student module: Scaffold with top content area and custom bottom navigation.
- * Uses an inner NavHost for the five tab destinations (Applications, Opportunities, Dashboard, Prepare, Profile).
+ * Five tabs: Applications | Opportunities | Dashboard (center) | Prepare | Profile.
+ * Dashboard opens by default when student selects role. Tab state is preserved when switching.
  */
 @Composable
 fun StudentMainContainer(
@@ -79,27 +78,35 @@ fun StudentMainContainer(
                 .padding(paddingValues)
         ) {
             composable(Routes.StudentRoutes.Applications) {
-                StudentTabPlaceholderScreen(title = "Applications", modifier = modifier)
+                ApplicationStatusScreen(modifier = modifier)
             }
             composable(Routes.StudentRoutes.Opportunities) {
-                StudentTabPlaceholderScreen(title = "Opportunities", modifier = modifier)
+                OpportunitiesScreen(modifier = modifier)
             }
             composable(Routes.StudentRoutes.Dashboard) {
                 StudentDashboardScreen(modifier = modifier)
             }
             composable(Routes.StudentRoutes.Prepare) {
-                StudentTabPlaceholderScreen(title = "Prepare", modifier = modifier)
+                PreparationScreen(
+                    modifier = modifier,
+                    onNavigateToPyqQuestions = { company ->
+                        outerNavController?.navigate("${Routes.PyqQuestions}/$company")
+                    },
+                    onNavigateToAptitudeTestDetails = { testId ->
+                        outerNavController?.navigate("${Routes.AptitudeTestDetails}/$testId")
+                    }
+                )
             }
             composable(Routes.StudentRoutes.StudentProfile) {
-                StudentTabPlaceholderScreen(title = "Profile", modifier = modifier)
+                ProfileScreen(modifier = modifier)
             }
         }
     }
 }
 
 /**
- * Custom bottom navigation bar: rounded capsule container with five items.
- * Dashboard (center) uses the app logo and is visually elevated/highlighted.
+ * Custom bottom navigation bar: rounded capsule with five tabs.
+ * Applications | Opportunities | Dashboard (center) | Prepare | Profile
  */
 @Composable
 private fun StudentBottomNav(
@@ -123,6 +130,7 @@ private fun StudentBottomNav(
         StudentNavItem(
             route = Routes.StudentRoutes.Dashboard,
             label = "Dashboard",
+            icon = Icons.Default.Dashboard,
             isCenter = true
         ),
         StudentNavItem(
@@ -173,7 +181,7 @@ private fun StudentBottomNav(
 private data class StudentNavItem(
     val route: String,
     val label: String,
-    val icon: ImageVector? = null,
+    val icon: ImageVector?,
     val isCenter: Boolean = false
 )
 
@@ -185,16 +193,6 @@ private fun StudentBottomNavItem(
     modifier: Modifier = Modifier
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    val elevation by animateDpAsState(
-        targetValue = when {
-            item.isCenter && isSelected -> 6.dp
-            item.isCenter -> 4.dp
-            isPressed -> 2.dp
-            else -> 0.dp
-        },
-        label = "elevation"
-    )
     Box(
         modifier = modifier
             .padding(4.dp)
@@ -216,9 +214,7 @@ private fun StudentBottomNavItem(
         ) { selected ->
             if (item.isCenter) {
                 Surface(
-                    modifier = Modifier
-                        .size(48.dp + elevation)
-                        .shadow(elevation, CircleShape),
+                    modifier = Modifier.size(48.dp),
                     shape = CircleShape,
                     color = if (selected) {
                         MaterialTheme.colorScheme.primaryContainer
@@ -230,10 +226,14 @@ private fun StudentBottomNavItem(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        AppLogo(
-                            modifier = Modifier.size(28.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                        item.icon?.let { icon ->
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = item.label,
+                                modifier = Modifier.size(26.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
             } else {
@@ -266,24 +266,5 @@ private fun StudentBottomNavItem(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun StudentTabPlaceholderScreen(
-    title: String,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
     }
 }

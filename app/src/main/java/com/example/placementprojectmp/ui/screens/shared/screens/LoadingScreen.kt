@@ -1,4 +1,4 @@
-package com.example.placementprojectmp.ui.screens
+package com.example.placementprojectmp.ui.screens.shared.screens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween

@@ -12,8 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.placementprojectmp.ui.screens.EducationInformationForm
-import com.example.placementprojectmp.ui.screens.PersonalInformationForm
+import com.example.placementprojectmp.ui.screens.student.screens.EducationInformationForm
+import com.example.placementprojectmp.ui.screens.student.screens.PersonalInformationForm
 
 /**
  * Form content area for profile form tabs.

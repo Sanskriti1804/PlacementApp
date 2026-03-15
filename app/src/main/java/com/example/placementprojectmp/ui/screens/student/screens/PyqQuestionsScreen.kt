@@ -1,4 +1,4 @@
-package com.example.placementprojectmp.ui.screens
+package com.example.placementprojectmp.ui.screens.student.screens
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween

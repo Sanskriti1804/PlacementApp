@@ -12,26 +12,26 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.placementprojectmp.ui.screens.AboutAppScreen
-import com.example.placementprojectmp.ui.screens.AcademicPerdormanceScreen
-import com.example.placementprojectmp.ui.screens.LoadingScreen
-import com.example.placementprojectmp.ui.screens.LoginScreen
-import com.example.placementprojectmp.ui.screens.RoleSelectionScreen
-import com.example.placementprojectmp.ui.screens.SplashScreen
-import com.example.placementprojectmp.ui.screens.ProfileScreen
-import com.example.placementprojectmp.ui.screens.ChatbotScreen
-import com.example.placementprojectmp.ui.screens.PreparationScreen
-import com.example.placementprojectmp.ui.screens.OpportunitiesScreen
-import com.example.placementprojectmp.ui.screens.StudentDetailsScreen
-import com.example.placementprojectmp.ui.screens.StudentDashboardScreen
-import com.example.placementprojectmp.ui.screens.StudentProfileFormScreen
-import com.example.placementprojectmp.ui.screens.ApplicationScreen
-import com.example.placementprojectmp.ui.screens.ApplicationStatusScreen
-import com.example.placementprojectmp.ui.screens.PyqQuestionsScreen
-import com.example.placementprojectmp.ui.screens.AptitudeTestDetailsScreen
-import com.example.placementprojectmp.ui.screens.AptitudeTestPlayerScreen
-import com.example.placementprojectmp.ui.screens.AptitudeTestResultScreen
-import com.example.placementprojectmp.ui.screens.StudentMainContainer
+import com.example.placementprojectmp.ui.screens.shared.screens.AboutAppScreen
+import com.example.placementprojectmp.ui.screens.shared.screens.LoadingScreen
+import com.example.placementprojectmp.ui.screens.shared.screens.LoginScreen
+import com.example.placementprojectmp.ui.screens.shared.screens.RoleSelectionScreen
+import com.example.placementprojectmp.ui.screens.shared.screens.SplashScreen
+import com.example.placementprojectmp.ui.screens.student.screens.AcademicPerdormanceScreen
+import com.example.placementprojectmp.ui.screens.student.screens.ApplicationScreen
+import com.example.placementprojectmp.ui.screens.student.screens.ApplicationStatusScreen
+import com.example.placementprojectmp.ui.screens.student.screens.AptitudeTestDetailsScreen
+import com.example.placementprojectmp.ui.screens.student.screens.AptitudeTestPlayerScreen
+import com.example.placementprojectmp.ui.screens.student.screens.AptitudeTestResultScreen
+import com.example.placementprojectmp.ui.screens.student.screens.ChatbotScreen
+import com.example.placementprojectmp.ui.screens.student.screens.OpportunitiesScreen
+import com.example.placementprojectmp.ui.screens.student.screens.PreparationScreen
+import com.example.placementprojectmp.ui.screens.student.screens.ProfileScreen
+import com.example.placementprojectmp.ui.screens.student.screens.PyqQuestionsScreen
+import com.example.placementprojectmp.ui.screens.student.screens.StudentDetailsScreen
+import com.example.placementprojectmp.ui.screens.student.screens.StudentDashboardScreen
+import com.example.placementprojectmp.ui.screens.student.screens.StudentMainContainer
+import com.example.placementprojectmp.ui.screens.student.screens.StudentProfileFormScreen
 
 /**
  * Root navigation host with four graphs: Startup, Student, Staff, System.

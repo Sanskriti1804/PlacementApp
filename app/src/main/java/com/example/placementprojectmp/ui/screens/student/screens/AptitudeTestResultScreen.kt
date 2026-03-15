@@ -1,4 +1,4 @@
-package com.example.placementprojectmp.ui.screens
+package com.example.placementprojectmp.ui.screens.student.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
