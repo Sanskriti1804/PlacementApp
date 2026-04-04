@@ -80,10 +80,11 @@ object Routes {
     const val AptitudeTestResultWithId = "aptitude_test_result_screen/{testId}"
 
     /**
-     * Start destination when the app launches.
-     * Change this to any route above to open that screen first (e.g. Profile, DashboardStudent).
+     * Default root [NavHost] start: use one of [GraphRoutes] only (`startup`, `student`, `staff`, `system`).
+     * Do not use leaf routes like [Splash] or [StartupRoutes.Splash] here.
+     * Override per build in [com.example.placementprojectmp.navigation.AppNavGraph] via `rootStartDestination` if needed.
      */
-    const val StartDestination = Splash
+    const val StartDestination = GraphRoutes.Student
 
     /**
      * Returns the dashboard route for the given role, or null if unknown.

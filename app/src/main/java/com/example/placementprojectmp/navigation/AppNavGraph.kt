@@ -2,6 +2,7 @@ package com.example.placementprojectmp.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,24 +39,28 @@ import com.example.placementprojectmp.ui.screens.staff.screens.TeacherProfileScr
 
 /**
  * Root navigation host with four graphs: Startup, Student, Staff, System.
- * Root start destination is the Student graph; Startup/Staff/System remain sibling graphs for navigation from role flow.
+ *
+ * [rootStartDestination] must be exactly one of [Routes.GraphRoutes] (`startup`, `student`, `staff`, `system`).
+ * It is keyed so the [NavHostController] is recreated when you change the root graph, avoiding a restored
+ * back stack that still references another graph (e.g. `startup`) and triggers “not a direct child of this NavGraph”.
  */
 @Composable
 fun AppNavGraph(
-    navController: NavHostController = rememberNavController(),
+    rootStartDestination: String = Routes.StartDestination,
     modifier: androidx.compose.ui.Modifier = androidx.compose.ui.Modifier
 ) {
-    NavHost(
-        navController = navController,
-        // Startup graph must be a direct child of the root NavHost.
-        // For now: start directly in the student graph.
-        startDestination = Routes.GraphRoutes.Student,
-        modifier = modifier
-    ) {
-        startupGraph(navController, modifier)
-        studentGraph(navController, modifier)
-        staffGraph(modifier)
-        systemGraph(modifier)
+    key(rootStartDestination) {
+        val navController = rememberNavController()
+        NavHost(
+            navController = navController,
+            startDestination = rootStartDestination,
+            modifier = modifier
+        ) {
+            startupGraph(navController, modifier)
+            studentGraph(navController, modifier)
+            staffGraph(modifier)
+            systemGraph(modifier)
+        }
     }
 }
 

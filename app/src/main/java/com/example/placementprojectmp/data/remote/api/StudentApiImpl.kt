@@ -11,7 +11,7 @@ class StudentApiImpl(
 ) : StudentApi {
     //network call - runs inside a coroutine
     override suspend fun getStudentProfile(userId : Long) : StudentProfile{
-        return client.get("${NetworkConfig.BASE_URL}/students/$userId/profile").body()
+        return client.get("${NetworkConfig.BASE_URL}/api/students/$userId/profile").body()
         //.body() - converts http response body to the kotlin serialization
     }
 }
