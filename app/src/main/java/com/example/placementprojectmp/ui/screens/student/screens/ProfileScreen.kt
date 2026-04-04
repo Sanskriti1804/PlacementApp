@@ -20,9 +20,11 @@ import com.example.placementprojectmp.ui.components.ProfileCompletionItem
 import com.example.placementprojectmp.ui.components.ProfileHeader
 import com.example.placementprojectmp.ui.components.RecentWorkCard
 import com.example.placementprojectmp.ui.components.SkillsCard
+import com.example.placementprojectmp.ui.components.SocialPlatform
 import com.example.placementprojectmp.ui.components.SocialPlatformRow
 import com.example.placementprojectmp.viewmodel.StudentViewModel
 import org.koin.androidx.compose.koinViewModel
+import kotlin.collections.emptyList
 
 /**
  * Profile screen: TopBar, Profile Header, Completion Card, Social Platforms, Recent Work + Skills.
@@ -38,17 +40,13 @@ fun ProfileScreen(
 ) {
 
     val userViewModel : UserViewModel = koinViewModel()
+    val studentViewModel : StudentViewModel = koinViewModel()
     LaunchedEffect(Unit) {
         println("FETCH CALLED")
         userViewModel.fetchUsers()
-    }
-    val currentUser = userViewModel.students.firstOrNull()
-
-    val studentViewModel : StudentViewModel = koinViewModel()
-    LaunchedEffect(Unit) {
-        println("STUDENT FETCH CALLED")
         studentViewModel.fetchStudentProfile(3)
     }
+    val currentUser = userViewModel.students.firstOrNull()
     val currentStudentProfile  = studentViewModel.profile
 
     val resolvedUserName = currentUser?.name ?: "Sanskriti"
@@ -57,6 +55,7 @@ fun ProfileScreen(
         ?.takeIf { it.isNotBlank() }
         ?.let { if (it.startsWith("@")) it else "@$it" }
         ?: "@sunsdev"
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -64,29 +63,29 @@ fun ProfileScreen(
         contentPadding = PaddingValues(bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        item {
-            Column(modifier = Modifier.padding(20.dp)) {
-                when {
-                    userViewModel.isLoading || studentViewModel.isLoading ->
-                        Text(text = "Loading profile...")
-                    userViewModel.errorMessage != null ->
-                        Text(text = userViewModel.errorMessage!!)
-                    userViewModel.students.isEmpty() ->
-                        Text(text = "No data found OR API failed")
-                    else -> {
-                        userViewModel.students.forEach { student ->
-                            Text(text = student.name)
-                        }
-                    }
-                }
-                if (studentViewModel.errorMessage != null) {
-                    Text(text = studentViewModel.errorMessage!!)
-                }
-                currentStudentProfile?.bio?.takeIf { it.isNotBlank() }?.let { bio ->
-                    Text(text = bio)
-                }
-            }
-        }
+//        item {
+//            Column(modifier = Modifier.padding(20.dp)) {
+//                when {
+//                    userViewModel.isLoading || studentViewModel.isLoading ->
+//                        Text(text = "Loading profile...")
+//                    userViewModel.errorMessage != null ->
+//                        Text(text = userViewModel.errorMessage!!)
+//                    userViewModel.students.isEmpty() ->
+//                        Text(text = "No data found OR API failed")
+//                    else -> {
+//                        userViewModel.students.forEach { student ->
+//                            Text(text = student.name)
+//                        }
+//                    }
+//                }
+//                if (studentViewModel.errorMessage != null) {
+//                    Text(text = studentViewModel.errorMessage!!)
+//                }
+//                currentStudentProfile?.bio?.takeIf { it.isNotBlank() }?.let { bio ->
+//                    Text(text = bio)
+//                }
+//            }
+//        }
         item {
             AppTopBar(
                 onMenuClick = onMenuClick,
@@ -118,10 +117,19 @@ fun ProfileScreen(
             )
         }
         item {
-            SocialPlatformRow(
-                modifier = Modifier.padding(horizontal = 20.dp)
-            )
+            val platforms = currentStudentProfile?.links?.map {
+                SocialPlatform(name = it.name)
+            } ?: emptyList()
+
+            if (platforms.isNotEmpty()) {
+                SocialPlatformRow(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    platforms = platforms,
+                    onPlatformClick = {}
+                )
+            }
         }
+
         item {
             Row(
                 modifier = Modifier

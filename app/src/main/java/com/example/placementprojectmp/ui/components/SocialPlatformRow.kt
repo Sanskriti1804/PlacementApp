@@ -15,12 +15,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SocialPlatformRow(
     modifier: Modifier = Modifier,
-    platforms: List<SocialPlatform> = listOf(
-        SocialPlatform("Twitter", 0),
-        SocialPlatform("LinkedIn", 0),
-        SocialPlatform("Dribbble", 0),
-        SocialPlatform("GitHub", 0)
-    ),
+    platforms : List<SocialPlatform>,
     onPlatformClick: (String) -> Unit = {}
 ) {
     LazyRow(
