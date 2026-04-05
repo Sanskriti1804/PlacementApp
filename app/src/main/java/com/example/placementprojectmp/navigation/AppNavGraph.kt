@@ -172,25 +172,28 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
         composable(Routes.StudentRoutes.Dashboard) {
             StudentDashboardScreen(modifier = modifier)
         }
-        composable(Routes.Profile) {
-            ProfileScreen(modifier = modifier)
+        composable(Routes.StudentRoutes.Profile) {
+            ProfileScreen(
+                modifier = modifier,
+                onNavigateToAcademic = { navController.navigate(Routes.StudentRoutes.AcademicDetails) }
+            )
         }
-        composable(Routes.AcademicDetails) {
+        composable(Routes.StudentRoutes.AcademicDetails) {
             AcademicPerdormanceScreen(modifier = modifier)
         }
-        composable(Routes.Preparation) {
+        composable(Routes.StudentRoutes.Preparation) {
             PreparationScreen(
                 modifier = modifier,
                 onNavigateToPyqQuestions = { company ->
-                    navController.navigate("${Routes.PyqQuestions}/$company")
+                    navController.navigate("${Routes.StudentRoutes.PyqQuestions}/$company")
                 },
                 onNavigateToAptitudeTestDetails = { testId ->
-                    navController.navigate("${Routes.AptitudeTestDetails}/$testId")
+                    navController.navigate("${Routes.StudentRoutes.AptitudeTestDetails}/$testId")
                 }
             )
         }
         composable(
-            route = Routes.AptitudeTestDetailsWithId,
+            route = Routes.StudentRoutes.AptitudeTestDetailsWithId,
             arguments = listOf(navArgument("testId") { type = NavType.StringType })
         ) { backStackEntry ->
             val testId = backStackEntry.arguments?.getString("testId") ?: ""
@@ -198,12 +201,12 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
                 modifier = modifier,
                 testId = testId,
                 onStartTest = {
-                    navController.navigate("${Routes.AptitudeTestPlayer}/$testId")
+                    navController.navigate("${Routes.StudentRoutes.AptitudeTestPlayer}/$testId")
                 }
             )
         }
         composable(
-            route = Routes.AptitudeTestPlayerWithId,
+            route = Routes.StudentRoutes.AptitudeTestPlayerWithId,
             arguments = listOf(navArgument("testId") { type = NavType.StringType })
         ) { backStackEntry ->
             val testId = backStackEntry.arguments?.getString("testId") ?: ""
@@ -211,41 +214,41 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
                 modifier = modifier,
                 testId = testId,
                 onSubmit = {
-                    navController.navigate(Routes.AptitudeTestResult) {
-                        popUpTo("${Routes.AptitudeTestPlayer}/$testId") { inclusive = true }
+                    navController.navigate(Routes.StudentRoutes.AptitudeTestResult) {
+                        popUpTo("${Routes.StudentRoutes.AptitudeTestPlayer}/$testId") { inclusive = true }
                     }
                 }
             )
         }
-        composable(Routes.AptitudeTestResult) {
+        composable(Routes.StudentRoutes.AptitudeTestResult) {
             AptitudeTestResultScreen(modifier = modifier, testId = null)
         }
         composable(
-            route = Routes.PyqQuestionsWithCompany,
+            route = Routes.StudentRoutes.PyqQuestionsWithCompany,
             arguments = listOf(navArgument("company") { type = NavType.StringType })
         ) { backStackEntry ->
             val company = backStackEntry.arguments?.getString("company") ?: ""
             PyqQuestionsScreen(modifier = modifier, companyName = company)
         }
-        composable(Routes.Chatbot) {
+        composable(Routes.StudentRoutes.Chatbot) {
             ChatbotScreen(modifier = modifier)
         }
-        composable(Routes.StudentDetails) {
+        composable(Routes.StudentRoutes.StudentDetails) {
             StudentDetailsScreen(modifier = modifier)
         }
-        composable(Routes.Opportunities) {
+        composable(Routes.StudentRoutes.OpportunitiesOuter) {
             OpportunitiesScreen(modifier = modifier)
         }
-        composable(Routes.StudentProfileForm) {
+        composable(Routes.StudentRoutes.StudentProfileForm) {
             StudentProfileFormScreen(modifier = modifier)
         }
-        composable(Routes.PersonalInformationFormScreen) {
+        composable(Routes.StudentRoutes.PersonalInformationFormScreen) {
             StudentProfileFormScreen(modifier = modifier)
         }
-        composable(Routes.ApplicationScreen) {
+        composable(Routes.StudentRoutes.ApplicationScreen) {
             ApplicationScreen(modifier = modifier)
         }
-        composable(Routes.ApplicationStatusScreen) {
+        composable(Routes.StudentRoutes.ApplicationStatusScreen) {
             ApplicationStatusScreen(modifier = modifier)
         }
     }

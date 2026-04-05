@@ -25,15 +25,39 @@ object Routes {
         const val Loading = "loading_screen"
     }
 
-    /** Student module – student dashboard and student-only screens. */
+    /**
+     * Student module – all student UI destinations (bottom-nav shell, stack routes, and parameters).
+     */
     object StudentRoutes {
         /** Container with bottom nav; start destination of Student graph. */
         const val Main = "student_main"
         const val Applications = "applications_screen"
+        /** Bottom-tab opportunities (path differs from [OpportunitiesOuter]). */
         const val Opportunities = "opportunities_screen"
         const val Dashboard = "student_dashboard_screen"
         const val Prepare = "prepare_screen"
         const val StudentProfile = "student_profile_screen"
+
+        const val Profile = "profile"
+        const val AcademicDetails = "academic"
+        const val Preparation = "preparation"
+        const val PyqQuestions = "pyq_questions"
+        const val PyqQuestionsWithCompany = "pyq_questions/{company}"
+        const val AptitudeTestDetails = "aptitude_test_details_screen"
+        const val AptitudeTestDetailsWithId = "aptitude_test_details_screen/{testId}"
+        const val AptitudeTestPlayer = "aptitude_test_player_screen"
+        const val AptitudeTestPlayerWithId = "aptitude_test_player_screen/{testId}"
+        const val AptitudeTestResult = "aptitude_test_result_screen"
+        const val AptitudeTestResultWithId = "aptitude_test_result_screen/{testId}"
+        const val Chatbot = "chatbot"
+        const val StudentDetails = "student_details"
+        /** Outer-graph opportunities route (distinct from tab [Opportunities]). */
+        const val OpportunitiesOuter = "opportunities"
+        const val StudentProfileForm = "dashboard/studentform"
+        const val PersonalInformationFormScreen = "personal_information_screen"
+        const val ApplicationScreen = "application_screen"
+        const val ApplicationStatusScreen = "application_status_screen"
+        const val DashboardStudent = "dashboard/student"
     }
 
     /** Staff module – staff dashboards and management screens. */
@@ -55,29 +79,31 @@ object Routes {
     const val LoginWithRole = "login?role={role}"
     const val RoleSelection = "role_selection"
     const val Loading = "loading"
-    const val Profile = "profile"
-    const val AcademicDetails = "academic"
-    const val Preparation =  "preparation"
-    const val Chatbot = "chatbot"
-    const val StudentDetails = "student_details"
-    const val Opportunities = "opportunities"
 
-    /** Role-based dashboard routes. Add new roles here when adding modules. */
-    const val DashboardStudent = "dashboard/student"
+    /** Role-based dashboard routes (non-student roles). */
     const val DashboardAdmin = "dashboard/admin"
     const val DashboardManagement = "dashboard/management"
-    const val StudentProfileForm = "dashboard/studentform"
-    const val PersonalInformationFormScreen = "personal_information_screen"
-    const val ApplicationScreen = "application_screen"
-    const val ApplicationStatusScreen = "application_status_screen"
-    const val PyqQuestions = "pyq_questions"
-    const val PyqQuestionsWithCompany = "pyq_questions/{company}"
-    const val AptitudeTestDetails = "aptitude_test_details_screen"
-    const val AptitudeTestDetailsWithId = "aptitude_test_details_screen/{testId}"
-    const val AptitudeTestPlayer = "aptitude_test_player_screen"
-    const val AptitudeTestPlayerWithId = "aptitude_test_player_screen/{testId}"
-    const val AptitudeTestResult = "aptitude_test_result_screen"
-    const val AptitudeTestResultWithId = "aptitude_test_result_screen/{testId}"
+
+    /** Same strings as [StudentRoutes]; kept for call sites that use `Routes.*`. */
+    const val Profile = StudentRoutes.Profile
+    const val AcademicDetails = StudentRoutes.AcademicDetails
+    const val Preparation = StudentRoutes.Preparation
+    const val Chatbot = StudentRoutes.Chatbot
+    const val StudentDetails = StudentRoutes.StudentDetails
+    const val Opportunities = StudentRoutes.OpportunitiesOuter
+    const val StudentProfileForm = StudentRoutes.StudentProfileForm
+    const val PersonalInformationFormScreen = StudentRoutes.PersonalInformationFormScreen
+    const val ApplicationScreen = StudentRoutes.ApplicationScreen
+    const val ApplicationStatusScreen = StudentRoutes.ApplicationStatusScreen
+    const val PyqQuestions = StudentRoutes.PyqQuestions
+    const val PyqQuestionsWithCompany = StudentRoutes.PyqQuestionsWithCompany
+    const val AptitudeTestDetails = StudentRoutes.AptitudeTestDetails
+    const val AptitudeTestDetailsWithId = StudentRoutes.AptitudeTestDetailsWithId
+    const val AptitudeTestPlayer = StudentRoutes.AptitudeTestPlayer
+    const val AptitudeTestPlayerWithId = StudentRoutes.AptitudeTestPlayerWithId
+    const val AptitudeTestResult = StudentRoutes.AptitudeTestResult
+    const val AptitudeTestResultWithId = StudentRoutes.AptitudeTestResultWithId
+    const val DashboardStudent = StudentRoutes.DashboardStudent
 
     /**
      * Default root [NavHost] start: use one of [GraphRoutes] only (`startup`, `student`, `staff`, `system`).
@@ -91,7 +117,7 @@ object Routes {
      * Used for role-based routing from RoleSelectionScreen.
      */
     fun dashboardForRole(role: String): String? = when (role.lowercase()) {
-        "student" -> DashboardStudent
+        "student" -> StudentRoutes.DashboardStudent
         "admin" -> DashboardAdmin
         "management" -> DashboardManagement
         else -> null

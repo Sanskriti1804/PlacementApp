@@ -80,7 +80,7 @@ fun StudentMainContainer(
             composable(Routes.StudentRoutes.Applications) {
                 ApplicationStatusScreen(
                     modifier = modifier,
-                    onApplicationClick = { outerNavController?.navigate(Routes.ApplicationScreen) }
+                    onApplicationClick = { outerNavController?.navigate(Routes.StudentRoutes.ApplicationScreen) }
                 )
             }
             composable(Routes.StudentRoutes.Opportunities) {
@@ -89,25 +89,26 @@ fun StudentMainContainer(
             composable(Routes.StudentRoutes.Dashboard) {
                 StudentDashboardScreen(
                     modifier = modifier,
-                    onNavigateToChatbot = { outerNavController?.navigate(Routes.Chatbot) }
+                    onNavigateToChatbot = { outerNavController?.navigate(Routes.StudentRoutes.Chatbot) }
                 )
             }
             composable(Routes.StudentRoutes.Prepare) {
                 PreparationScreen(
                     modifier = modifier,
                     onNavigateToPyqQuestions = { company ->
-                        outerNavController?.navigate("${Routes.PyqQuestions}/$company")
+                        outerNavController?.navigate("${Routes.StudentRoutes.PyqQuestions}/$company")
                     },
                     onNavigateToAptitudeTestDetails = { testId ->
-                        outerNavController?.navigate("${Routes.AptitudeTestDetails}/$testId")
+                        outerNavController?.navigate("${Routes.StudentRoutes.AptitudeTestDetails}/$testId")
                     }
                 )
             }
             composable(Routes.StudentRoutes.StudentProfile) {
                 ProfileScreen(
                     modifier = modifier,
-                    onCompleteProfileClick = { outerNavController?.navigate(Routes.StudentProfileForm) },
-                    onIntroCardClick = { outerNavController?.navigate(Routes.PersonalInformationFormScreen) }
+                    onCompleteProfileClick = { outerNavController?.navigate(Routes.StudentRoutes.StudentProfileForm) },
+                    onIntroCardClick = { outerNavController?.navigate(Routes.StudentRoutes.PersonalInformationFormScreen) },
+                    onNavigateToAcademic = { outerNavController?.navigate(Routes.StudentRoutes.AcademicDetails) }
                 )
             }
         }
