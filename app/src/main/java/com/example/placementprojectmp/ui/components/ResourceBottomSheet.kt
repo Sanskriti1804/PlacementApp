@@ -3,6 +3,8 @@ package com.example.placementprojectmp.ui.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
@@ -38,12 +40,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +59,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.data.AptitudeTestRepository
+import kotlinx.coroutines.launch
 
 /** Dummy data for Notes bottom sheet: (fileName, uploaderDisplayName). */
 private val notesDummyItems = listOf(
@@ -70,12 +77,19 @@ private val cheatSheetDummyItems = listOf(
     "DS & Algo Handbook.pdf" to "Alumni Resources"
 )
 
-/** PYQ companies: (companyName, roleSubtitle). */
-private val pyqCompanyList = listOf(
-    "Google" to "Android Developer PYQ",
-    "Amazon" to "Backend Developer PYQ",
-    "Infosys" to "Java Developer PYQ",
-    "Microsoft" to "SDE PYQ"
+private data class PyqItem(
+    val companyName: String,
+    val roleSubtitle: String,
+    val role: String,
+    val topic: String,
+    val year: String
+)
+
+private val pyqItems = listOf(
+    PyqItem("Google", "Android Developer PYQ", "Android Developer", "Data Structures", "2024"),
+    PyqItem("Amazon", "Backend Developer PYQ", "Backend Developer", "System Design", "2023"),
+    PyqItem("Infosys", "Java Developer PYQ", "Java Developer", "Java", "2022"),
+    PyqItem("Microsoft", "SDE PYQ", "SDE", "DBMS", "2021")
 )
 
 /**
@@ -100,6 +114,8 @@ fun ResourceBottomSheet(
     val isAptitudeTest = folderTitle == "Aptitude Test"
     val isNotesOrCheatSheet = folderTitle == "Notes" || folderTitle == "Cheat Codes"
     val displayTitle = if (folderTitle == "Cheat Codes") "Cheat Sheet" else folderTitle
+    val saveFeedbackHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     val listItems = when (folderTitle) {
         "Notes" -> notesDummyItems
         "Cheat Codes" -> cheatSheetDummyItems
@@ -122,46 +138,66 @@ fun ResourceBottomSheet(
                 onTestClick = onAptitudeTestClick
             )
         } else if (isNotesOrCheatSheet) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = (screenHeightDp * 0.75f).toInt().dp)
-                    .padding(horizontal = 20.dp)
-                    .padding(bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 16.dp)
-            ) {
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = displayTitle,
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.weight(1f)
-                        )
-                        IconButton(
-                            onClick = { /* Options - future use */ },
-                            modifier = Modifier.size(40.dp)
+            Box(modifier = Modifier.fillMaxWidth()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = (screenHeightDp * 0.75f).toInt().dp)
+                        .padding(horizontal = 20.dp)
+                        .padding(bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = "Options",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            Text(
+                                text = displayTitle,
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.weight(1f)
                             )
+                            IconButton(
+                                onClick = { /* Options - future use */ },
+                                modifier = Modifier.size(40.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = "Options",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
+                    items(listItems) { (fileName, uploaderName) ->
+                        NotesSheetItem(
+                            fileName = fileName,
+                            uploaderName = uploaderName,
+                            onSaveClick = {
+                                scope.launch {
+                                    saveFeedbackHostState.showSnackbar("Note saved")
+                                }
+                            },
+                            onDownloadClick = { /* Trigger download */ }
+                        )
+                    }
                 }
-                items(listItems) { (fileName, uploaderName) ->
-                    NotesSheetItem(
-                        fileName = fileName,
-                        uploaderName = uploaderName,
-                        onDownloadClick = { /* Trigger download */ }
+                SnackbarHost(
+                    hostState = saveFeedbackHostState,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(horizontal = 20.dp, vertical = 12.dp)
+                ) { data ->
+                    Snackbar(
+                        snackbarData = data,
+                        shape = RoundedCornerShape(8.dp),
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -202,6 +238,7 @@ fun ResourceBottomSheet(
 private fun NotesSheetItem(
     fileName: String,
     uploaderName: String,
+    onSaveClick: () -> Unit,
     onDownloadClick: () -> Unit
 ) {
     var bookmarked by remember(fileName) { mutableStateOf(false) }
@@ -252,7 +289,10 @@ private fun NotesSheetItem(
         }
         Spacer(modifier = Modifier.width(8.dp))
         IconButton(
-            onClick = { bookmarked = !bookmarked },
+            onClick = {
+                bookmarked = !bookmarked
+                onSaveClick()
+            },
             modifier = Modifier.size(40.dp)
         ) {
             Icon(
@@ -284,6 +324,19 @@ private fun PyqBottomSheetContent(
     var selectedRoles by remember { mutableStateOf(setOf<String>()) }
     var selectedTopics by remember { mutableStateOf(setOf<String>()) }
     var selectedYears by remember { mutableStateOf(setOf<String>()) }
+    var appliedCompanies by remember { mutableStateOf(setOf<String>()) }
+    var appliedRoles by remember { mutableStateOf(setOf<String>()) }
+    var appliedTopics by remember { mutableStateOf(setOf<String>()) }
+    var appliedYears by remember { mutableStateOf(setOf<String>()) }
+
+    val filteredItems = remember(appliedCompanies, appliedRoles, appliedTopics, appliedYears) {
+        pyqItems.filter { item ->
+            (appliedCompanies.isEmpty() || item.companyName in appliedCompanies) &&
+                (appliedRoles.isEmpty() || item.role in appliedRoles) &&
+                (appliedTopics.isEmpty() || item.topic in appliedTopics) &&
+                (appliedYears.isEmpty() || item.year in appliedYears)
+        }
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -309,12 +362,6 @@ private fun PyqBottomSheetContent(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
                 )
-                Text(
-                    text = "ER",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
                 IconButton(
                     onClick = { filterVisible = !filterVisible },
                     modifier = Modifier.size(40.dp)
@@ -330,8 +377,8 @@ private fun PyqBottomSheetContent(
         item {
             AnimatedVisibility(
                 visible = filterVisible,
-                enter = expandVertically(),
-                exit = shrinkVertically()
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
             ) {
                 PyqFilterCard(
                     selectedCompanies = selectedCompanies,
@@ -342,16 +389,47 @@ private fun PyqBottomSheetContent(
                     onRolesChange = { selectedRoles = it },
                     onTopicsChange = { selectedTopics = it },
                     onYearsChange = { selectedYears = it },
+                    onRemove = {
+                        selectedCompanies = emptySet()
+                        selectedRoles = emptySet()
+                        selectedTopics = emptySet()
+                        selectedYears = emptySet()
+                        appliedCompanies = emptySet()
+                        appliedRoles = emptySet()
+                        appliedTopics = emptySet()
+                        appliedYears = emptySet()
+                        filterVisible = false
+                    },
+                    onSave = {
+                        appliedCompanies = selectedCompanies
+                        appliedRoles = selectedRoles
+                        appliedTopics = selectedTopics
+                        appliedYears = selectedYears
+                        filterVisible = false
+                    },
                     onClose = { filterVisible = false }
                 )
             }
         }
-        items(pyqCompanyList) { (companyName, roleSubtitle) ->
-            PyqCompanyCard(
-                companyName = companyName,
-                roleSubtitle = roleSubtitle,
-                onClick = { onCompanyClick(companyName) }
-            )
+        if (filteredItems.isEmpty()) {
+            item {
+                Text(
+                    text = "Notes not available",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 20.dp)
+                )
+            }
+        } else {
+            items(filteredItems) { item ->
+                PyqCompanyCard(
+                    companyName = item.companyName,
+                    roleSubtitle = item.roleSubtitle,
+                    onClick = { onCompanyClick(item.companyName) }
+                )
+            }
         }
     }
 }
@@ -400,6 +478,8 @@ private fun PyqFilterCard(
     onRolesChange: (Set<String>) -> Unit,
     onTopicsChange: (Set<String>) -> Unit,
     onYearsChange: (Set<String>) -> Unit,
+    onRemove: () -> Unit,
+    onSave: () -> Unit,
     onClose: () -> Unit
 ) {
     val outlineColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
@@ -469,6 +549,42 @@ private fun PyqFilterCard(
             selected = selectedYears,
             onSelectionChange = onYearsChange
         )
+        Spacer(modifier = Modifier.height(14.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(10.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+                    .clickable(onClick = onRemove)
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Remove",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .clickable(onClick = onSave)
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Save",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
     }
 }
 

@@ -48,6 +48,12 @@ private fun dummyResourcesForFolder(folder: String): List<Pair<String, String>> 
     )
 }
 
+private data class SubjectInfo(
+    val name: String,
+    val teacher: Pair<String, String>,
+    val mentor: Pair<String, String>
+)
+
 @Composable
 fun PreparationScreen(
     modifier: Modifier = Modifier,
@@ -57,6 +63,17 @@ fun PreparationScreen(
     onNavigateToAptitudeTestDetails: (String) -> Unit = {}
 ) {
     var selectedFolder by remember { mutableStateOf<String?>(null) }
+    val subjectItems = remember {
+        listOf(
+            SubjectInfo("Data Structures", "Prof. Sharma" to "sharma@college.edu", "Prof. Mehta" to "mehta@college.edu"),
+            SubjectInfo("Operating Systems", "Prof. Verma" to "verma@college.edu", "Prof. Rao" to "rao@college.edu"),
+            SubjectInfo("DBMS", "Prof. Singh" to "singh@college.edu", "Prof. Kapoor" to "kapoor@college.edu"),
+            SubjectInfo("Computer Networks", "Prof. Iyer" to "iyer@college.edu", "Prof. Das" to "das@college.edu"),
+            SubjectInfo("System Design", "Prof. Nair" to "nair@college.edu", "Prof. Sen" to "sen@college.edu"),
+            SubjectInfo("Java", "Prof. Gupta" to "gupta@college.edu", "Prof. Jain" to "jain@college.edu")
+        )
+    }
+    var selectedSubject by remember { mutableStateOf(subjectItems.first()) }
     val glassBackground = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f)
 
     LazyColumn(
@@ -76,9 +93,13 @@ fun PreparationScreen(
         item {
             SubjectHeader(
                 modifier = Modifier.padding(horizontal = 20.dp),
-                subjectName = "Data Structures",
-                teacher = "Prof. Sharma" to "sharma@college.edu",
-                mentor = "Prof. Mehta" to "mehta@college.edu"
+                subjectName = selectedSubject.name,
+                teacher = selectedSubject.teacher,
+                mentor = selectedSubject.mentor,
+                subjects = subjectItems.map { it.name },
+                onSubjectSelected = { selected ->
+                    selectedSubject = subjectItems.firstOrNull { it.name == selected } ?: selectedSubject
+                }
             )
         }
         item {
