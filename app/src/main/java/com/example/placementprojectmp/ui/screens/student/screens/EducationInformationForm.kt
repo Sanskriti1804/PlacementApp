@@ -6,7 +6,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
@@ -102,46 +101,33 @@ fun EducationInformationForm(
             exit = shrinkVertically(),
             label = "backlog_section"
         ) {
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .animateContentSize(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    .animateContentSize()
             ) {
-                Column(
-                    modifier = Modifier
-                        .weight(0.2f)
-                        .padding(top = 2.dp),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    BacklogCounter(
-                        value = backlogCount,
-                        onDecrement = {
-                            if (backlogCount > 1) {
-                                backlogCount--
-                                if (backlogSubjects.size > backlogCount) backlogSubjects.removeAt(backlogSubjects.lastIndex)
-                            }
-                        },
-                        onIncrement = {
-                            backlogCount++
-                            while (backlogSubjects.size < backlogCount) backlogSubjects.add("")
+                BacklogCounter(
+                    value = backlogCount,
+                    onDecrement = {
+                        if (backlogCount > 1) {
+                            backlogCount--
+                            if (backlogSubjects.size > backlogCount) backlogSubjects.removeAt(backlogSubjects.lastIndex)
                         }
-                    )
-                }
-                Column(
-                    modifier = Modifier
-                        .weight(0.8f)
-                        .padding(top = 12.dp)
-                ) {
-                    BacklogSubjectFields(
-                        count = backlogCount,
-                        values = backlogSubjects,
-                        onValueChange = { index, value ->
-                            while (backlogSubjects.size <= index) backlogSubjects.add("")
-                            if (index < backlogSubjects.size) backlogSubjects[index] = value
-                        }
-                    )
-                }
+                    },
+                    onIncrement = {
+                        backlogCount++
+                        while (backlogSubjects.size < backlogCount) backlogSubjects.add("")
+                    }
+                )
+                BacklogSubjectFields(
+                    count = backlogCount,
+                    values = backlogSubjects,
+                    onValueChange = { index, value ->
+                        while (backlogSubjects.size <= index) backlogSubjects.add("")
+                        if (index < backlogSubjects.size) backlogSubjects[index] = value
+                    },
+                    modifier = Modifier.padding(top = 12.dp)
+                )
             }
         }
 
