@@ -27,16 +27,16 @@ fun ProfileFormHeader(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(
-            text = "Build Your",
-            style = MaterialTheme.typography.displayMedium,
-            fontWeight = FontWeight.Bold,
+            text = "Build your",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = sectionTitle,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = MaterialTheme.typography.displayMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = "Please provide the necessary details",

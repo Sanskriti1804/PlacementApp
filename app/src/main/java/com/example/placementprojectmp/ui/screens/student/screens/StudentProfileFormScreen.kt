@@ -41,7 +41,7 @@ fun StudentProfileFormScreen(
             .fillMaxSize()
             .padding(bottom = 24.dp),
         contentPadding = PaddingValues(bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
             AppTopBar(
@@ -54,14 +54,6 @@ fun StudentProfileFormScreen(
             ProfileFormHeader(sectionTitle = sectionTitle)
         }
         item {
-            HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-            )
-        }
-        item {
             ProfileTabs(
                 selectedTab = selectedTab,
                 onTabSelected = { selectedTab = it },
@@ -69,8 +61,17 @@ fun StudentProfileFormScreen(
             )
         }
         item {
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+            )
+        }
+        item {
             FormSection(
                 selectedTab = selectedTab,
+                onTabSelected = { selectedTab = it },
                 modifier = Modifier.fillMaxWidth()
             )
         }

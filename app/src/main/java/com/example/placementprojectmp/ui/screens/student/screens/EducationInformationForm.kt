@@ -111,7 +111,7 @@ fun EducationInformationForm(
                 Column(
                     modifier = Modifier
                         .weight(0.2f)
-                        .padding(top = 8.dp),
+                        .padding(top = 2.dp),
                     verticalArrangement = Arrangement.Center
                 ) {
                     BacklogCounter(
@@ -131,7 +131,7 @@ fun EducationInformationForm(
                 Column(
                     modifier = Modifier
                         .weight(0.8f)
-                        .padding(top = 4.dp)
+                        .padding(top = 12.dp)
                 ) {
                     BacklogSubjectFields(
                         count = backlogCount,

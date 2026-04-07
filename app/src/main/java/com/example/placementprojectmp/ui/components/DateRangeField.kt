@@ -1,19 +1,21 @@
 package com.example.placementprojectmp.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 /**
- * Row: From (SegmentedDateInput) → arrow → To (SegmentedDateInput).
+ * Date range field with stacked From/To date selectors.
  */
 @Composable
 fun DateRangeField(
@@ -31,33 +33,52 @@ fun DateRangeField(
     onToYearChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    Column(
         modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        SegmentedDateInput(
-            day = fromDay,
-            month = fromMonth,
-            year = fromYear,
-            onDayChange = onFromDayChange,
-            onMonthChange = onFromMonthChange,
-            onYearChange = onFromYearChange,
-            modifier = Modifier.weight(1f)
-        )
-        Icon(
-            imageVector = Icons.Default.ArrowForward,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.outline
-        )
-        SegmentedDateInput(
-            day = toDay,
-            month = toMonth,
-            year = toYear,
-            onDayChange = onToDayChange,
-            onMonthChange = onToMonthChange,
-            onYearChange = onToYearChange,
-            modifier = Modifier.weight(1f)
-        )
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = "From:",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            SegmentedDateInput(
+                day = fromDay,
+                month = fromMonth,
+                year = fromYear,
+                onDayChange = onFromDayChange,
+                onMonthChange = onFromMonthChange,
+                onYearChange = onFromYearChange,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowDownward,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.outline
+            )
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = "To:",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            SegmentedDateInput(
+                day = toDay,
+                month = toMonth,
+                year = toYear,
+                onDayChange = onToDayChange,
+                onMonthChange = onToMonthChange,
+                onYearChange = onToYearChange,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }

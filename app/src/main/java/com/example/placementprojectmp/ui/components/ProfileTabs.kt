@@ -2,9 +2,10 @@ package com.example.placementprojectmp.ui.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -41,19 +42,19 @@ fun ProfileTabs(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Row(
+        LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            ProfileFormTab.entries.forEach { tab ->
+            items(ProfileFormTab.entries) { tab ->
                 TabItem(
                     label = tab.label(),
                     selected = tab == selectedTab,
                     completed = completionState[tab] ?: false,
                     onClick = { onTabSelected(tab) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
                 )
             }
         }
