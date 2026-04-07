@@ -49,15 +49,9 @@ fun AppNavGraph(
     rootStartDestination: String = Routes.StartDestination,
     modifier: androidx.compose.ui.Modifier = androidx.compose.ui.Modifier
 ) {
-    val validRootRoutes = setOf(
-        Routes.GraphRoutes.Startup,
-        Routes.GraphRoutes.Student,
-        Routes.GraphRoutes.Staff,
-        Routes.GraphRoutes.System
-    )
-    val safeRootStartDestination = rootStartDestination
-        .takeIf { it in validRootRoutes }
-        ?: Routes.StartDestination
+    // Keep root graph stable for student flow to avoid stale/restored routes
+    // (e.g., "startup") crashing NavHost initialization.
+    val safeRootStartDestination = Routes.GraphRoutes.Student
 
     key(safeRootStartDestination) {
         val navController = rememberNavController()

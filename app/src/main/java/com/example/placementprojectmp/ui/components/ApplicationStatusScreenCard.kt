@@ -1,5 +1,6 @@
 package com.example.placementprojectmp.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.expandVertically
@@ -36,8 +37,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.placementprojectmp.R
 
 /**
  * Data for one application status entry on ApplicationStatusScreen.
@@ -60,7 +64,7 @@ data class ApplicationStatusScreenItem(
 fun ApplicationStatusScreenCard(
     modifier: Modifier = Modifier,
     item: ApplicationStatusScreenItem,
-    logoResId: Int = 0,
+    logoResId: Int = R.drawable.pfp_company,
     onReminderClick: () -> Unit = {},
     onCompanyClick: ((ApplicationStatusScreenItem) -> Unit)? = null
 ) {
@@ -114,11 +118,23 @@ fun ApplicationStatusScreenCard(
                             .background(MaterialTheme.colorScheme.surface),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = item.companyName.take(1).uppercase(),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                        val logoPainter = runCatching { painterResource(id = logoResId) }.getOrNull()
+                        if (logoResId != 0 && logoPainter != null) {
+                            Image(
+                                painter = logoPainter,
+                                contentDescription = "${item.companyName} logo",
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Text(
+                                text = item.companyName.take(1).uppercase(),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     }
                     Column(
                         verticalArrangement = Arrangement.spacedBy(2.dp)
