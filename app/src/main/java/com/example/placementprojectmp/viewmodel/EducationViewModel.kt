@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.placementprojectmp.data.local.DummyEducationMapping
 import com.example.placementprojectmp.data.model.EducationProfile
 import com.example.placementprojectmp.data.repo.EducationRepo
 import com.example.placementprojectmp.data.repo.MetaRepository
@@ -31,11 +32,6 @@ class EducationViewModel(
         private set
 
     private val domainCache = mutableMapOf<String, List<String>>()
-    private val dummyCourseDomainMap = mapOf(
-        "Computer Science" to listOf("Android", "Web Development", "Data Structures"),
-        "Information Technology" to listOf("Cloud", "Networking", "Cyber Security"),
-        "Electronics" to listOf("Embedded Systems", "VLSI", "IoT")
-    )
 
     fun fetchEducation(studentId : Long){
         viewModelScope.launch {
@@ -75,7 +71,7 @@ class EducationViewModel(
                 isLoading = true
                 // Temporary: backend-driven mapping disabled.
                 // courses = metaRepository.getCourses()
-                courses = dummyCourseDomainMap.keys.toList()
+                courses = DummyEducationMapping.getAllCourses()
             } catch (e: Exception) {
                 Log.e("EducationVM", "Error fetching courses", e)
             } finally {
@@ -95,7 +91,7 @@ class EducationViewModel(
                 isLoading = true
                 // Temporary: backend-driven mapping disabled.
                 // val result = metaRepository.getDomains(course)
-                val result = dummyCourseDomainMap[course].orEmpty()
+                val result = DummyEducationMapping.getDomainsForCourse(course)
                 domains = result
                 domainCache[course] = result
             } catch (e: Exception) {
