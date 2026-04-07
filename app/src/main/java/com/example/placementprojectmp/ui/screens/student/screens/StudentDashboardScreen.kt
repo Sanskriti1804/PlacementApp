@@ -55,6 +55,7 @@ import com.example.placementprojectmp.ui.components.JobSection
 import com.example.placementprojectmp.ui.components.SearchBar
 import androidx.compose.material3.MaterialTheme
 import com.example.placementprojectmp.viewmodel.EducationViewModel
+import com.example.placementprojectmp.viewmodel.StudentViewModel
 import com.example.placementprojectmp.viewmodel.UserViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -69,11 +70,14 @@ fun StudentDashboardScreen(
     val studentId = 3L
 
     val userViewModel: UserViewModel = koinViewModel()
+    val studentViewModel: StudentViewModel = koinViewModel()
     val educationViewModel: EducationViewModel = koinViewModel()
 
     LaunchedEffect(Unit) {
         runCatching { userViewModel.fetchUsers() }
             .onFailure { Log.e(tag, "Failed to fetch user for greeting", it) }
+        runCatching { studentViewModel.fetchStudentProfile(studentId) }
+            .onFailure { Log.e(tag, "Failed to fetch student profile for greeting", it) }
         runCatching { educationViewModel.fetchEducation(studentId) }
             .onFailure { Log.e(tag, "Failed to fetch education profile", it) }
     }
@@ -108,7 +112,11 @@ fun StudentDashboardScreen(
         "Resources" to Icons.Default.Folder
     )
 
-    val resolvedUserName = userViewModel.students.firstOrNull()?.name?.takeIf { it.isNotBlank() }
+    val currentUser = userViewModel.students.firstOrNull()
+    val profileUser = studentViewModel.profile?.user
+    val resolvedUserName = profileUser?.name?.takeIf { it.isNotBlank() }
+        ?: currentUser?.name?.takeIf { it.isNotBlank() }
+        ?: "User"
     val courses = educationViewModel.education?.course
         ?.takeIf { it.isNotBlank() }
         ?.let { listOf(it) }
@@ -166,7 +174,7 @@ fun StudentDashboardScreen(
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = if (resolvedUserName.isNullOrBlank()) "Hi" else "Hi, $resolvedUserName",
+                    text = "Hi, $resolvedUserName",
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
