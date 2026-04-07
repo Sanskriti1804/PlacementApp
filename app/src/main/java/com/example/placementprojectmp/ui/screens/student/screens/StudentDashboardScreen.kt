@@ -1,17 +1,23 @@
 package com.example.placementprojectmp.ui.screens.student.screens
 
+import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.MenuBook
@@ -19,11 +25,11 @@ import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.filled.RecordVoiceOver
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,7 +37,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.placementprojectmp.R
 import com.example.placementprojectmp.ui.components.AppTopBar
 import com.example.placementprojectmp.ui.components.ApplicationsSection
 import com.example.placementprojectmp.ui.components.ApplicationItem
@@ -40,11 +50,13 @@ import com.example.placementprojectmp.ui.components.DomainChipRow
 import com.example.placementprojectmp.ui.components.DriveItem
 import com.example.placementprojectmp.ui.components.DriveSection
 import com.example.placementprojectmp.ui.components.FeatureCard
-import com.example.placementprojectmp.ui.components.GreetingSection
 import com.example.placementprojectmp.ui.components.JobItem
 import com.example.placementprojectmp.ui.components.JobSection
 import com.example.placementprojectmp.ui.components.SearchBar
 import androidx.compose.material3.MaterialTheme
+import com.example.placementprojectmp.viewmodel.EducationViewModel
+import com.example.placementprojectmp.viewmodel.UserViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun StudentDashboardScreen(
@@ -53,8 +65,22 @@ fun StudentDashboardScreen(
     onNotificationClick: () -> Unit = {},
     onNavigateToChatbot: () -> Unit = {}
 ) {
+    val tag = "StudentDashboard"
+    val studentId = 3L
+
+    val userViewModel: UserViewModel = koinViewModel()
+    val educationViewModel: EducationViewModel = koinViewModel()
+
+    LaunchedEffect(Unit) {
+        runCatching { userViewModel.fetchUsers() }
+            .onFailure { Log.e(tag, "Failed to fetch user for greeting", it) }
+        runCatching { educationViewModel.fetchEducation(studentId) }
+            .onFailure { Log.e(tag, "Failed to fetch education profile", it) }
+    }
+
     var searchQuery by remember { mutableStateOf("") }
     var selectedDomains by remember { mutableStateOf(setOf<String>()) }
+    var courseDomains by remember { mutableStateOf(emptyList<String>()) }
     var jobs by remember {
         mutableStateOf(
             listOf(
@@ -82,6 +108,34 @@ fun StudentDashboardScreen(
         "Resources" to Icons.Default.Folder
     )
 
+    val resolvedUserName = userViewModel.students.firstOrNull()?.name?.takeIf { it.isNotBlank() }
+    val courses = educationViewModel.education?.course
+        ?.takeIf { it.isNotBlank() }
+        ?.let { listOf(it) }
+        ?: emptyList()
+
+    fun domainsForSelectedCourse(selectedCourse: String): List<String> {
+        val education = educationViewModel.education
+        if (education == null) {
+            Log.e(tag, "Education profile missing; cannot map domains for course=$selectedCourse")
+            return emptyList()
+        }
+        if (education.course.isBlank()) {
+            Log.e(tag, "Education course missing; cannot map domains for course=$selectedCourse")
+            return emptyList()
+        }
+        if (!education.course.equals(selectedCourse, ignoreCase = true)) {
+            Log.e(tag, "Selected course does not match education.course. selected=$selectedCourse, education=${education.course}")
+            return emptyList()
+        }
+        val domainRaw = education.domain
+        if (domainRaw.isBlank()) return emptyList()
+        return domainRaw
+            .split(',')
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -97,10 +151,26 @@ fun StudentDashboardScreen(
             )
         }
         item {
-            GreetingSection(
+            Row(
                 modifier = Modifier.padding(horizontal = 20.dp),
-                userName = "Alex"
-            )
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.app_logo),
+                    contentDescription = "Profile",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = if (resolvedUserName.isNullOrBlank()) "Hi" else "Hi, $resolvedUserName",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
         item {
             SearchBar(
@@ -112,12 +182,23 @@ fun StudentDashboardScreen(
         item {
             CourseCarousel(
                 modifier = Modifier.padding(horizontal = 20.dp),
-                onCourseClick = {}
+                courses = courses,
+                onCourseClick = { course ->
+                    runCatching {
+                        courseDomains = domainsForSelectedCourse(course)
+                        selectedDomains = emptySet()
+                    }.onFailure { e ->
+                        Log.e(tag, "Failed to map domains for course=$course", e)
+                        courseDomains = emptyList()
+                        selectedDomains = emptySet()
+                    }
+                }
             )
         }
         item {
             DomainChipRow(
                 modifier = Modifier.padding(horizontal = 20.dp),
+                domains = courseDomains,
                 selectedDomains = selectedDomains,
                 onDomainToggle = { domain ->
                     selectedDomains = if (domain in selectedDomains)

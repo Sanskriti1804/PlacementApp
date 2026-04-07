@@ -11,7 +11,9 @@ import com.example.placementprojectmp.ui.theme.PlacementProjectMPTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        // Prevent restoring stale NavController back stack state (e.g., old "startup" route)
+        // that can crash when the current root graph starts from student flow.
+        super.onCreate(null)
         enableEdgeToEdge()
         setContent {
             PlacementProjectMPTheme {

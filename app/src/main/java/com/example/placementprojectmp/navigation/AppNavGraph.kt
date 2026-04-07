@@ -29,7 +29,7 @@ import com.example.placementprojectmp.ui.screens.student.screens.OpportunitiesSc
 import com.example.placementprojectmp.ui.screens.student.screens.PreparationScreen
 import com.example.placementprojectmp.ui.screens.student.screens.ProfileScreen
 import com.example.placementprojectmp.ui.screens.student.screens.PyqQuestionsScreen
-import com.example.placementprojectmp.ui.screens.student.screens.StudentDetailsScreen
+import com.example.placementprojectmp.ui.screens.staff.screens.StudentDetailsScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentDashboardScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentMainContainer
 import com.example.placementprojectmp.ui.screens.student.screens.StudentProfileFormScreen
@@ -46,7 +46,7 @@ import com.example.placementprojectmp.ui.screens.staff.screens.TeacherProfileScr
  */
 @Composable
 fun AppNavGraph(
-    rootStartDestination: String = Routes.StartDestination,
+    rootStartDestination: String = Routes.StudentRoutes.Main,
     modifier: androidx.compose.ui.Modifier = androidx.compose.ui.Modifier
 ) {
     key(rootStartDestination) {

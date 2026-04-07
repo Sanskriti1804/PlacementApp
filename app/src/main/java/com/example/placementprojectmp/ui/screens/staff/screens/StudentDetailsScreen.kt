@@ -1,4 +1,4 @@
-package com.example.placementprojectmp.ui.screens.student.screens
+package com.example.placementprojectmp.ui.screens.staff.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
