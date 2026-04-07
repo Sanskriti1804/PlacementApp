@@ -31,6 +31,11 @@ class EducationViewModel(
         private set
 
     private val domainCache = mutableMapOf<String, List<String>>()
+    private val dummyCourseDomainMap = mapOf(
+        "Computer Science" to listOf("Android", "Web Development", "Data Structures"),
+        "Information Technology" to listOf("Cloud", "Networking", "Cyber Security"),
+        "Electronics" to listOf("Embedded Systems", "VLSI", "IoT")
+    )
 
     fun fetchEducation(studentId : Long){
         viewModelScope.launch {
@@ -68,7 +73,9 @@ class EducationViewModel(
         viewModelScope.launch {
             try {
                 isLoading = true
-                courses = metaRepository.getCourses()
+                // Temporary: backend-driven mapping disabled.
+                // courses = metaRepository.getCourses()
+                courses = dummyCourseDomainMap.keys.toList()
             } catch (e: Exception) {
                 Log.e("EducationVM", "Error fetching courses", e)
             } finally {
@@ -86,7 +93,9 @@ class EducationViewModel(
                 }
 
                 isLoading = true
-                val result = metaRepository.getDomains(course)
+                // Temporary: backend-driven mapping disabled.
+                // val result = metaRepository.getDomains(course)
+                val result = dummyCourseDomainMap[course].orEmpty()
                 domains = result
                 domainCache[course] = result
             } catch (e: Exception) {

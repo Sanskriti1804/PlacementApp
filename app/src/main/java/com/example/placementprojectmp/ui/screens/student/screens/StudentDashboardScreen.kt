@@ -18,13 +18,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.SmartToy
-import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -57,6 +61,7 @@ import androidx.compose.material3.MaterialTheme
 import com.example.placementprojectmp.viewmodel.EducationViewModel
 import com.example.placementprojectmp.viewmodel.StudentViewModel
 import com.example.placementprojectmp.viewmodel.UserViewModel
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -64,7 +69,8 @@ fun StudentDashboardScreen(
     modifier: Modifier = Modifier,
     onMenuClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
-    onNavigateToChatbot: () -> Unit = {}
+    onNavigateToChatbot: () -> Unit = {},
+    onNavigateToPreparation: () -> Unit = {}
 ) {
     val tag = "StudentDashboard"
     val studentId = 3L
@@ -105,9 +111,10 @@ fun StudentDashboardScreen(
         ApplicationItem("Microsoft", "Product Manager", "Applied"),
         ApplicationItem("Meta", "UX Designer", "Interview Scheduled")
     )
+    var showJobsAnimation by remember { mutableStateOf(false) }
+    var isFabExpanded by remember { mutableStateOf(true) }
     val featureItems = listOf(
         "Resume" to Icons.Default.Description,
-        "Mock Interview" to Icons.Default.RecordVoiceOver,
         "Preparation" to Icons.Default.MenuBook,
         "Chatbot" to Icons.Default.Chat,
         "Resources" to Icons.Default.Folder
@@ -120,6 +127,18 @@ fun StudentDashboardScreen(
         ?: "User"
     val courses = educationViewModel.courses
     val courseDomains = educationViewModel.domains
+    LaunchedEffect(Unit) {
+        showJobsAnimation = true
+    }
+    LaunchedEffect(Unit) {
+        delay(2500)
+        isFabExpanded = false
+    }
+    val fabSize by animateDpAsState(
+        targetValue = if (isFabExpanded) 59.dp else 56.dp,
+        animationSpec = tween(durationMillis = 300),
+        label = "fab_size"
+    )
 
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
@@ -141,7 +160,7 @@ fun StudentDashboardScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(R.drawable.app_logo),
+                    painter = painterResource(R.drawable.pfp_user),
                     contentDescription = "Profile",
                     modifier = Modifier
                         .size(40.dp)
@@ -213,11 +232,19 @@ fun StudentDashboardScreen(
             }
         }
         item {
-            JobSection(
-                modifier = Modifier.padding(horizontal = 20.dp),
-                jobs = jobs,
-                onDismissJob = { job -> jobs = jobs.filter { it.id != job.id } }
-            )
+            AnimatedVisibility(
+                visible = showJobsAnimation,
+                enter = fadeIn(animationSpec = spring()) + scaleIn(
+                    animationSpec = spring(dampingRatio = 0.85f, stiffness = 450f),
+                    initialScale = 0.96f
+                )
+            ) {
+                JobSection(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    jobs = jobs,
+                    onDismissJob = { job -> jobs = jobs.filter { it.id != job.id } }
+                )
+            }
         }
         item {
             DriveSection(
@@ -246,7 +273,9 @@ fun StudentDashboardScreen(
                             modifier = Modifier.width(100.dp),
                             label = label,
                             imageVector = icon,
-                            onClick = {}
+                            onClick = {
+                                if (label == "Resources") onNavigateToPreparation()
+                            }
                         )
                     }
                 }
@@ -263,9 +292,10 @@ fun StudentDashboardScreen(
             onClick = onNavigateToChatbot,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(end = 20.dp, bottom = 24.dp),
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
+                .padding(end = 20.dp, bottom = 24.dp)
+                .size(fabSize),
+            containerColor = MaterialTheme.colorScheme.onPrimary,
+            contentColor = MaterialTheme.colorScheme.primary,
             shape = CircleShape,
             elevation = FloatingActionButtonDefaults.elevation(
                 defaultElevation = 6.dp,
@@ -273,8 +303,9 @@ fun StudentDashboardScreen(
             )
         ) {
             Icon(
-                imageVector = Icons.Default.SmartToy,
-                contentDescription = "AIDA Chatbot"
+                painter = painterResource(R.drawable.ic_aii),
+                contentDescription = "AIDA Chatbot",
+                modifier = Modifier.size(22.dp)
             )
         }
     }

@@ -89,7 +89,8 @@ fun StudentMainContainer(
             composable(Routes.StudentRoutes.Dashboard) {
                 StudentDashboardScreen(
                     modifier = modifier,
-                    onNavigateToChatbot = { outerNavController?.navigate(Routes.StudentRoutes.Chatbot) }
+                    onNavigateToChatbot = { outerNavController?.navigate(Routes.StudentRoutes.Chatbot) },
+                    onNavigateToPreparation = { outerNavController?.navigate(Routes.StudentRoutes.Preparation) }
                 )
             }
             composable(Routes.StudentRoutes.Prepare) {
