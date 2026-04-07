@@ -47,7 +47,8 @@ fun AptitudeTestResultScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(20.dp),
+            .padding(horizontal = 20.dp)
+            .padding(top = 28.dp, bottom = 20.dp),
         contentPadding = PaddingValues(bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
