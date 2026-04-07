@@ -80,11 +80,12 @@ fun StudentDashboardScreen(
             .onFailure { Log.e(tag, "Failed to fetch student profile for greeting", it) }
         runCatching { educationViewModel.fetchEducation(studentId) }
             .onFailure { Log.e(tag, "Failed to fetch education profile", it) }
+        runCatching { educationViewModel.fetchCourses() }
+            .onFailure { Log.e(tag, "Failed to fetch courses", it) }
     }
 
     var searchQuery by remember { mutableStateOf("") }
     var selectedDomains by remember { mutableStateOf(setOf<String>()) }
-    var courseDomains by remember { mutableStateOf(emptyList<String>()) }
     var jobs by remember {
         mutableStateOf(
             listOf(
@@ -117,32 +118,8 @@ fun StudentDashboardScreen(
     val resolvedUserName = profileUser?.name?.takeIf { it.isNotBlank() }
         ?: currentUser?.name?.takeIf { it.isNotBlank() }
         ?: "User"
-    val courses = educationViewModel.education?.course
-        ?.takeIf { it.isNotBlank() }
-        ?.let { listOf(it) }
-        ?: emptyList()
-
-    fun domainsForSelectedCourse(selectedCourse: String): List<String> {
-        val education = educationViewModel.education
-        if (education == null) {
-            Log.e(tag, "Education profile missing; cannot map domains for course=$selectedCourse")
-            return emptyList()
-        }
-        if (education.course.isBlank()) {
-            Log.e(tag, "Education course missing; cannot map domains for course=$selectedCourse")
-            return emptyList()
-        }
-        if (!education.course.equals(selectedCourse, ignoreCase = true)) {
-            Log.e(tag, "Selected course does not match education.course. selected=$selectedCourse, education=${education.course}")
-            return emptyList()
-        }
-        val domainRaw = education.domain
-        if (domainRaw.isBlank()) return emptyList()
-        return domainRaw
-            .split(',')
-            .map { it.trim() }
-            .filter { it.isNotBlank() }
-    }
+    val courses = educationViewModel.courses
+    val courseDomains = educationViewModel.domains
 
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
@@ -193,11 +170,10 @@ fun StudentDashboardScreen(
                 courses = courses,
                 onCourseClick = { course ->
                     runCatching {
-                        courseDomains = domainsForSelectedCourse(course)
+                        educationViewModel.fetchDomains(course)
                         selectedDomains = emptySet()
                     }.onFailure { e ->
-                        Log.e(tag, "Failed to map domains for course=$course", e)
-                        courseDomains = emptyList()
+                        Log.e(tag, "Failed to fetch domains for course=$course", e)
                         selectedDomains = emptySet()
                     }
                 }

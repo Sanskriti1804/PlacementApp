@@ -2,8 +2,12 @@ package com.example.placementprojectmp.di
 
 import com.example.placementprojectmp.data.remote.api.EducationApi
 import com.example.placementprojectmp.data.remote.api.EductionApiImpl
+import com.example.placementprojectmp.data.remote.api.MetaApi
+import com.example.placementprojectmp.data.remote.api.MetaApiImpl
 import com.example.placementprojectmp.data.remote.api.StudentApi
 import com.example.placementprojectmp.data.remote.api.StudentApiImpl
+import com.example.placementprojectmp.data.repo.MetaRepository
+import com.example.placementprojectmp.data.repo.MetaRepositoryImpl
 import com.example.placementprojectmp.viewmodel.EducationViewModel
 import com.example.placementprojectmp.viewmodel.StudentViewModel
 import com.example.placementprojectmp.viewmodel.UserViewModel
@@ -45,5 +49,7 @@ val appModule = module{
 
     single<EducationApi> { EductionApiImpl(get()) }
     single { EducationRepo(get()) }
-    viewModel<EducationViewModel> { EducationViewModel(get()) }
+    single<MetaApi> { MetaApiImpl(get()) }
+    single<MetaRepository> { MetaRepositoryImpl(get()) }
+    viewModel<EducationViewModel> { EducationViewModel(get(), get()) }
 }
