@@ -61,13 +61,20 @@ fun ProfileScreen(
     val resolvedUserName = profileUser?.name?.takeIf { it.isNotBlank() }
         ?: currentUser?.name?.takeIf { it.isNotBlank() }
         ?: "User"
-    val resolvedRole = profileUser?.roles?.firstOrNull()?.roleName?.takeIf { it.isNotBlank() }
-        ?: currentUser?.role?.takeIf { it.isNotBlank() }
-        ?: "Student"
-    val resolvedHandle = currentUser?.username
-        ?.takeIf { it.isNotBlank() }
-        ?.let { if (it.startsWith("@")) it else "@$it" }
-        ?: "@user"
+    val resolvedRole = "Android Developer"
+    val resolvedHandle = "user@edu.com"
+    val dummyBio = "Android developer focused on Kotlin and Jetpack Compose, building clean, scalable apps with strong attention to UI performance."
+    val profileBio = currentStudentProfile?.bio?.takeIf { it.isNotBlank() } ?: dummyBio
+    val dummySkills = listOf(
+        "Android",
+        "Kotlin",
+        "Jetpack Compose",
+        "Firebase",
+        "REST APIs",
+        "MVVM",
+        "Coroutines"
+    )
+    val profileSkills = currentStudentProfile?.skills?.map { it.name }?.takeIf { it.isNotEmpty() } ?: dummySkills
 
     LazyColumn(
         modifier = modifier
@@ -134,18 +141,10 @@ fun ProfileScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = currentStudentProfile?.bio?.takeIf { it.isNotBlank() }
-                            ?: "Add a short bio to tell others about your background and goals.",
+                        text = profileBio,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
-                if (!studentViewModel.isLoading && currentStudentProfile == null) {
-                    Text(
-                        text = "Profile details are unavailable right now.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 OutlinedButton(
@@ -202,7 +201,8 @@ fun ProfileScreen(
                 )
                 SkillsCard(
                     modifier = Modifier.weight(0.4f),
-                    skills = currentStudentProfile?.skills?.map { it.name } ?: emptyList()
+                    skills = profileSkills,
+                    visibleSkillCount = 4
                 )
             }
         }

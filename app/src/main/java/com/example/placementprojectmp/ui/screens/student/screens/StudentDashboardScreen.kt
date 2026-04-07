@@ -23,11 +23,8 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.SmartToy
-import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -108,7 +105,6 @@ fun StudentDashboardScreen(
     )
     val featureItems = listOf(
         "Resume" to Icons.Default.Description,
-        "Mock Interview" to Icons.Default.RecordVoiceOver,
         "Preparation" to Icons.Default.MenuBook,
         "Chatbot" to Icons.Default.Chat,
         "Resources" to Icons.Default.Folder
@@ -142,7 +138,7 @@ fun StudentDashboardScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(R.drawable.app_logo),
+                    painter = painterResource(R.drawable.pfp_user),
                     contentDescription = "Profile",
                     modifier = Modifier
                         .size(40.dp)
@@ -267,7 +263,7 @@ fun StudentDashboardScreen(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = 20.dp, bottom = 24.dp),
-            containerColor = MaterialTheme.colorScheme.primary,
+            containerColor = MaterialTheme.colorScheme.onPrimary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
             shape = CircleShape,
             elevation = FloatingActionButtonDefaults.elevation(
@@ -275,9 +271,11 @@ fun StudentDashboardScreen(
                 pressedElevation = 8.dp
             )
         ) {
-            Icon(
-                imageVector = Icons.Default.SmartToy,
-                contentDescription = "AIDA Chatbot"
+            Image(
+                painter = painterResource(R.drawable.ic_aii),
+                contentDescription = "AIDA Chatbot",
+                modifier = Modifier.size(24.dp),
+                contentScale = ContentScale.Crop
             )
         }
     }

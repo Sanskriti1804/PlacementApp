@@ -6,10 +6,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -31,8 +32,8 @@ fun ProfileHeader(
     modifier: Modifier = Modifier,
     userName: String = "Alex Johnson",
     role: String = "Android Developer",
-    handle: String = "@alexdev",
-    avatarResId: Int = R.drawable.app_logo,
+    handle: String = "user@edu.com",
+    avatarResId: Int = R.drawable.pfp_user,
     onClick: (() -> Unit)? = null
 ) {
     Row(
@@ -51,7 +52,8 @@ fun ProfileHeader(
         Box(
             modifier = Modifier
                 .weight(0.3f)
-                .padding(end = 12.dp),
+                .height(176.dp)
+                .padding(end = 6.dp),
             contentAlignment = Alignment.Center
         ) {
             Box(
@@ -66,16 +68,17 @@ fun ProfileHeader(
                     painter = painterResource(avatarResId),
                     contentDescription = "Profile",
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(6.dp)
-                        .aspectRatio(1f)
+                        .fillMaxSize()
+                        .padding(2.dp)
                         .clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Crop
                 )
             }
         }
         ProfileIdCard(
-            modifier = Modifier.weight(0.7f),
+            modifier = Modifier
+                .weight(0.7f)
+                .height(120.dp),
             userName = userName,
             role = role,
             handle = handle
