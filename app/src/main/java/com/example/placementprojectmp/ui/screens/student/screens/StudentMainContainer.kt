@@ -109,7 +109,8 @@ fun StudentMainContainer(
                     modifier = modifier,
                     onCompleteProfileClick = { outerNavController?.navigate(Routes.StudentRoutes.StudentProfileForm) },
                     onIntroCardClick = { outerNavController?.navigate(Routes.StudentRoutes.PersonalInformationFormScreen) },
-                    onNavigateToAcademic = { outerNavController?.navigate(Routes.StudentRoutes.AcademicDetails) }
+                    onNavigateToAcademic = { outerNavController?.navigate(Routes.StudentRoutes.AcademicDetails) },
+                    onNavigateToApplication = { outerNavController?.navigate(Routes.StudentRoutes.ApplicationScreen) }
                 )
             }
         }

@@ -179,7 +179,8 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
         composable(Routes.StudentRoutes.Profile) {
             ProfileScreen(
                 modifier = modifier,
-                onNavigateToAcademic = { navController.navigate(Routes.StudentRoutes.AcademicDetails) }
+                onNavigateToAcademic = { navController.navigate(Routes.StudentRoutes.AcademicDetails) },
+                onNavigateToApplication = { navController.navigate(Routes.StudentRoutes.ApplicationScreen) }
             )
         }
         composable(Routes.StudentRoutes.AcademicDetails) {
