@@ -2,17 +2,24 @@ package com.example.placementprojectmp.ui.screens.student.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -20,7 +27,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.placementprojectmp.R
 import com.example.placementprojectmp.viewmodel.UserViewModel
 import com.example.placementprojectmp.ui.components.AppTopBar
 import com.example.placementprojectmp.ui.components.ProfileCompletionCard
@@ -152,15 +163,47 @@ fun ProfileScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
             ) {
-                OutlinedButton(
-                    onClick = onNavigateToAcademic,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.secondary
-                    ),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary)
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Text("Academic Performance")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Button(
+                            onClick = {},
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        ) {
+                            Text("RESUME")
+                        }
+                        Button(
+                            onClick = {},
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        ) {
+                            Text("PROFILE")
+                        }
+                    }
+                    OutlinedButton(
+                        onClick = onNavigateToAcademic,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        ),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                    ) {
+                        Text("ACADEMIC PERFORMANCE")
+                    }
                 }
             }
         }
@@ -178,6 +221,45 @@ fun ProfileScreen(
                 ),
                 onTitleClick = onCompleteProfileClick
             )
+        }
+        item {
+            val completedMedia = listOf(
+                R.drawable.pic_linkedin,
+                R.drawable.pic_github,
+                R.drawable.pic_leetcode,
+                R.drawable.pic_resume,
+                R.drawable.pic_saved,
+                R.drawable.pic_portfolio,
+                R.drawable.pic_dribble,
+                R.drawable.pic_behance
+            )
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(completedMedia) { mediaRes ->
+                    Card(
+                        modifier = Modifier
+                            .fillParentMaxWidth(0.25f)
+                            .aspectRatio(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Image(
+                                painter = painterResource(id = mediaRes),
+                                contentDescription = "Completed profile media",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
+                }
+            }
         }
         item {
             val platforms = currentStudentProfile?.links?.map {
