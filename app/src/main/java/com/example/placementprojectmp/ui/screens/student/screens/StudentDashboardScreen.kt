@@ -195,6 +195,16 @@ fun StudentDashboardScreen(
                 }
             )
         }
+        if (!educationViewModel.isLoading && courses.isEmpty()) {
+            item {
+                Text(
+                    text = "Course information is unavailable right now.",
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
         item {
             DomainChipRow(
                 modifier = Modifier.padding(horizontal = 20.dp),
@@ -207,6 +217,16 @@ fun StudentDashboardScreen(
                         selectedDomains + domain
                 }
             )
+        }
+        if (!educationViewModel.isLoading && courseDomains.isEmpty()) {
+            item {
+                Text(
+                    text = "Select a course to view domains.",
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
         item {
             JobSection(

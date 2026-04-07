@@ -56,13 +56,18 @@ fun ProfileScreen(
     }
     val currentUser = userViewModel.students.firstOrNull()
     val currentStudentProfile  = studentViewModel.profile
+    val profileUser = currentStudentProfile?.user
 
-    val resolvedUserName = currentUser?.name ?: "Sanskriti"
-    val resolvedRole = currentUser?.role ?: "Android Developer" 
+    val resolvedUserName = profileUser?.name?.takeIf { it.isNotBlank() }
+        ?: currentUser?.name?.takeIf { it.isNotBlank() }
+        ?: "User"
+    val resolvedRole = profileUser?.roles?.firstOrNull()?.roleName?.takeIf { it.isNotBlank() }
+        ?: currentUser?.role?.takeIf { it.isNotBlank() }
+        ?: "Student"
     val resolvedHandle = currentUser?.username
         ?.takeIf { it.isNotBlank() }
         ?.let { if (it.startsWith("@")) it else "@$it" }
-        ?: "@sunsdev"
+        ?: "@user"
 
     LazyColumn(
         modifier = modifier
@@ -134,6 +139,13 @@ fun ProfileScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+                if (!studentViewModel.isLoading && currentStudentProfile == null) {
+                    Text(
+                        text = "Profile details are unavailable right now.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 OutlinedButton(

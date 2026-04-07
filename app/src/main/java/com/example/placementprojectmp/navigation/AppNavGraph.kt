@@ -46,14 +46,24 @@ import com.example.placementprojectmp.ui.screens.staff.screens.TeacherProfileScr
  */
 @Composable
 fun AppNavGraph(
-    rootStartDestination: String = Routes.StudentRoutes.Main,
+    rootStartDestination: String = Routes.StartDestination,
     modifier: androidx.compose.ui.Modifier = androidx.compose.ui.Modifier
 ) {
-    key(rootStartDestination) {
+    val validRootRoutes = setOf(
+        Routes.GraphRoutes.Startup,
+        Routes.GraphRoutes.Student,
+        Routes.GraphRoutes.Staff,
+        Routes.GraphRoutes.System
+    )
+    val safeRootStartDestination = rootStartDestination
+        .takeIf { it in validRootRoutes }
+        ?: Routes.StartDestination
+
+    key(safeRootStartDestination) {
         val navController = rememberNavController()
         NavHost(
             navController = navController,
-            startDestination = rootStartDestination,
+            startDestination = safeRootStartDestination,
             modifier = modifier
         ) {
             startupGraph(navController, modifier)

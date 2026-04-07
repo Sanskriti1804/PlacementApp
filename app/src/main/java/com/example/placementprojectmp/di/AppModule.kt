@@ -37,13 +37,13 @@ val appModule = module{
 
     single<UserApi> { UserApiImpl(get(), get()) }
     single { UserRepo(get()) }
-    viewModel { UserViewModel(get()) }
+    viewModel<UserViewModel> { UserViewModel(get()) }
 
     single<StudentApi> { StudentApiImpl(get()) }
     single { StudentRepo(get()) }
-    viewModel { StudentViewModel(get()) }
+    viewModel<StudentViewModel> { StudentViewModel(get()) }
 
     single<EducationApi> { EductionApiImpl(get()) }
     single { EducationRepo(get()) }
-    viewModel { EducationViewModel(get()) }
+    viewModel<EducationViewModel> { EducationViewModel(get()) }
 }
