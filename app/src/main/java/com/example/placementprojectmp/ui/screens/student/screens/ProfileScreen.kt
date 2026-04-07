@@ -41,6 +41,7 @@ import com.example.placementprojectmp.ui.components.RecentWorkCard
 import com.example.placementprojectmp.ui.components.SkillsCard
 import com.example.placementprojectmp.ui.components.SocialPlatform
 import com.example.placementprojectmp.ui.components.SocialPlatformRow
+import com.example.placementprojectmp.ui.components.ApplicationStatusStage
 import com.example.placementprojectmp.viewmodel.StudentViewModel
 import org.koin.androidx.compose.koinViewModel
 import kotlin.collections.emptyList
@@ -164,11 +165,11 @@ fun ProfileScreen(
                     .padding(horizontal = 20.dp)
             ) {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Button(
                             onClick = {},
@@ -241,7 +242,7 @@ fun ProfileScreen(
                 items(completedMedia) { mediaRes ->
                     Card(
                         modifier = Modifier
-                            .fillParentMaxWidth(0.25f)
+                            .fillParentMaxWidth(0.20f)
                             .aspectRatio(1f),
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(

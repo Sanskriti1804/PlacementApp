@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -41,24 +42,24 @@ fun ProfileIdCard(
         Text(
             text = buildAnnotatedString {
                 append("Hey, I am ")
-                withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
                     append(userName)
                 }
             },
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = Color.White
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = role,
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = Color.White,
             fontWeight = FontWeight.SemiBold
         )
         Text(
             text = handle,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f)
+            color = Color.White.copy(alpha = 0.85f)
         )
     }
 }
