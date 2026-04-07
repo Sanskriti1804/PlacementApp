@@ -54,7 +54,7 @@ fun ProfileHeader(
                 .weight(0.3f)
                 .height(176.dp)
                 .padding(end = 6.dp),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.TopCenter
         ) {
             Box(
                 modifier = Modifier
@@ -62,7 +62,7 @@ fun ProfileHeader(
                     .aspectRatio(0.85f)
                     .clip(RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.TopCenter
             ) {
                 Image(
                     painter = painterResource(avatarResId),

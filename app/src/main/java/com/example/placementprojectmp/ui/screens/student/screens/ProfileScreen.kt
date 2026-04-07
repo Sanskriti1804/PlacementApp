@@ -81,7 +81,7 @@ fun ProfileScreen(
             .fillMaxSize()
             .padding(bottom = 24.dp),
         contentPadding = PaddingValues(bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 //        item {
 //            Column(modifier = Modifier.padding(20.dp)) {
@@ -107,30 +107,25 @@ fun ProfileScreen(
 //            }
 //        }
         item {
-            AppTopBar(
-                onMenuClick = onMenuClick,
-                onNotificationClick = onNotificationClick
-            )
-        }
-        item {
-            ProfileHeader(
-                modifier = Modifier.padding(horizontal = 20.dp),
-                userName = resolvedUserName,
-                role = resolvedRole,
-                handle = resolvedHandle,
-                onClick = onIntroCardClick
-            )
-        }
-        item {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
+                AppTopBar(
+                    onMenuClick = onMenuClick,
+                    onNotificationClick = onNotificationClick
+                )
+                ProfileHeader(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    userName = resolvedUserName,
+                    role = resolvedRole,
+                    handle = resolvedHandle,
+                    onClick = onIntroCardClick
+                )
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
                         .clip(RoundedCornerShape(16.dp))
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                         .padding(16.dp)
@@ -147,6 +142,14 @@ fun ProfileScreen(
                         modifier = Modifier.padding(top = 8.dp)
                     )
                 }
+            }
+        }
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+            ) {
                 OutlinedButton(
                     onClick = onNavigateToAcademic,
                     modifier = Modifier.fillMaxWidth(),
