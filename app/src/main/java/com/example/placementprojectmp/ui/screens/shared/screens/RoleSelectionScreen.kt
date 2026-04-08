@@ -67,7 +67,12 @@ fun RoleSelectionScreen(
                     .padding(vertical = 8.dp)
                     .clickable {
                         selectedRole = role.label.lowercase()
-                        onNavigateToLogin(role.label.lowercase())
+                        val authRole = if (role.label.equals("Student", ignoreCase = true)) {
+                            "STUDENT"
+                        } else {
+                            "STAFF"
+                        }
+                        onNavigateToLogin(authRole)
                     }
                     .border(
                         width = 1.dp,

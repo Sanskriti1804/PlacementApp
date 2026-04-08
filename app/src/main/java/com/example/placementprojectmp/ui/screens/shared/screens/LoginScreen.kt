@@ -18,11 +18,10 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,7 +30,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
+import com.example.placementprojectmp.auth.AuthRole
 import com.example.placementprojectmp.ui.components.AppLogo
+import com.example.placementprojectmp.viewmodel.AuthViewModel
+import org.koin.androidx.compose.koinViewModel
 
 private const val ICON_BOX_SIZE_DP = 72
 
@@ -39,12 +41,14 @@ private const val ICON_BOX_SIZE_DP = 72
 fun LoginScreen(
     modifier: Modifier = Modifier,
     selectedRole: String = "user",
-    onNavigateToLoading: () -> Unit = {}
+    onNavigateToLoading: (AuthRole) -> Unit = {}
 ) {
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var usernameError by remember { mutableStateOf(false) }
-    var passwordError by remember { mutableStateOf(false) }
+    val authViewModel: AuthViewModel = koinViewModel()
+    val roleFromRoute = remember(selectedRole) { AuthRole.fromInput(selectedRole) }
+
+    LaunchedEffect(roleFromRoute) {
+        authViewModel.setRole(roleFromRoute)
+    }
 
     Column(
         modifier = modifier
@@ -102,16 +106,24 @@ fun LoginScreen(
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            AuthRole.entries.forEach { role ->
+                FilterChip(
+                    selected = authViewModel.selectedRole == role,
+                    onClick = { authViewModel.setRole(role) },
+                    label = { Text(role.name) }
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = username,
+            value = authViewModel.email,
             onValueChange = {
-                username = it
-                usernameError = false
+                authViewModel.email = it
             },
-            label = { Text("Username") },
-            isError = usernameError,
+            label = { Text("Email") },
+            isError = authViewModel.errorMessage != null && authViewModel.email.isBlank(),
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -129,13 +141,12 @@ fun LoginScreen(
         )
 
         OutlinedTextField(
-            value = password,
+            value = authViewModel.password,
             onValueChange = {
-                password = it
-                passwordError = false
+                authViewModel.password = it
             },
             label = { Text("Password") },
-            isError = passwordError,
+            isError = authViewModel.errorMessage != null && authViewModel.password.isBlank(),
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             visualTransformation = PasswordVisualTransformation(),
@@ -166,18 +177,25 @@ fun LoginScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+        authViewModel.errorMessage?.let { error ->
+            Text(
+                text = error,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
         Button(
             onClick = {
-                usernameError = username.isBlank()
-                passwordError = password.isBlank()
-                onNavigateToLoading()
+                authViewModel.login { role -> onNavigateToLoading(role) }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            shape = RoundedCornerShape(28.dp)
+            shape = RoundedCornerShape(28.dp),
+            enabled = !authViewModel.isLoading
         ) {
-            Text("Login")
+            Text(if (authViewModel.isLoading) "Logging in..." else "Login")
         }
     }
 }

@@ -1,11 +1,13 @@
 package com.example.placementprojectmp.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import org.koin.java.KoinJavaComponent
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -13,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.placementprojectmp.auth.TokenStore
 import com.example.placementprojectmp.ui.screens.shared.screens.AboutAppScreen
 import com.example.placementprojectmp.ui.screens.shared.screens.LoadingScreen
 import com.example.placementprojectmp.ui.screens.shared.screens.LoginScreen
@@ -49,9 +52,14 @@ fun AppNavGraph(
     rootStartDestination: String = Routes.StartDestination,
     modifier: androidx.compose.ui.Modifier = androidx.compose.ui.Modifier
 ) {
-    // Keep root graph stable for student flow to avoid stale/restored routes
-    // (e.g., "startup") crashing NavHost initialization.
-    val safeRootStartDestination = Routes.GraphRoutes.Student
+    val tokenStore: TokenStore = KoinJavaComponent.get(TokenStore::class.java)
+    val token by tokenStore.tokenFlow.collectAsState(initial = null)
+    val role by tokenStore.roleFlow.collectAsState(initial = null)
+    val safeRootStartDestination = when {
+        token.isNullOrBlank() -> Routes.GraphRoutes.Startup
+        role.equals("STUDENT", ignoreCase = true) -> Routes.GraphRoutes.Student
+        else -> Routes.GraphRoutes.Staff
+    }
 
     key(safeRootStartDestination) {
         val navController = rememberNavController()
@@ -104,9 +112,15 @@ private fun androidx.navigation.NavGraphBuilder.startupGraph(
             LoginScreen(
                 modifier = modifier,
                 selectedRole = "user",
-                onNavigateToLoading = {
-                    navController.navigate(Routes.StartupRoutes.RoleSelection) {
+                onNavigateToLoading = { authRole ->
+                    val graphRoute = if (authRole.name == "STUDENT") {
+                        Routes.GraphRoutes.Student
+                    } else {
+                        Routes.GraphRoutes.Staff
+                    }
+                    navController.navigate(graphRoute) {
                         launchSingleTop = true
+                        popUpTo(Routes.StartupRoutes.Login) { inclusive = true }
                     }
                 }
             )
@@ -121,9 +135,15 @@ private fun androidx.navigation.NavGraphBuilder.startupGraph(
             LoginScreen(
                 modifier = modifier,
                 selectedRole = role,
-                onNavigateToLoading = {
-                    navController.navigate(Routes.StartupRoutes.RoleSelection) {
+                onNavigateToLoading = { authRole ->
+                    val graphRoute = if (authRole.name == "STUDENT") {
+                        Routes.GraphRoutes.Student
+                    } else {
+                        Routes.GraphRoutes.Staff
+                    }
+                    navController.navigate(graphRoute) {
                         launchSingleTop = true
+                        popUpTo(Routes.StartupRoutes.Login) { inclusive = true }
                     }
                 }
             )
@@ -238,9 +258,6 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
         composable(Routes.StudentRoutes.Chatbot) {
             ChatbotScreen(modifier = modifier)
         }
-        composable(Routes.StudentRoutes.StudentDetails) {
-            StudentDetailsScreen(modifier = modifier)
-        }
         composable(Routes.StudentRoutes.OpportunitiesOuter) {
             OpportunitiesScreen(modifier = modifier)
         }
@@ -264,7 +281,7 @@ private fun androidx.navigation.NavGraphBuilder.staffGraph(
 ) {
     navigation(
         route = Routes.GraphRoutes.Staff,
-        startDestination = Routes.StaffRoutes.TeacherProfile
+        startDestination = Routes.StaffRoutes.StudentDetails
     ) {
         composable(Routes.StaffRoutes.Drive) {
             StaffDriveScreen(modifier = modifier)
@@ -274,6 +291,9 @@ private fun androidx.navigation.NavGraphBuilder.staffGraph(
         }
         composable(Routes.StaffRoutes.TeacherProfile) {
             TeacherProfileScreen(modifier = modifier)
+        }
+        composable(Routes.StaffRoutes.StudentDetails) {
+            StudentDetailsScreen(modifier = modifier)
         }
     }
 }

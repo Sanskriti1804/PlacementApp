@@ -50,7 +50,6 @@ object Routes {
         const val AptitudeTestResult = "aptitude_test_result_screen"
         const val AptitudeTestResultWithId = "aptitude_test_result_screen/{testId}"
         const val Chatbot = "chatbot"
-        const val StudentDetails = "student_details"
         /** Outer-graph opportunities route (distinct from tab [Opportunities]). */
         const val OpportunitiesOuter = "opportunities"
         const val StudentProfileForm = "dashboard/studentform"
@@ -66,6 +65,8 @@ object Routes {
         const val Drive = "staff_drive_screen"
         const val TeacherCompanyDetails = "teacher_company_details_screen"
         const val TeacherProfile = "teacher_profile_screen"
+        const val StudentDetails = "student_details"
+
     }
 
     /** System module – placeholder for error, maintenance, force update, etc. */
@@ -89,7 +90,7 @@ object Routes {
     const val AcademicDetails = StudentRoutes.AcademicDetails
     const val Preparation = StudentRoutes.Preparation
     const val Chatbot = StudentRoutes.Chatbot
-    const val StudentDetails = StudentRoutes.StudentDetails
+//    const val StudentDetails = StudentRoutes.StudentDetails
     const val Opportunities = StudentRoutes.OpportunitiesOuter
     const val StudentProfileForm = StudentRoutes.StudentProfileForm
     const val PersonalInformationFormScreen = StudentRoutes.PersonalInformationFormScreen
