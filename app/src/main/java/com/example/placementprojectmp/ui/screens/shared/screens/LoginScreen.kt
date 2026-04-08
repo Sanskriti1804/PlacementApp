@@ -1,15 +1,11 @@
 package com.example.placementprojectmp.ui.screens.shared.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
@@ -18,24 +14,18 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Button
-import androidx.compose.material3.FilterChip
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.example.placementprojectmp.R
 import com.example.placementprojectmp.auth.AuthRole
 import com.example.placementprojectmp.ui.components.AppLogo
 import com.example.placementprojectmp.viewmodel.AuthViewModel
 import org.koin.androidx.compose.koinViewModel
-
-private const val ICON_BOX_SIZE_DP = 72
 
 @Composable
 fun LoginScreen(
@@ -61,60 +51,12 @@ fun LoginScreen(
         AppLogo(size = 100.dp)
         Spacer(modifier = Modifier.height(24.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Spacer(modifier = Modifier.size(16.dp))
-            Box(
-                modifier = Modifier
-                    .size(ICON_BOX_SIZE_DP.dp)
-                    .background(
-                        Color.White,
-                        RoundedCornerShape(12.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                androidx.compose.foundation.Image(
-                    painter = painterResource(R.drawable.ic_google),
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-            Spacer(modifier = Modifier.size(16.dp))
-            Box(
-                modifier = Modifier
-                    .size(ICON_BOX_SIZE_DP.dp)
-                    .background(
-                        Color.White,
-                        RoundedCornerShape(12.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                androidx.compose.foundation.Image(
-                    painter = painterResource(R.drawable.ic_github),
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-        }
-
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Sign up or Login",
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            AuthRole.entries.forEach { role ->
-                FilterChip(
-                    selected = authViewModel.selectedRole == role,
-                    onClick = { authViewModel.setRole(role) },
-                    label = { Text(role.name) }
-                )
-            }
-        }
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(

@@ -102,7 +102,7 @@ private fun androidx.navigation.NavGraphBuilder.startupGraph(
             AboutAppScreen(
                 modifier = modifier,
                 onNavigateToRoleSelection = {
-                    navController.navigate(Routes.StartupRoutes.Login) {
+                    navController.navigate(Routes.StartupRoutes.RoleSelection) {
                         launchSingleTop = true
                     }
                 }
@@ -152,14 +152,8 @@ private fun androidx.navigation.NavGraphBuilder.startupGraph(
             RoleSelectionScreen(
                 modifier = modifier,
                 onNavigateToLogin = { role ->
-                    when (role.lowercase()) {
-                        "student" -> navController.navigate(Routes.GraphRoutes.Student) {
-                            // Pop up to a destination (not a graph route) to keep nested-graph routing valid.
-                            popUpTo(Routes.StartupRoutes.RoleSelection) { inclusive = true }
-                        }
-                        else -> navController.navigate(Routes.GraphRoutes.Staff) {
-                            popUpTo(Routes.StartupRoutes.RoleSelection) { inclusive = true }
-                        }
+                    navController.navigate("login?role=$role") {
+                        launchSingleTop = true
                     }
                 }
             )
