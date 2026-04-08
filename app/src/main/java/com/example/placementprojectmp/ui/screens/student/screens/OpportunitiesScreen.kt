@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.components.AppTopBar
 import com.example.placementprojectmp.ui.components.DomainHeader
+import com.example.placementprojectmp.ui.components.NeonGlassToastHost
 import com.example.placementprojectmp.ui.components.OpportunitiesFilterCapsule
 import com.example.placementprojectmp.ui.components.OpportunityCard
 
@@ -116,11 +116,11 @@ fun OpportunitiesScreen(
         }
     }
 
-        SnackbarHost(
+        NeonGlassToastHost(
             hostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp, vertical = 16.dp)
         )
     }
 }
