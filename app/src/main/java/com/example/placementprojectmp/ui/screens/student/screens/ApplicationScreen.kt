@@ -68,7 +68,7 @@ fun ApplicationScreen(
         EducationItem("10th", "Delhi Public School • 2018", "92%"),
         EducationItem("12th", "St. Xavier Senior Secondary • 2020", "89%"),
         EducationItem("Graduation", "ABC Institute of Technology • 2021 - 2025", "8.6 CGPA"),
-        EducationItem("Post Graduation", "Currently Pursuing", "—")
+        EducationItem("Post Graduation", "ABC Institute of Technology • 2025 - 2027", "—")
     )
     val certCards = listOf(
         "Google Android",
@@ -111,7 +111,7 @@ fun ApplicationScreen(
             ) {
                 Column(
                     modifier = Modifier.weight(0.8f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     Text(
                         text = "RAHUL SHARMA",
@@ -128,13 +128,14 @@ fun ApplicationScreen(
                         text = "Android Developer",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
                 Card(
                     modifier = Modifier
-                        .weight(0.2f)
-                        .height(128.dp),
+                        .weight(0.3f)
+                        .height(116.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -153,8 +154,8 @@ fun ApplicationScreen(
         }
         item {
             Text(
-                text = "Building high-performance Android apps with a strong focus on clean architecture and intuitive user experiences.",
-                maxLines = 2,
+                text = "Building high-performance Android apps with a strong focus on clean architecture and intuitive user experiences.\nFocused on reliability and scalable architecture for production-ready mobile platforms.",
+                maxLines = 3,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
@@ -232,7 +233,7 @@ fun ApplicationScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = 42.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -250,13 +251,7 @@ fun ApplicationScreen(
                 }
             }
         }
-        item {
-            HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 24.dp),
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                thickness = 1.dp
-            )
-        }
+
         item {
             Column(
                 modifier = Modifier
@@ -265,6 +260,7 @@ fun ApplicationScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text("Technical Skills", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.45f))
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -292,6 +288,7 @@ fun ApplicationScreen(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text("Education", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.45f))
                 educationItems.forEachIndexed { index, item ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -301,6 +298,13 @@ fun ApplicationScreen(
                         Column(verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.weight(1f)) {
                             Text(item.title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
                             Text(item.subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            if (item.title == "Post Graduation") {
+                                Text(
+                                    text = "Currently Pursuing",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                         Text(item.score, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Light, color = MaterialTheme.colorScheme.onSurface)
                     }
@@ -367,12 +371,12 @@ fun ApplicationScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
-                    maxItemsInEachRow = 2
+                    maxItemsInEachRow = 3
                 ) {
                     certCards.forEachIndexed { index, value ->
                         Card(
                             modifier = Modifier
-                                .fillMaxWidth(0.48f)
+                                .fillMaxWidth(0.31f)
                                 .aspectRatio(1.9f),
                             shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(containerColor = certColors[index].copy(alpha = 0.9f))
