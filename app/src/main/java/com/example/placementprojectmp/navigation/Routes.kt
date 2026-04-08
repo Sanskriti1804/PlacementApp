@@ -20,6 +20,8 @@ object Routes {
     object StartupRoutes {
         const val Splash = "splash_screen"
         const val About = "about_app_screen"
+        const val IntroTalent = "app_intro_talent_screen"
+        const val IntroOpportunity = "app_intro_opportunity_screen"
         const val RoleSelection = "role_selection_screen"
         const val Login = "login_screen"
         const val Loading = "loading_screen"

@@ -17,10 +17,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.placementprojectmp.auth.TokenStore
 import com.example.placementprojectmp.ui.screens.shared.screens.AboutAppScreen
+import com.example.placementprojectmp.ui.screens.shared.screens.AppIntroductionScreen
+import com.example.placementprojectmp.ui.screens.shared.screens.IntroductionMode
 import com.example.placementprojectmp.ui.screens.shared.screens.LoadingScreen
 import com.example.placementprojectmp.ui.screens.shared.screens.LoginScreen
 import com.example.placementprojectmp.ui.screens.shared.screens.RoleSelectionScreen
 import com.example.placementprojectmp.ui.screens.shared.screens.SplashScreen
+import kotlinx.coroutines.delay
 import com.example.placementprojectmp.ui.screens.student.screens.AcademicPerdormanceScreen
 import com.example.placementprojectmp.ui.screens.student.screens.ApplicationScreen
 import com.example.placementprojectmp.ui.screens.student.screens.ApplicationStatusScreen
