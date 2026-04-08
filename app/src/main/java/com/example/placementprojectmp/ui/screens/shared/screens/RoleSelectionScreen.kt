@@ -29,13 +29,15 @@ import com.example.placementprojectmp.ui.components.AppLogo
 
 private data class RoleOption(
     val label: String,
-    val iconResId: Int
+    val iconResId: Int,
+    val comingSoon: Boolean = false
 )
 
 private val ROLES = listOf(
-    RoleOption("Student", R.drawable.user_student),
-    RoleOption("Admin", R.drawable.user_admin),
-    RoleOption("Management", R.drawable.user_management)
+    RoleOption("STUDENT", R.drawable.user_student),
+    RoleOption("ADMIN", R.drawable.user_admin),
+    RoleOption("MANAGEMENT", R.drawable.user_management),
+    RoleOption("RECRUITER", R.drawable.user_management, comingSoon = true)
 )
 
 @Composable
@@ -51,61 +53,81 @@ fun RoleSelectionScreen(
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(56.dp))
         AppLogo(size = 72.dp)
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(38.dp))
         Text(
             text = "Choose Your Role",
-            style = MaterialTheme.typography.headlineLarge,
+            style = MaterialTheme.typography.displayLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.height(32.dp))
-        ROLES.forEach { role ->
+        ROLES.chunked(2).forEach { rowRoles ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-                    .clickable {
-                        selectedRole = role.label.lowercase()
-                        val authRole = if (role.label.equals("Student", ignoreCase = true)) {
-                            "STUDENT"
-                        } else {
-                            "STAFF"
-                        }
-                        onNavigateToLogin(authRole)
-                    }
-                    .border(
-                        width = 1.dp,
-                        color = if (selectedRole == role.label.lowercase())
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.outline,
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .background(
-                            MaterialTheme.colorScheme.surfaceVariant,
-                            RoundedCornerShape(12.dp)
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    androidx.compose.foundation.Image(
-                        painter = painterResource(role.iconResId),
-                        contentDescription = null,
-                        modifier = Modifier.size(28.dp)
-                    )
+                rowRoles.forEach { role ->
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                selectedRole = role.label.lowercase()
+                                val authRole = if (role.label.equals("STUDENT", ignoreCase = true)) {
+                                    "STUDENT"
+                                } else {
+                                    "STAFF"
+                                }
+                                onNavigateToLogin(authRole)
+                            }
+                            .border(
+                                width = 1.dp,
+                                color = if (selectedRole == role.label.lowercase())
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.outline,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .height(172.dp)
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(58.dp)
+                                .background(
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                    RoundedCornerShape(12.dp)
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            androidx.compose.foundation.Image(
+                                painter = painterResource(role.iconResId),
+                                contentDescription = null,
+                                modifier = Modifier.size(30.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = role.label,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        if (role.comingSoon) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "COMING SOON",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
                 }
-                Text(
-                    text = role.label,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                if (rowRoles.size == 1) Spacer(modifier = Modifier.weight(1f))
             }
         }
     }
