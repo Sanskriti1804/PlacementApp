@@ -40,6 +40,7 @@ import com.example.placementprojectmp.ui.screens.student.screens.StudentDashboar
 import com.example.placementprojectmp.ui.screens.student.screens.StudentMainContainer
 import com.example.placementprojectmp.ui.screens.student.screens.StudentProfileFormScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffDriveScreen
+import com.example.placementprojectmp.ui.screens.staff.screens.StaffMainContainer
 import com.example.placementprojectmp.ui.screens.staff.screens.TeacherCompanyDetailsScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.TeacherProfileScreen
 
@@ -58,11 +59,15 @@ fun AppNavGraph(
     val tokenStore: TokenStore = KoinJavaComponent.get(TokenStore::class.java)
     val token by tokenStore.tokenFlow.collectAsState(initial = null)
     val role by tokenStore.roleFlow.collectAsState(initial = null)
+    // TESTING: staff graph as root start — delete next line and uncomment block below when done.
+    val safeRootStartDestination = Routes.GraphRoutes.Staff
+    /*
     val safeRootStartDestination = when {
         token.isNullOrBlank() -> Routes.GraphRoutes.Startup
         role.equals("STUDENT", ignoreCase = true) -> Routes.GraphRoutes.Student
         else -> Routes.GraphRoutes.Staff
     }
+    */
 
     key(safeRootStartDestination) {
         val navController = rememberNavController()
@@ -278,8 +283,11 @@ private fun androidx.navigation.NavGraphBuilder.staffGraph(
 ) {
     navigation(
         route = Routes.GraphRoutes.Staff,
-        startDestination = Routes.StaffRoutes.StudentDetails
+        startDestination = Routes.StaffRoutes.Main
     ) {
+        composable(Routes.StaffRoutes.Main) {
+            StaffMainContainer(modifier = modifier)
+        }
         composable(Routes.StaffRoutes.Drive) {
             StaffDriveScreen(modifier = modifier)
         }

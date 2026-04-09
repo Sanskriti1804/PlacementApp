@@ -64,11 +64,14 @@ object Routes {
     /** Staff module – staff dashboards and management screens. */
     object StaffRoutes {
         const val Root = "staff_root"
+        /** Bottom-nav shell; start destination of Staff graph. */
+        const val Main = "staff_main"
         const val Drive = "staff_drive_screen"
         const val TeacherCompanyDetails = "teacher_company_details_screen"
         const val TeacherProfile = "teacher_profile_screen"
         const val StudentDetails = "student_details"
-
+        /** Center tab placeholder (no navigation on tap). */
+        const val StaffDashboard = "staff_dashboard_screen"
     }
 
     /** System module – placeholder for error, maintenance, force update, etc. */

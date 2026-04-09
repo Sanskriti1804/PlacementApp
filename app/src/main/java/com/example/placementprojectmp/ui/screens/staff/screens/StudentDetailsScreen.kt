@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.components.AppTopBar
+import com.example.placementprojectmp.ui.screens.staff.StaffStudentPortraitIds
 import com.example.placementprojectmp.ui.components.BulkActionBar
 import com.example.placementprojectmp.ui.components.FilterCapsule
 import com.example.placementprojectmp.ui.components.PaginationControls
@@ -70,6 +71,9 @@ fun StudentDetailsScreen(
     val pageSize = 10
     val startIndex = (currentPage - 1) * pageSize
     val paginatedStudents = students.drop(startIndex).take(pageSize).ifEmpty { students }
+    val portraitByStudentId = remember(students) {
+        students.associate { it.id to StaffStudentPortraitIds.all.random() }
+    }
 
     Column(
         modifier = modifier
@@ -132,6 +136,7 @@ fun StudentDetailsScreen(
                             modifier = Modifier.padding(horizontal = 20.dp),
                             studentName = student.name,
                             studentEmail = student.email,
+                            profileImageResId = portraitByStudentId.getValue(student.id),
                             selected = student.id in selectedIds,
                             isFavorite = student.id in favoriteIds,
                             onSelectionChange = { checked ->
@@ -157,6 +162,7 @@ fun StudentDetailsScreen(
                                     modifier = Modifier.weight(1f),
                                     studentName = student.name,
                                     studentEmail = student.email,
+                                    profileImageResId = portraitByStudentId.getValue(student.id),
                                     selected = student.id in selectedIds,
                                     isFavorite = student.id in favoriteIds,
                                     onSelectionChange = { checked ->
