@@ -1,6 +1,7 @@
 package com.example.placementprojectmp.ui.screens.staff.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
@@ -37,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -122,7 +124,7 @@ private fun TeacherIdCardsSection() {
                             .background(statusColor)
                     )
                     Text(
-                        text = "2021 - Present",
+                        text = "January, 2021 - Present",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                         fontWeight = FontWeight.Thin
@@ -169,7 +171,8 @@ private fun TeacherIdCardsSection() {
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold,
-                        maxLines = 1
+                        maxLines = 1,
+                        modifier = Modifier.padding(bottom = 2.dp)
                     )
                 }
             }
@@ -198,7 +201,7 @@ private fun FacultyInfoStatusCard() {
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
+                horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -259,12 +262,20 @@ private fun StatusItem(
                     .background(dotColor)
             )
         }
-        Text(
-            text = "$label: $value",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Medium
-        )
+        Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.alpha(0.78f)
+            )
+        }
     }
 }
 
@@ -298,7 +309,7 @@ private fun ContactValueButton(
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = color),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -432,10 +443,11 @@ private fun StatsGridSection() {
     ) {
         Text(
             text = "Assigned Departments",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold
         )
+        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -493,7 +505,9 @@ private fun ExpandableCounterCard(
 ) {
     var expanded by remember { mutableStateOf(false) }
     Card(
-        modifier = modifier.clickable { expanded = !expanded },
+        modifier = modifier
+            .animateContentSize()
+            .clickable { expanded = !expanded },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
@@ -504,49 +518,73 @@ private fun ExpandableCounterCard(
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = title, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
-            OverlapCounterStrip(
-                imageDots = imageDots,
-                colorDots = colorDots,
-                countText = countText
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.SemiBold
             )
+            AnimatedVisibility(
+                visible = !expanded,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                OverlapCounterStrip(
+                    imageDots = imageDots,
+                    colorDots = colorDots,
+                    countText = countText
+                )
+            }
             AnimatedVisibility(
                 visible = expanded,
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    items.take(3).forEachIndexed { index, label ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            if (imageDots.isNotEmpty()) {
-                                Image(
-                                    painter = painterResource(id = imageDots[index % imageDots.size]),
-                                    contentDescription = "item visual",
-                                    modifier = Modifier
-                                        .size(16.dp)
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
-                                )
-                            } else {
-                                Box(
-                                    modifier = Modifier
-                                        .size(16.dp)
-                                        .clip(CircleShape)
-                                        .background(colorDots[index % colorDots.size])
-                                )
-                            }
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
+                CounterList(
+                imageDots = imageDots,
+                colorDots = colorDots,
+                items = items
+            )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CounterList(
+    imageDots: List<Int>,
+    colorDots: List<Color>,
+    items: List<String>
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        items.take(3).forEachIndexed { index, label ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (imageDots.isNotEmpty()) {
+                    Image(
+                        painter = painterResource(id = imageDots[index % imageDots.size]),
+                        contentDescription = "item visual",
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clip(CircleShape)
+                            .background(colorDots[index % colorDots.size])
+                    )
                 }
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
     }
