@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,16 +53,18 @@ fun StaffFilterCapsule(
             .clip(RoundedCornerShape(24.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f))
             .padding(horizontal = 12.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(modifier = Modifier.weight(1f)) {
             Row(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
                     .clickable { branchExpanded = true }
                     .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = selectedBranch ?: "Branch",
@@ -76,11 +79,17 @@ fun StaffFilterCapsule(
                 )
             }
             DropdownMenu(expanded = branchExpanded, onDismissRequest = { branchExpanded = false }) {
-                branchOptions.forEach { opt ->
+                branchOptions.forEachIndexed { index, opt ->
                     DropdownMenuItem(
                         text = { Text(opt, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface) },
                         onClick = { onBranchSelect(opt); branchExpanded = false }
                     )
+                    if (index < branchOptions.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 10.dp),
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
+                        )
+                    }
                 }
             }
         }
@@ -88,10 +97,12 @@ fun StaffFilterCapsule(
         Box(modifier = Modifier.weight(1f)) {
             Row(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
                     .clickable { courseExpanded = true }
                     .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = selectedCourse ?: "Course",
@@ -106,11 +117,17 @@ fun StaffFilterCapsule(
                 )
             }
             DropdownMenu(expanded = courseExpanded, onDismissRequest = { courseExpanded = false }) {
-                courseOptions.forEach { opt ->
+                courseOptions.forEachIndexed { index, opt ->
                     DropdownMenuItem(
                         text = { Text(opt, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface) },
                         onClick = { onCourseSelect(opt); courseExpanded = false }
                     )
+                    if (index < courseOptions.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 10.dp),
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
+                        )
+                    }
                 }
             }
         }
@@ -118,10 +135,12 @@ fun StaffFilterCapsule(
         Box(modifier = Modifier.weight(1f)) {
             Row(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
                     .clickable { domainExpanded = true }
                     .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = selectedDomain ?: "Domain",
@@ -136,11 +155,17 @@ fun StaffFilterCapsule(
                 )
             }
             DropdownMenu(expanded = domainExpanded, onDismissRequest = { domainExpanded = false }) {
-                domainOptions.forEach { opt ->
+                domainOptions.forEachIndexed { index, opt ->
                     DropdownMenuItem(
                         text = { Text(opt, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface) },
                         onClick = { onDomainSelect(opt); domainExpanded = false }
                     )
+                    if (index < domainOptions.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 10.dp),
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
+                        )
+                    }
                 }
             }
         }

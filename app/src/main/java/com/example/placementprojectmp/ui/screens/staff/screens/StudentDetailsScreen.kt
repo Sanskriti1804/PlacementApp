@@ -1,5 +1,6 @@
 package com.example.placementprojectmp.ui.screens.staff.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,10 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,7 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.components.AppTopBar
 import com.example.placementprojectmp.ui.screens.staff.StaffStudentPortraitIds
@@ -62,6 +59,7 @@ fun StudentDetailsScreen(
     onMenuClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     var viewMode by remember { mutableStateOf(StudentViewMode.List) }
     var selectedBranch by remember { mutableStateOf<String?>(null) }
     var selectedCourse by remember { mutableStateOf<String?>(null) }
@@ -122,34 +120,21 @@ fun StudentDetailsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Students",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         androidx.compose.material3.Text(
                             text = "Student Details",
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                         )
                         androidx.compose.material3.Text(
                             text = "Manage student profile and actions",
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Thin
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Normal
                         )
                     }
+                    Spacer(modifier = Modifier.width(12.dp))
                     StaffViewModeSelector(
                         currentMode = viewMode,
                         onModeSelected = { viewMode = it }
@@ -191,7 +176,7 @@ fun StudentDetailsScreen(
                     }
                 }
                 StudentViewMode.Grid -> {
-                    itemsIndexed(paginatedStudents.chunked(3)) { _, rowStudents ->
+                    itemsIndexed(paginatedStudents.chunked(2)) { _, rowStudents ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -215,7 +200,7 @@ fun StudentDetailsScreen(
                                     onMenuClick = { }
                                 )
                             }
-                            repeat(3 - rowStudents.size) { Box(modifier = Modifier.weight(1f)) }
+                            repeat(2 - rowStudents.size) { Box(modifier = Modifier.weight(1f)) }
                         }
                     }
                 }
@@ -240,6 +225,7 @@ fun StudentDetailsScreen(
                 students.removeAll { it.id in idsToDelete }
                 favoriteIds.removeAll { it in idsToDelete }
                 selectedIds.clear()
+                Toast.makeText(context, "Student profile deleted", Toast.LENGTH_SHORT).show()
             },
             onFavorite = { selectedIds.forEach { id -> if (id !in favoriteIds) favoriteIds.add(id) }; selectedIds.clear() },
             onMove = { },
