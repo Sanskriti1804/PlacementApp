@@ -1,6 +1,8 @@
 package com.example.placementprojectmp.ui.screens.staff.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -22,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -29,6 +32,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowOutward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -49,16 +53,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
-import com.example.placementprojectmp.ui.components.AppTopBar
-import com.example.placementprojectmp.ui.components.GreetingSection
+import com.example.placementprojectmp.ui.theme.NeonBlue
+import com.example.placementprojectmp.ui.theme.colormap.ColorMapper
+import com.example.placementprojectmp.ui.theme.colormap.CompanyStatus
+import kotlin.random.Random
 
 private data class DriveCompanyUiModel(
     val name: String,
     val location: String,
-    val status: DriveStatus,
+    val status: CompanyStatus,
     val industry: String,
     val companyType: String,
     val website: String,
@@ -66,14 +74,10 @@ private data class DriveCompanyUiModel(
     val hrName: String,
     val hrPhone: String,
     val description: String,
-    val logoResId: Int = R.drawable.app_logo
+    val logoResId: Int = R.drawable.comp_1,
+    val driveName: String = "Winter Internship Drive",
+    val driveDate: String = "22 Aug, 10:00 AM"
 )
-
-private enum class DriveStatus(val dotColor: Color, val label: String) {
-    Active(Color(0xFF2E7D32), "Active"),
-    Participating(Color(0xFFFBC02D), "Participating"),
-    Inactive(Color(0xFF9E9E9E), "Inactive")
-}
 
 @Composable
 fun StaffDriveScreen(
@@ -81,17 +85,11 @@ fun StaffDriveScreen(
 ) {
     val companies = remember { sampleCompanies() }
     val uriHandler = LocalUriHandler.current
+    var headerMode by remember { mutableStateOf(0) } // 0: all companies, 1: company name, 2: drive view
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            AppTopBar(
-                title = "Company Drives",
-                onMenuClick = {},
-                onNotificationClick = {}
-            )
-        }
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -104,13 +102,16 @@ fun StaffDriveScreen(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    GreetingSection(
-                        userName = "Dr. Priya Sharma"
-                    )
                     Text(
-                        text = "Manage companies and recruitment drive",
+                        text = "Manage",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "Companies and Drives",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -120,41 +121,57 @@ fun StaffDriveScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    CompanyCountCard(
-                        modifier = Modifier
-                            .weight(0.1f)
-                            .height(140.dp),
-                        totalCompanies = companies.size
-                    )
                     CompanyLogoCard(
                         modifier = Modifier
-                            .weight(0.2f)
+                            .weight(0.3f)
                             .height(140.dp),
-                        logoResId = companies.firstOrNull()?.logoResId ?: R.drawable.app_logo
+                        logoResId = companies.firstOrNull()?.logoResId ?: R.drawable.comp_1
                     )
                     StaffCompanyInfoCard(
                         modifier = Modifier
                             .weight(0.7f)
                             .height(140.dp),
                         company = companies.firstOrNull() ?: return@item,
-                        onWebsiteClick = { url -> uriHandler.openUri(url) }
+                        onWebsiteClick = { url -> uriHandler.openUri(url) },
+                        onCycle = { headerMode = (headerMode + 1) % 3 }
                     )
                 }
             }
 
             item {
-                Text(
-                    text = "All Companies",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                val title = when (headerMode) {
+                    1 -> companies.firstOrNull()?.name ?: "All Companies"
+                    2 -> companies.firstOrNull()?.driveName ?: "All Companies"
+                    else -> "All Companies"
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = if (headerMode == 2) FontWeight.Bold else FontWeight.Medium
+                    )
+                    if (headerMode == 0) {
+                        Text(
+                            text = "Account",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                Divider(modifier = Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
             }
 
             items(companies) { company ->
                 StaffCompanyInfoCard(
                     modifier = Modifier.fillMaxWidth(),
                     company = company,
-                    onWebsiteClick = { url -> uriHandler.openUri(url) }
+                    onWebsiteClick = { url -> uriHandler.openUri(url) },
+                    onCycle = { headerMode = (headerMode + 1) % 3 }
                 )
             }
         }
@@ -163,130 +180,81 @@ fun StaffDriveScreen(
 
 private fun sampleCompanies(): List<DriveCompanyUiModel> = listOf(
     DriveCompanyUiModel(
-        name = "Google",
+        name = "Nexora Systems",
         location = "Bangalore, India",
-        status = DriveStatus.Active,
+        status = CompanyStatus.ACTIVE,
         industry = "Technology",
-        companyType = "Product Based",
-        website = "https://www.google.com",
-        email = "hr@google.com",
+        companyType = "Product",
+        website = "https://www.nexora.systems",
+        email = "hr@nexora.systems",
         hrName = "Sarah Parker",
         hrPhone = "+91 9876543210",
-        description = "Google is a multinational technology company specializing in search, cloud computing, AI, and digital products."
+        description = "Nexora Systems focuses on campus technology hiring, scalable backend systems, and product engineering.",
+        logoResId = R.drawable.comp_1,
+        driveName = "Nexora Hiring Drive",
+        driveDate = "22 Aug, 10:00 AM"
     ),
     DriveCompanyUiModel(
-        name = "Amazon",
+        name = "Vertex Labs",
         location = "Hyderabad, India",
-        status = DriveStatus.Participating,
+        status = CompanyStatus.VISITING_SOON,
         industry = "E-commerce & Cloud",
-        companyType = "Product Based",
-        website = "https://www.amazon.in",
-        email = "hr@amazon.com",
+        companyType = "Product",
+        website = "https://www.vertexlabs.ai",
+        email = "hr@vertexlabs.ai",
         hrName = "Rahul Mehta",
         hrPhone = "+91 9988776655",
-        description = "Amazon focuses on e-commerce, cloud services, and digital streaming with large campus hiring programs."
+        description = "Vertex Labs runs internship and full-time drives for cloud engineering and data-focused roles.",
+        logoResId = R.drawable.comp_2,
+        driveName = "Vertex SDE Drive",
+        driveDate = "26 Aug, 02:00 PM"
     ),
     DriveCompanyUiModel(
-        name = "Microsoft",
+        name = "Asterion Tech",
         location = "Hyderabad, India",
-        status = DriveStatus.Active,
+        status = CompanyStatus.ACTIVE,
         industry = "Technology",
-        companyType = "Product Based",
-        website = "https://www.microsoft.com",
-        email = "careers@microsoft.com",
+        companyType = "Product",
+        website = "https://www.asterion.tech",
+        email = "careers@asterion.tech",
         hrName = "Ananya Rao",
         hrPhone = "+91 9012345678",
-        description = "Microsoft builds operating systems, productivity tools, cloud platforms, and hires across multiple engineering roles."
+        description = "Asterion Tech hires for full-stack and AI roles with a strong focus on product ownership.",
+        logoResId = R.drawable.comp_3,
+        driveName = "Asterion Campus Drive",
+        driveDate = "01 Sep, 11:30 AM"
     ),
     DriveCompanyUiModel(
-        name = "Adobe",
+        name = "BlueOrbit Digital",
         location = "Noida, India",
-        status = DriveStatus.Participating,
+        status = CompanyStatus.PENDING_APPROVAL,
         industry = "Digital Media",
-        companyType = "Product Based",
-        website = "https://www.adobe.com",
-        email = "jobs@adobe.com",
+        companyType = "Product",
+        website = "https://www.blueorbit.digital",
+        email = "jobs@blueorbit.digital",
         hrName = "Kunal Singh",
         hrPhone = "+91 9123456780",
-        description = "Adobe creates digital media and marketing solutions, focusing on design and content creation tools."
+        description = "BlueOrbit Digital builds design and analytics platforms with regular graduate intake.",
+        logoResId = R.drawable.comp_1,
+        driveName = "BlueOrbit Drive",
+        driveDate = "07 Sep, 09:30 AM"
     ),
     DriveCompanyUiModel(
-        name = "Infosys",
+        name = "CoreNova Services",
         location = "Mysore, India",
-        status = DriveStatus.Inactive,
+        status = CompanyStatus.INACTIVE,
         industry = "IT Services",
         companyType = "Service Based",
-        website = "https://www.infosys.com",
-        email = "campus@infosys.com",
+        website = "https://www.corenova.services",
+        email = "campus@corenova.services",
         hrName = "Neha Kulkarni",
         hrPhone = "+91 9345678901",
-        description = "Infosys is a global leader in consulting and IT services with strong campus engagement."
+        description = "CoreNova Services offers structured onboarding and placement opportunities across service teams.",
+        logoResId = R.drawable.comp_2,
+        driveName = "CoreNova Graduate Drive",
+        driveDate = "14 Sep, 01:00 PM"
     )
 )
-
-@Composable
-private fun CompanyCountCard(
-    modifier: Modifier = Modifier,
-    totalCompanies: Int
-) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = 12.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy((-10).dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                repeat(3) {
-                    LogoBubble()
-                }
-            }
-            Text(
-                text = "+$totalCompanies Companies",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-}
-
-@Composable
-private fun LogoBubble(
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .size(32.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surface)
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
-                shape = CircleShape
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.app_logo),
-            contentDescription = "Company logo",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.size(20.dp)
-        )
-    }
-}
 
 @Composable
 private fun CompanyLogoCard(
@@ -323,7 +291,8 @@ private fun CompanyLogoCard(
 private fun StaffCompanyInfoCard(
     modifier: Modifier = Modifier,
     company: DriveCompanyUiModel,
-    onWebsiteClick: (String) -> Unit
+    onWebsiteClick: (String) -> Unit,
+    onCycle: () -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
@@ -333,8 +302,7 @@ private fun StaffCompanyInfoCard(
         label = "card_scale"
     )
     val backgroundColor by androidx.compose.animation.animateColorAsState(
-        targetValue = if (isExpanded) MaterialTheme.colorScheme.primaryContainer
-        else MaterialTheme.colorScheme.surface,
+        targetValue = MaterialTheme.colorScheme.surface,
         animationSpec = tween(durationMillis = 220, easing = FastOutSlowInEasing),
         label = "card_bg"
     )
@@ -348,18 +316,18 @@ private fun StaffCompanyInfoCard(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         interactionSource = interactionSource,
-        onClick = { isExpanded = !isExpanded }
+        onClick = { onCycle() }
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(14.dp)
         ) {
             Column(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(end = 40.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(end = 26.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 CompanyHeaderSection(company = company, isExpanded = isExpanded)
 
@@ -380,7 +348,7 @@ private fun StaffCompanyInfoCard(
             }
 
             GlassInteractionButton(
-                modifier = Modifier.align(Alignment.Center),
+                modifier = Modifier.align(Alignment.BottomCenter),
                 expanded = isExpanded,
                 onClick = { isExpanded = !isExpanded }
             )
@@ -390,22 +358,64 @@ private fun StaffCompanyInfoCard(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                AnimatedVisibility(visible = !isExpanded) {
+                androidx.compose.animation.AnimatedVisibility(visible = !isExpanded) {
                     HRContactMini(
                         name = company.hrName,
-                        phone = company.hrPhone
+                        phone = company.hrPhone,
+                        email = company.email
                     )
                 }
 
-                AnimatedVisibility(visible = isExpanded) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowOutward,
-                        contentDescription = "Open website",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clickable { onWebsiteClick(company.website) }
+                androidx.compose.animation.AnimatedVisibility(visible = isExpanded) {
+                    Text(
+                        text = company.website.removePrefix("https://").removePrefix("http://"),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier.clickable { onWebsiteClick(company.website) }
                     )
+                }
+            }
+
+            androidx.compose.animation.AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically(animationSpec = tween(240)),
+                exit = shrinkVertically(animationSpec = tween(200)),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp)
+                        .background(NeonBlue)
+                        .padding(12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.align(Alignment.TopStart),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .clip(CircleShape)
+                                .background(ColorMapper.getColor(company.status))
+                        )
+                        Text(
+                            text = "Company Details",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = company.description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            maxLines = 5,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
         }
@@ -430,13 +440,6 @@ private fun CompanyHeaderSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.04f))
-            .border(
-                width = 1.dp,
-                color = borderColor,
-                shape = RoundedCornerShape(16.dp)
-            )
             .padding(12.dp)
     ) {
         Row(
@@ -516,6 +519,36 @@ private fun CompanyHeaderSection(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
+        }
+        Spacer(modifier = Modifier.height(6.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = "HR Name",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = company.hrName,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = company.email,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            Text(
+                text = company.website.removePrefix("https://").removePrefix("http://"),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+                textDecoration = TextDecoration.Underline
+            )
         }
     }
 }
@@ -601,15 +634,16 @@ private fun CompanyDescriptionSection(
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Text(
-            text = "About Company",
+            text = company.driveName,
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Bold
         )
         Text(
-            text = company.description,
+            text = company.driveDate,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 4,
+            maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
     }
@@ -618,13 +652,19 @@ private fun CompanyDescriptionSection(
 @Composable
 private fun HRContactMini(
     name: String,
-    phone: String
+    phone: String,
+    email: String
 ) {
     Column(
         horizontalAlignment = Alignment.End
     ) {
         Text(
-            text = "HR: $name",
+            text = name,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = email,
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -665,7 +705,7 @@ private fun GlassInteractionButton(
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = Icons.Default.ArrowUpward,
+            imageVector = Icons.Default.KeyboardArrowUp,
             contentDescription = "Expand",
             tint = MaterialTheme.colorScheme.primary
         )
@@ -674,30 +714,19 @@ private fun GlassInteractionButton(
 
 @Composable
 private fun StatusDot(
-    status: DriveStatus,
+    status: CompanyStatus,
     modifier: Modifier = Modifier
 ) {
     val color by androidx.compose.animation.animateColorAsState(
-        targetValue = status.dotColor,
+        targetValue = ColorMapper.getColor(status),
         animationSpec = tween(durationMillis = 220, easing = FastOutSlowInEasing),
         label = "status_color"
     )
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    Box(
         modifier = modifier
-    ) {
-        Box(
-            modifier = Modifier
-                .size(12.dp)
-                .clip(CircleShape)
-                .background(color)
-        )
-        Text(
-            text = status.label,
-            style = MaterialTheme.typography.labelSmall,
-            color = color
-        )
-    }
+            .size(12.dp)
+            .clip(CircleShape)
+            .background(color)
+    )
 }
 
