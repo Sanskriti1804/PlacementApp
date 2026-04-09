@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.DropdownMenu
@@ -27,13 +28,18 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Button
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -45,6 +51,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.screens.staff.StaffStudentPortraitIds
@@ -100,6 +108,23 @@ fun StudentDetailsScreen(
     var selectedBacklogStatuses by remember { mutableStateOf(setOf<String>()) }
     var favoritesOnly by remember { mutableStateOf(false) }
     var cgpaRange by remember { mutableStateOf(5.0f..10.0f) }
+    var pendingApplicationStatuses by remember { mutableStateOf(selectedApplicationStatuses) }
+    var pendingPassingYears by remember { mutableStateOf(selectedPassingYears) }
+    var pendingBacklogStatuses by remember { mutableStateOf(selectedBacklogStatuses) }
+    var pendingFavoritesOnly by remember { mutableStateOf(favoritesOnly) }
+    var pendingCgpaPoint by remember { mutableStateOf(cgpaRange.endInclusive) }
+    var showAddTagDialog by remember { mutableStateOf(false) }
+    var newTagText by remember { mutableStateOf("") }
+    var allTags by remember {
+        mutableStateOf(
+            listOf(
+                "Top Performer" to Color(0xFF5E35B1),
+                "Needs Follow-up" to Color(0xFFF4511E)
+            )
+        )
+    }
+    var selectedTagDraft by remember { mutableStateOf<Pair<String, Color>?>(null) }
+    val tagsByStudent = remember { mutableMapOf<String, List<Pair<String, Color>>>() }
     var currentPage by remember { mutableStateOf(1) }
     val totalPages = 28
     val pageSize = 10
@@ -223,8 +248,18 @@ fun StudentDetailsScreen(
                     }
                 }
                 item {
+                    val searchExpand by androidx.compose.animation.core.animateFloatAsState(
+                        targetValue = if (searchQuery.isNotEmpty()) 1.03f else 1f,
+                        animationSpec = androidx.compose.animation.core.tween(220),
+                        label = "staff_search_expand"
+                    )
                     SearchBar(
-                        modifier = Modifier.padding(horizontal = 20.dp),
+                        modifier = Modifier
+                            .padding(horizontal = 20.dp)
+                            .graphicsLayer {
+                                scaleX = searchExpand
+                                scaleY = searchExpand
+                            },
                         query = searchQuery,
                         placeholder = "Search by name, email or roll number...",
                         onQueryChange = {
@@ -253,7 +288,15 @@ fun StudentDetailsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 20.dp),
-                        onClick = { showAdvancedFilters = true }
+                        title = "Filter Student Profiles",
+                        onClick = {
+                            pendingApplicationStatuses = selectedApplicationStatuses
+                            pendingPassingYears = selectedPassingYears
+                            pendingBacklogStatuses = selectedBacklogStatuses
+                            pendingFavoritesOnly = favoritesOnly
+                            pendingCgpaPoint = cgpaRange.endInclusive
+                            showAdvancedFilters = true
+                        }
                     )
                 }
                 when (viewMode) {
@@ -266,6 +309,7 @@ fun StudentDetailsScreen(
                                 studentRollNumber = student.rollNumber,
                                 searchQuery = queryTrimmed,
                                 profileImageResId = portraitByStudentId.getValue(student.id),
+                                tags = tagsByStudent[student.id].orEmpty(),
                                 selected = student.id in selectedIds,
                                 isFavorite = student.id in favoriteIds,
                                 onSelectionChange = { checked ->
@@ -274,7 +318,6 @@ fun StudentDetailsScreen(
                                 onFavoriteToggle = {
                                     if (student.id in favoriteIds) favoriteIds.remove(student.id) else favoriteIds.add(student.id)
                                 },
-                                onMenuClick = { }
                             )
                         }
                     }
@@ -294,6 +337,7 @@ fun StudentDetailsScreen(
                                         studentRollNumber = student.rollNumber,
                                         searchQuery = queryTrimmed,
                                         profileImageResId = portraitByStudentId.getValue(student.id),
+                                        tags = tagsByStudent[student.id].orEmpty(),
                                         selected = student.id in selectedIds,
                                         isFavorite = student.id in favoriteIds,
                                         onSelectionChange = { checked ->
@@ -302,7 +346,6 @@ fun StudentDetailsScreen(
                                         onFavoriteToggle = {
                                             if (student.id in favoriteIds) favoriteIds.remove(student.id) else favoriteIds.add(student.id)
                                         },
-                                        onMenuClick = { }
                                     )
                                 }
                                 repeat(2 - rowStudents.size) { Box(modifier = Modifier.weight(1f)) }
@@ -336,7 +379,11 @@ fun StudentDetailsScreen(
                     selectedIds.forEach { id -> if (id !in favoriteIds) favoriteIds.add(id) }
                     selectedIds.clear()
                 },
-                onAddTag = { selectedIds.clear() },
+                onAddTag = {
+                    selectedTagDraft = null
+                    newTagText = ""
+                    showAddTagDialog = true
+                },
                 onMoreClick = { moreMenuExpanded = true },
                 moreMenuExpanded = moreMenuExpanded,
                 onMoreDismiss = { moreMenuExpanded = false },
@@ -349,17 +396,73 @@ fun StudentDetailsScreen(
 
         if (showAdvancedFilters) {
             AdvancedFiltersBottomSheet(
-                favoritesOnly = favoritesOnly,
-                onFavoritesOnlyChange = { favoritesOnly = it; currentPage = 1 },
-                selectedStatuses = selectedApplicationStatuses,
-                onStatusesChange = { selectedApplicationStatuses = it; currentPage = 1 },
-                selectedPassingYears = selectedPassingYears,
-                onPassingYearsChange = { selectedPassingYears = it; currentPage = 1 },
-                selectedBacklogs = selectedBacklogStatuses,
-                onBacklogsChange = { selectedBacklogStatuses = it; currentPage = 1 },
-                cgpaRange = cgpaRange,
-                onCgpaRangeChange = { cgpaRange = it; currentPage = 1 },
+                favoritesOnly = pendingFavoritesOnly,
+                onFavoritesOnlyChange = { pendingFavoritesOnly = it },
+                selectedStatuses = pendingApplicationStatuses,
+                onStatusesChange = { pendingApplicationStatuses = it },
+                selectedPassingYears = pendingPassingYears,
+                onPassingYearsChange = { pendingPassingYears = it },
+                selectedBacklogs = pendingBacklogStatuses,
+                onBacklogsChange = { pendingBacklogStatuses = it },
+                cgpaRange = (cgpaRange.start..pendingCgpaPoint),
+                onCgpaRangeChange = { pendingCgpaPoint = it.endInclusive },
+                onApply = {
+                    favoritesOnly = pendingFavoritesOnly
+                    selectedApplicationStatuses = pendingApplicationStatuses
+                    selectedPassingYears = pendingPassingYears
+                    selectedBacklogStatuses = pendingBacklogStatuses
+                    cgpaRange = cgpaRange.start..pendingCgpaPoint
+                    currentPage = 1
+                    showAdvancedFilters = false
+                },
+                onReset = {
+                    pendingFavoritesOnly = false
+                    pendingApplicationStatuses = emptySet()
+                    pendingPassingYears = emptySet()
+                    pendingBacklogStatuses = emptySet()
+                    pendingCgpaPoint = 10f
+                },
                 onDismiss = { showAdvancedFilters = false }
+            )
+        }
+        if (showAddTagDialog) {
+            AddTagDialog(
+                currentTags = allTags,
+                newTagText = newTagText,
+                onNewTagTextChange = { newTagText = it },
+                selectedTag = selectedTagDraft,
+                onSelectTag = { selectedTagDraft = it },
+                onDismiss = { showAddTagDialog = false },
+                onAddNewTag = {
+                    if (allTags.size >= 6) {
+                        scope.launch { snackbarHostState.showSnackbar("Cannot make any more tags") }
+                    } else if (newTagText.isNotBlank()) {
+                        val palette = listOf(
+                            Color(0xFF5E35B1),
+                            Color(0xFFD81B60),
+                            Color(0xFF00897B),
+                            Color(0xFF1E88E5),
+                            Color(0xFFF4511E),
+                            Color(0xFF6D4C41)
+                        )
+                        val color = palette[allTags.size % palette.size]
+                        val newTag = newTagText.trim() to color
+                        allTags = allTags + newTag
+                        selectedTagDraft = newTag
+                        newTagText = ""
+                    }
+                },
+                onApply = {
+                    selectedTagDraft?.let { tag ->
+                        selectedIds.forEach { id ->
+                            val current = tagsByStudent[id].orEmpty()
+                            val updated = (current + tag).distinctBy { it.first }.take(3)
+                            tagsByStudent[id] = updated
+                        }
+                    }
+                    selectedIds.clear()
+                    showAddTagDialog = false
+                }
             )
         }
 
@@ -373,6 +476,7 @@ fun StudentDetailsScreen(
 @Composable
 private fun AdvancedFilteringStrip(
     modifier: Modifier = Modifier,
+    title: String,
     onClick: () -> Unit
 ) {
     Row(
@@ -390,7 +494,7 @@ private fun AdvancedFilteringStrip(
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Advanced Filtering",
+            text = title,
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -415,6 +519,8 @@ private fun AdvancedFiltersBottomSheet(
     onBacklogsChange: (Set<String>) -> Unit,
     cgpaRange: ClosedFloatingPointRange<Float>,
     onCgpaRangeChange: (ClosedFloatingPointRange<Float>) -> Unit,
+    onApply: () -> Unit = {},
+    onReset: () -> Unit = {},
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
@@ -451,7 +557,7 @@ private fun AdvancedFiltersBottomSheet(
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
             AdvancedChipGroup(
-                label = "Application Status",
+                label = "",
                 options = listOf("Applied", "Not Applied", "Shortlisted", "Rejected", "Selected", "Placed"),
                 selected = selectedStatuses,
                 onChange = onStatusesChange
@@ -464,7 +570,7 @@ private fun AdvancedFiltersBottomSheet(
             )
             AdvancedChipGroup(
                 label = "Backlog Status",
-                options = listOf("Active Backlogs", "No Backlogs", "Cleared Backlogs"),
+                options = listOf("Active Backlogs", "Cleared Backlogs"),
                 selected = selectedBacklogs,
                 onChange = onBacklogsChange
             )
@@ -473,11 +579,24 @@ private fun AdvancedFiltersBottomSheet(
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            RangeSlider(
-                value = cgpaRange.start..cgpaRange.endInclusive,
-                onValueChange = { onCgpaRangeChange(it.start..it.endInclusive) },
+            androidx.compose.material3.Slider(
+                value = cgpaRange.endInclusive,
+                onValueChange = { onCgpaRangeChange(cgpaRange.start..it) },
                 valueRange = 0f..10f
             )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onReset,
+                    modifier = Modifier.weight(1f)
+                ) { Text("Reset") }
+                Button(
+                    onClick = onApply,
+                    modifier = Modifier.weight(1f)
+                ) { Text("Apply") }
+            }
             Spacer(modifier = Modifier.height(10.dp))
         }
     }
@@ -491,11 +610,13 @@ private fun AdvancedChipGroup(
     onChange: (Set<String>) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        if (label.isNotBlank()) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             options.chunked(3).forEach { row ->
                 Row(
@@ -513,6 +634,86 @@ private fun AdvancedChipGroup(
                             )
                         )
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddTagDialog(
+    currentTags: List<Pair<String, Color>>,
+    newTagText: String,
+    onNewTagTextChange: (String) -> Unit,
+    selectedTag: Pair<String, Color>?,
+    onSelectTag: (Pair<String, Color>) -> Unit,
+    onDismiss: () -> Unit,
+    onAddNewTag: () -> Unit,
+    onApply: () -> Unit
+) {
+    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text("Add Tag", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                TextField(
+                    value = newTagText,
+                    onValueChange = onNewTagTextChange,
+                    placeholder = { Text("Enter custom tag") },
+                    trailingIcon = {
+                        Box(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary)
+                                .clickable(onClick = onAddNewTag),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Add tag",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    currentTags.take(6).forEach { tag ->
+                        val selected = selectedTag?.first == tag.first
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (selected) tag.second.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surface)
+                                .border(1.dp, tag.second, RoundedCornerShape(12.dp))
+                                .clickable { onSelectTag(tag) }
+                                .padding(horizontal = 8.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                text = tag.first,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = if (selected) tag.second else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    OutlinedButton(onClick = onDismiss) { Text("Cancel") }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = onApply) { Text("Apply") }
                 }
             }
         }

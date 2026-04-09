@@ -1,5 +1,7 @@
 package com.example.placementprojectmp.ui.screens.staff.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Checkbox
@@ -26,6 +27,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,8 +54,9 @@ fun StaffStudentCardList(
     isFavorite: Boolean = false,
     onSelectionChange: (Boolean) -> Unit = {},
     onFavoriteToggle: () -> Unit = {},
-    onMenuClick: () -> Unit = {}
+    tags: List<Pair<String, androidx.compose.ui.graphics.Color>> = emptyList()
 ) {
+    var tagsExpanded by remember { mutableStateOf(false) }
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
@@ -120,16 +126,6 @@ fun StaffStudentCardList(
                 }
             }
             IconButton(
-                onClick = onMenuClick,
-                modifier = Modifier.size(40.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "More",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            IconButton(
                 onClick = onFavoriteToggle,
                 modifier = Modifier.size(40.dp)
             ) {
@@ -138,6 +134,34 @@ fun StaffStudentCardList(
                     contentDescription = "Favorite",
                     tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+        }
+        if (tags.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .clickable { tagsExpanded = !tagsExpanded }
+                    .animateContentSize(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                tags.take(3).forEach { (_, c) ->
+                    Box(
+                        modifier = Modifier
+                            .size(width = 16.dp, height = 6.dp)
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(c.copy(alpha = 0.9f))
+                    )
+                }
+                AnimatedVisibility(visible = tagsExpanded) {
+                    Text(
+                        text = tags.take(3).joinToString(" | ") { it.first },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }
@@ -155,8 +179,9 @@ fun StaffStudentCardGrid(
     isFavorite: Boolean = false,
     onSelectionChange: (Boolean) -> Unit = {},
     onFavoriteToggle: () -> Unit = {},
-    onMenuClick: () -> Unit = {}
+    tags: List<Pair<String, androidx.compose.ui.graphics.Color>> = emptyList()
 ) {
+    var tagsExpanded by remember { mutableStateOf(false) }
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
@@ -204,19 +229,7 @@ fun StaffStudentCardGrid(
                         )
                     }
                 }
-                Box(
-                    modifier = Modifier
-                        .size(22.dp)
-                        .clickable { onMenuClick() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "More",
-                        modifier = Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                Spacer(modifier = Modifier.size(22.dp))
             }
 
             Box(
@@ -270,6 +283,36 @@ fun StaffStudentCardGrid(
                     maxLines = 1,
                     overflow = TextOverflow.Clip
                 )
+            }
+            if (tags.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { tagsExpanded = !tagsExpanded }
+                        .animateContentSize(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                        tags.take(3).forEach { (_, c) ->
+                            Box(
+                                modifier = Modifier
+                                    .size(width = 14.dp, height = 5.dp)
+                                    .clip(RoundedCornerShape(999.dp))
+                                    .background(c.copy(alpha = 0.9f))
+                            )
+                        }
+                    }
+                    AnimatedVisibility(visible = tagsExpanded) {
+                        Text(
+                            text = "  " + tags.take(3).joinToString(" | ") { it.first },
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
             }
         }
     }
