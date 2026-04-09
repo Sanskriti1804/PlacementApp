@@ -66,173 +66,104 @@ fun TeacherProfileScreen(
         }
 
         item {
-            TeacherDetailsSection()
+            TeacherStatusInfoCard()
         }
 
         item {
-            ContactButtonsSection()
+            TeacherContactSection()
         }
 
         item {
-            OfficeLocationCard()
-        }
-
-        item {
-            Divider(
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-            )
-        }
-
-        item {
-            ProfessionalInfoSection()
-        }
-
-        item {
-            Divider(
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-            )
-        }
-
-        item {
-            PlacementResponsibilitiesSection(onShowMoreCompanies = onShowMoreCompanies)
+            TeacherAdditionalDetailsSection()
         }
     }
 }
 
 @Composable
 private fun ProfileHeaderSection() {
-    Row(
+    Card(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalAlignment = Alignment.Top
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        val interactionSource = remember { MutableInteractionSource() }
-        val pressed by interactionSource.collectIsPressedAsState()
-        val scale by animateFloatAsState(
-            targetValue = if (pressed) 0.97f else 1f,
-            animationSpec = tween(durationMillis = 160, easing = FastOutSlowInEasing),
-            label = "profile_image_scale"
-        )
-
-        Card(
+        Column(
             modifier = Modifier
-                .weight(0.3f)
-                .scale(scale),
-            shape = RoundedCornerShape(20.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            interactionSource = interactionSource,
-            onClick = {}
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.app_logo),
-                contentDescription = "Teacher profile",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .clip(RoundedCornerShape(20.dp))
-            )
-        }
-
-        Card(
-            modifier = Modifier
-                .weight(0.7f),
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
+                Box(
+                    modifier = Modifier
+                        .size(9.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF2E7D32))
+                )
+                Text(
+                    text = "Aug 2018 - Present",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Card(
+                    modifier = Modifier.width(110.dp),
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = "Dr. Ananya Sharma",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = "Professor at Delhi Institute of Technology",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Column(
-                        horizontalAlignment = Alignment.End,
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = "Joined: Aug 2018",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFF2E7D32))
-                            )
-                            Text(
-                                text = "Active",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
+                    Image(
+                        painter = painterResource(id = R.drawable.pfp_staff),
+                        contentDescription = "Teacher profile",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp)
+                            .clip(RoundedCornerShape(18.dp))
+                    )
                 }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    Text(
+                        text = "Dr. Ananya Sharma",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = "Professor at XYZ College",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
                     AssistChip(
                         onClick = {},
-                        label = {
-                            Text(
-                                text = "Placement In-Charge",
-                                style = MaterialTheme.typography.labelSmall
-                            )
-                        },
+                        label = { Text(text = "Placement Incharge", style = MaterialTheme.typography.labelSmall) },
                         colors = AssistChipDefaults.assistChipColors(
-                            labelColor = MaterialTheme.colorScheme.primary,
-                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+                            labelColor = Color(0xFF7A1F6A),
+                            containerColor = Color(0xFF7A1F6A).copy(alpha = 0.14f)
                         )
                     )
-
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(999.dp))
-                            .background(MaterialTheme.colorScheme.surface)
-                            .padding(horizontal = 10.dp, vertical = 4.dp)
-                    ) {
-                        Text(
-                            text = "EMP-1024",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    Text(
+                        text = "DIT_PX4",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
@@ -240,209 +171,123 @@ private fun ProfileHeaderSection() {
 }
 
 @Composable
-private fun TeacherDetailsSection() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "1️⃣ ",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "Faculty Position: Professor",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "2️⃣ ",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "Placement Responsibility: Placement Faculty Coordinator",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "3️⃣ ",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            AssistChip(
-                onClick = {},
-                label = {
-                    Text(
-                        text = "Department: Computer Science",
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                },
-                colors = AssistChipDefaults.assistChipColors(
-                    labelColor = MaterialTheme.colorScheme.onSurface,
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-                )
-            )
-        }
-    }
-}
-
-@Composable
-private fun ContactButtonsSection() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        ContactButton(
-            label = "Email Teacher"
-        )
-        ContactButton(
-            label = "Call Teacher"
-        )
-    }
-}
-
-@Composable
-private fun ContactButton(
-    label: String
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.97f else 1f,
-        animationSpec = tween(durationMillis = 120, easing = FastOutSlowInEasing),
-        label = "contact_button_scale"
-    )
-
+private fun TeacherStatusInfoCard() {
     Card(
-        modifier = Modifier
-            .scale(scale),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        interactionSource = interactionSource,
-        onClick = {}
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 10.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-        }
-    }
-}
-
-@Composable
-private fun OfficeLocationCard() {
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.98f else 1f,
-        animationSpec = tween(durationMillis = 160, easing = FastOutSlowInEasing),
-        label = "office_location_scale"
-    )
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .scale(scale),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-        interactionSource = interactionSource,
-        onClick = {}
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(14.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "\uD83D\uDCCD",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                listOf(Color(0xFF1976D2), Color(0xFF8E24AA), Color(0xFF2E7D32)).forEach { dotColor ->
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(dotColor)
+                    )
+                }
             }
-            Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = "Office Location",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = "Room 302, Placement Cell Building",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "Delhi Institute of Technology",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(text = "Faculty Position - Professor", style = MaterialTheme.typography.bodySmall, color = Color(0xFF1976D2))
+                Text(text = "Placement Responsibility - Placement Incharge", style = MaterialTheme.typography.bodySmall, color = Color(0xFF8E24AA))
+                Text(text = "Department - Computer Science", style = MaterialTheme.typography.bodySmall, color = Color(0xFF2E7D32))
             }
         }
     }
 }
 
 @Composable
-private fun ProfessionalInfoSection() {
+private fun TeacherContactSection() {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            ContactInfoCard(modifier = Modifier.weight(1f), label = "Email", value = "ananya@xyz.edu")
+            ContactInfoCard(modifier = Modifier.weight(1f), label = "Phone", value = "+91 98765 43210")
+        }
+        ContactInfoCard(modifier = Modifier.fillMaxWidth(), label = "LinkedIn", value = "linkedin.com/in/ananyasharma")
+    }
+}
+
+@Composable
+private fun ContactInfoCard(
+    modifier: Modifier,
+    label: String,
+    value: String
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        onClick = {}
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(text = label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(text = value, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface)
+        }
+    }
+}
+
+@Composable
+private fun TeacherAdditionalDetailsSection() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
-            text = "Professional Information",
-            style = MaterialTheme.typography.titleSmall,
+            text = "Additional Details",
+            style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
-
         InfoRow(
-            label = "Qualification & Specialization",
+            label = "Office Location",
+            value = "Room 302, Placement Cell Building"
+        )
+        InfoRow(
+            label = "Professional Information",
+            value = "Professor at XYZ College"
+        )
+        InfoRow(
+            label = "Qualification",
             value = "PhD in Artificial Intelligence"
         )
-
+        InfoRow(
+            label = "Specialization",
+            value = "Machine Learning, Data Systems"
+        )
         InfoRow(
             label = "Teaching Experience",
-            value = "12 Years"
+            value = "12+ years, Former Software Engineer at Nexora Systems"
         )
-
         InfoRow(
             label = "Subjects Taught",
             value = "Machine Learning, Data Structures, Artificial Intelligence"
         )
-
         InfoRow(
             label = "Current Role",
             value = "Placement Faculty Coordinator"
+        )
+        InfoRow(
+            label = "Placement Responsibility",
+            value = "Placement Incharge"
         )
     }
 }
@@ -460,7 +305,11 @@ private fun InfoRow(
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodySmall,
+            style = if (label == "Professional Information" || label == "Placement Responsibility") {
+                MaterialTheme.typography.bodyMedium
+            } else {
+                MaterialTheme.typography.bodySmall
+            },
             color = MaterialTheme.colorScheme.onSurface
         )
     }

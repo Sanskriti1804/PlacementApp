@@ -47,6 +47,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.placementprojectmp.navigation.Routes
+import com.example.placementprojectmp.ui.components.AppTopBar
 
 /**
  * Staff shell: same bottom bar pattern as [com.example.placementprojectmp.ui.screens.student.screens.StudentMainContainer].
@@ -57,6 +58,9 @@ fun StaffMainContainer(
     modifier: Modifier = Modifier
 ) {
     val innerNavController = rememberNavController()
+    val navBackStackEntry by innerNavController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val showTopBar = currentRoute != Routes.StaffRoutes.TeacherCompanyDetails
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -68,27 +72,34 @@ fun StaffMainContainer(
             )
         }
     ) { paddingValues ->
-        NavHost(
-            navController = innerNavController,
-            startDestination = Routes.StaffRoutes.StudentDetails,
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            composable(Routes.StaffRoutes.StudentDetails) {
-                StudentDetailsScreen(modifier = modifier)
+            if (showTopBar) {
+                AppTopBar()
             }
-            composable(Routes.StaffRoutes.TeacherCompanyDetails) {
-                TeacherCompanyDetailsScreen(modifier = modifier)
-            }
-            composable(Routes.StaffRoutes.StaffDashboard) {
-                StaffDashboardPlaceholderScreen(modifier = modifier)
-            }
-            composable(Routes.StaffRoutes.Drive) {
-                StaffDriveScreen(modifier = modifier)
-            }
-            composable(Routes.StaffRoutes.TeacherProfile) {
-                TeacherProfileScreen(modifier = modifier)
+            NavHost(
+                navController = innerNavController,
+                startDestination = Routes.StaffRoutes.StudentDetails,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                composable(Routes.StaffRoutes.StudentDetails) {
+                    StudentDetailsScreen(modifier = modifier)
+                }
+                composable(Routes.StaffRoutes.TeacherCompanyDetails) {
+                    TeacherCompanyDetailsScreen(modifier = modifier)
+                }
+                composable(Routes.StaffRoutes.StaffDashboard) {
+                    StaffDashboardPlaceholderScreen(modifier = modifier)
+                }
+                composable(Routes.StaffRoutes.Drive) {
+                    StaffDriveScreen(modifier = modifier)
+                }
+                composable(Routes.StaffRoutes.TeacherProfile) {
+                    TeacherProfileScreen(modifier = modifier)
+                }
             }
         }
     }

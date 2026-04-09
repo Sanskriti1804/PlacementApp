@@ -64,7 +64,7 @@ data class ApplicationStatusScreenItem(
 fun ApplicationStatusScreenCard(
     modifier: Modifier = Modifier,
     item: ApplicationStatusScreenItem,
-    logoResId: Int = R.drawable.pfp_company,
+    logoResId: Int = R.drawable.comp_1,
     onReminderClick: () -> Unit = {},
     onCompanyClick: ((ApplicationStatusScreenItem) -> Unit)? = null
 ) {

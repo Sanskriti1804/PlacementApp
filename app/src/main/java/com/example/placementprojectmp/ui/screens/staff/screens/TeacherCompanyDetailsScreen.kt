@@ -41,9 +41,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Apartment
 import androidx.compose.material.icons.filled.ArrowOutward
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
@@ -72,7 +70,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -423,7 +420,7 @@ private fun CompanyOverviewSection(
                     onClick = onAddNoteClick
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.pfp_company),
+                        painter = painterResource(id = R.drawable.comp_1),
                         contentDescription = "Company",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
