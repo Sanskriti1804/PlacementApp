@@ -390,7 +390,7 @@ private fun CompanyOverviewSection(
             Column(
                 modifier = Modifier
                     .width(120.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 StatusPill(
                     color = Color(0xFF2E7D32),
@@ -421,12 +421,12 @@ private fun CompanyOverviewSection(
                 modifier = Modifier
                     .weight(1f)
                     .height(136.dp)
-                    .padding(bottom = 4.dp),
+                    .padding(bottom = 2.dp),
                 verticalArrangement = Arrangement.Bottom
             ) {
                 Text(
                     text = "NEXORA SYSTEMS",
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.headlineLarge,
                     color = Color.White,
                     fontWeight = FontWeight.Black
                 )
@@ -530,23 +530,23 @@ private fun StickyNoteCard(
 
 @Composable
 private fun CompanyBasicInfoSection() {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             Icon(
                 imageVector = Icons.Default.LocationOn,
                 contentDescription = "Location",
                 tint = Color.White,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(16.dp)
             )
             Text(
                 text = "Bangalore, India",
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = Color.White
             )
         }
         Text(
             text = "Mountain View, USA",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.bodyLarge,
             color = Color.White
         )
         Text(
@@ -562,29 +562,39 @@ private fun WebsiteLinkSection() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(top = 8.dp, bottom = 2.dp),
         contentAlignment = Alignment.Center
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth(0.82f)
-                .clickable { },
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .fillMaxWidth(0.78f)
+                .clickable { }
         ) {
-            Text(
-                text = "www.nexora.systems",
-                style = MaterialTheme.typography.titleLarge.copy(
-                    textDecoration = TextDecoration.Underline
-                ),
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text(
+                    text = "www.nexora.systems",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+                Icon(
+                    imageVector = Icons.Default.ArrowOutward,
+                    contentDescription = "Open website",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            Divider(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(210.dp)
+                    .padding(top = 2.dp),
                 color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
-            Icon(
-                imageVector = Icons.Default.ArrowOutward,
-                contentDescription = "Open website",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
+                thickness = 2.dp
             )
         }
     }
@@ -594,16 +604,12 @@ private fun WebsiteLinkSection() {
 private fun CompanyMetadataSection() {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         MetadataRow(label = "Industry Type", value = "Technology")
         MetadataRow(label = "Company Type", value = "Product Based")
         MetadataRow(label = "Global Ops", value = "APAC + North America")
     }
-    Divider(
-        modifier = Modifier.padding(top = 8.dp),
-        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-    )
 }
 
 @Composable
@@ -613,13 +619,13 @@ private fun MetadataRow(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Box(
             modifier = Modifier
-                .width(5.dp)
-                .height(34.dp)
+                .width(6.dp)
+                .height(28.dp)
                 .background(Color(0xFF00D4FF), RoundedCornerShape(99.dp))
         )
         Row(
@@ -676,16 +682,13 @@ private fun TabSection() {
                 1 -> "The company operates across India with hybrid delivery teams supporting both enterprise and education clients. Hiring programs include internships, apprenticeships, and full-time tracks designed for campus transitions. Internal platforms support candidate analytics, drive scheduling, and recruiter collaboration workflows. Leadership invests in upskilling through cohort-based learning sessions and regular technical workshops. Project execution follows agile practices with measurable outcomes and delivery transparency."
                 else -> "Sector coverage includes SaaS platforms, HR technology, analytics, and AI-assisted workflow tools. Nexora's portfolio spans screening engines, placement dashboards, and institution engagement products. The roadmap prioritizes reliability, security, and scalable cloud-native architecture. The team is currently expanding into talent intelligence and predictive employability insights. Partnerships with campuses and industry mentors remain central to the company's growth strategy."
             }
-            DescriptionBlock(
-                title = tabs[tabIndex],
-                content = content
+            Text(
+                text = content,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
-    Divider(
-        modifier = Modifier.padding(top = 8.dp),
-        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-    )
 }
 
 @Composable
