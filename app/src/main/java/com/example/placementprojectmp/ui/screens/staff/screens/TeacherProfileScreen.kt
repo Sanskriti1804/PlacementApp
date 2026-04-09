@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -54,6 +56,7 @@ fun TeacherProfileScreen(
         item { FacultyInfoStatusCard() }
         item { ContactSection() }
         item { OfficeLocationCard() }
+        item { Spacer(modifier = Modifier.height(6.dp)) }
         item { ProfessionalDetailsSection() }
         item { StatsGridSection() }
     }
@@ -67,7 +70,7 @@ private fun TeacherIdCardsSection() {
         verticalAlignment = Alignment.Top
     ) {
         Card(
-            modifier = Modifier.weight(0.4f),
+            modifier = Modifier.weight(0.3f),
             shape = RoundedCornerShape(18.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -84,7 +87,7 @@ private fun TeacherIdCardsSection() {
         }
 
         Card(
-            modifier = Modifier.weight(0.6f),
+            modifier = Modifier.weight(0.7f),
             shape = RoundedCornerShape(18.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -96,11 +99,24 @@ private fun TeacherIdCardsSection() {
                     .padding(12.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
+                val statusColor = ColorMapper.getColor(TeacherAccountState.ACTIVE)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
                 ) {
-                    StatusIndicator(state = TeacherAccountState.ACTIVE)
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(statusColor)
+                    )
+                    Text(
+                        text = "2021 - Present",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        fontWeight = FontWeight.Thin
+                    )
                 }
 
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -124,60 +140,30 @@ private fun TeacherIdCardsSection() {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.Bottom
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(8.dp)
-                                .clip(CircleShape)
-                                .background(ColorMapper.getColor(PlacementRole.PLACEMENT_COORDINATOR))
-                        )
-                        Text(
-                            text = "Placement Incharge",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
                     Text(
-                        text = "ABC_FAC_102",
-                        style = MaterialTheme.typography.titleMedium,
+                        text = "FAC_024",
+                        style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.ExtraBold
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1
+                    )
+                    AssistChip(
+                        onClick = {},
+                        label = { Text(text = "Placement In-Charge", style = MaterialTheme.typography.labelSmall) },
+                        colors = AssistChipDefaults.assistChipColors(
+                            containerColor = Color.Transparent,
+                            labelColor = statusColor
+                        ),
+                        border = AssistChipDefaults.assistChipBorder(
+                            enabled = true,
+                            borderColor = statusColor
+                        )
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun StatusIndicator(state: TeacherAccountState) {
-    val color = ColorMapper.getColor(state)
-    val label = when (state) {
-        TeacherAccountState.ACTIVE -> "Active"
-        TeacherAccountState.INACTIVE -> "Inactive"
-        TeacherAccountState.ON_LEAVE -> "On Leave"
-    }
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(5.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(8.dp)
-                .clip(CircleShape)
-                .background(color)
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
     }
 }
 
@@ -191,8 +177,8 @@ private fun FacultyInfoStatusCard() {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(
             modifier = Modifier
@@ -202,7 +188,7 @@ private fun FacultyInfoStatusCard() {
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -212,16 +198,6 @@ private fun FacultyInfoStatusCard() {
                                 .size(8.dp)
                                 .clip(CircleShape)
                                 .background(color)
-                        )
-                    }
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                    repeat(3) {
-                        Box(
-                            modifier = Modifier
-                                .size(5.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f))
                         )
                     }
                 }
@@ -259,16 +235,19 @@ private fun StatusItem(
     value: String
 ) {
     Row(
+        modifier = Modifier.width(220.dp),
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .padding(top = 4.dp)
-                .size(7.dp)
-                .clip(CircleShape)
-                .background(dotColor)
-        )
+        Box(modifier = Modifier.width(12.dp), contentAlignment = Alignment.TopCenter) {
+            Box(
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .size(7.dp)
+                    .clip(CircleShape)
+                    .background(dotColor)
+            )
+        }
         Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
             Text(
                 text = label,
@@ -289,13 +268,50 @@ private fun StatusItem(
 private fun ContactSection() {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         val neonValue = ColorMapper.getColor(UserRole.STUDENT)
-        Text(text = "ananya.sharma@dit.edu", style = MaterialTheme.typography.bodyMedium, color = neonValue)
-        Text(text = "+91 98765 43210", style = MaterialTheme.typography.bodyMedium, color = neonValue)
-        Text(text = "LinkedIn", style = MaterialTheme.typography.bodyMedium, color = neonValue)
-        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            ContactValueButton(modifier = Modifier.weight(1f), value = "ananya.sharma@dit.edu", color = neonValue)
+            ContactValueButton(modifier = Modifier.weight(1f), value = "+91 9876543210", color = neonValue)
+        }
+        ContactValueButton(
+            modifier = Modifier.fillMaxWidth(),
+            value = "linkedin.com/in/ananyasharma",
+            color = neonValue
+        )
+    }
+}
+
+@Composable
+private fun ContactValueButton(
+    modifier: Modifier,
+    value: String,
+    color: Color
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = color),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 
@@ -340,13 +356,13 @@ private fun ProfessionalDetailsSection() {
     ) {
         Text(
             text = "Professional Details",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary
         )
         Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
 
         DetailField(label = "Qualification", value = "PhD in Artificial Intelligence")
-        DetailField(label = "Professional Experience", value = "12+ years\nFormer Software Engineer at Nexora Systems")
+        DetailField(label = "Professional Experience", value = "12+ years teaching experience")
         DetailField(
             label = "Subjects Taught",
             value = "Machine Learning\nData Structures\nArtificial Intelligence"
