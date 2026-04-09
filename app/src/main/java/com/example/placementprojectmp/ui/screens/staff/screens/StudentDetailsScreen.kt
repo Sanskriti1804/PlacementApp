@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.DropdownMenu
@@ -40,6 +41,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -283,22 +287,6 @@ fun StudentDetailsScreen(
                         onDomainSelect = { selectedDomain = it; currentPage = 1 }
                     )
                 }
-                item {
-                    AdvancedFilteringStrip(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp),
-                        title = "Filter Student Profiles",
-                        onClick = {
-                            pendingApplicationStatuses = selectedApplicationStatuses
-                            pendingPassingYears = selectedPassingYears
-                            pendingBacklogStatuses = selectedBacklogStatuses
-                            pendingFavoritesOnly = favoritesOnly
-                            pendingCgpaPoint = cgpaRange.endInclusive
-                            showAdvancedFilters = true
-                        }
-                    )
-                }
                 when (viewMode) {
                     StudentViewMode.List, StudentViewMode.Expanded -> {
                         itemsIndexed(paginatedStudents) { _, student ->
@@ -473,39 +461,6 @@ fun StudentDetailsScreen(
     }
 }
 
-@Composable
-private fun AdvancedFilteringStrip(
-    modifier: Modifier = Modifier,
-    title: String,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 6.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Default.KeyboardArrowDown,
-            contentDescription = "Open advanced filters",
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Icon(
-            imageVector = Icons.Default.KeyboardArrowDown,
-            contentDescription = "Open advanced filters",
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AdvancedFiltersBottomSheet(
@@ -524,6 +479,7 @@ private fun AdvancedFiltersBottomSheet(
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    var selectedSortBy by remember { mutableStateOf("Highest Package") }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
@@ -535,15 +491,31 @@ private fun AdvancedFiltersBottomSheet(
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.FilterList,
+                    contentDescription = "Filter",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Filter Student Profile",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
             Text(
-                text = "Advanced Filters",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                text = "Favorite Student",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
             FilterChip(
                 selected = favoritesOnly,
                 onClick = { onFavoritesOnlyChange(!favoritesOnly) },
-                label = { Text("Favorite Students") },
+                label = { Text("Favorite Students", style = MaterialTheme.typography.labelMedium) },
                 leadingIcon = {
                     Icon(
                         imageVector = if (favoritesOnly) Icons.Default.Star else Icons.Outlined.StarBorder,
@@ -556,8 +528,28 @@ private fun AdvancedFiltersBottomSheet(
                 )
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
+            Text(
+                text = "Sort By",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                listOf("Highest Package", "Name (A → Z)", "Package", "CGPA").forEach { option ->
+                    SortOptionBox(
+                        modifier = Modifier.weight(1f),
+                        label = option,
+                        selected = selectedSortBy == option,
+                        onClick = { selectedSortBy = option }
+                    )
+                }
+            }
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
             AdvancedChipGroup(
-                label = "",
+                label = "Status",
                 options = listOf("Applied", "Not Applied", "Shortlisted", "Rejected", "Selected", "Placed"),
                 selected = selectedStatuses,
                 onChange = onStatusesChange
@@ -579,10 +571,18 @@ private fun AdvancedFiltersBottomSheet(
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            androidx.compose.material3.Slider(
+            Slider(
                 value = cgpaRange.endInclusive,
                 onValueChange = { onCgpaRangeChange(cgpaRange.start..it) },
-                valueRange = 0f..10f
+                valueRange = 0f..10f,
+                thumb = {
+                    Box(
+                        modifier = Modifier
+                            .size(14.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary)
+                    )
+                }
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -590,10 +590,12 @@ private fun AdvancedFiltersBottomSheet(
             ) {
                 OutlinedButton(
                     onClick = onReset,
+                    shape = RoundedCornerShape(10.dp),
                     modifier = Modifier.weight(1f)
                 ) { Text("Reset") }
                 Button(
                     onClick = onApply,
+                    shape = RoundedCornerShape(10.dp),
                     modifier = Modifier.weight(1f)
                 ) { Text("Apply") }
             }
@@ -616,6 +618,7 @@ private fun AdvancedChipGroup(
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
         }
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             options.chunked(3).forEach { row ->
@@ -628,7 +631,13 @@ private fun AdvancedChipGroup(
                         FilterChip(
                             selected = active,
                             onClick = { onChange(if (active) selected - option else selected + option) },
-                            label = { Text(option) },
+                            shape = RoundedCornerShape(100.dp),
+                            label = {
+                                Text(
+                                    text = option,
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = MaterialTheme.colorScheme.primaryContainer
                             )
@@ -654,7 +663,7 @@ private fun AddTagDialog(
     androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            colors = CardDefaults.cardColors(containerColor = NeonBlue.copy(alpha = 0.18f))
         ) {
             Column(
                 modifier = Modifier
@@ -663,7 +672,7 @@ private fun AddTagDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text("Add Tag", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-                TextField(
+                OutlinedTextField(
                     value = newTagText,
                     onValueChange = onNewTagTextChange,
                     placeholder = { Text("Enter custom tag") },
@@ -683,6 +692,10 @@ private fun AddTagDialog(
                             )
                         }
                     },
+                    colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
                 Row(
@@ -711,12 +724,43 @@ private fun AddTagDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    OutlinedButton(onClick = onDismiss) { Text("Cancel") }
+                    OutlinedButton(onClick = onDismiss, shape = RoundedCornerShape(10.dp)) { Text("Cancel") }
                     Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = onApply) { Text("Apply") }
+                    Button(onClick = onApply, shape = RoundedCornerShape(10.dp)) { Text("Apply") }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SortOptionBox(
+    modifier: Modifier = Modifier,
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(
+                if (selected) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+            )
+            .border(
+                width = 1.dp,
+                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                shape = RoundedCornerShape(10.dp)
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
