@@ -30,15 +30,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.placementprojectmp.ui.theme.NeonBlue
 
 @Composable
 fun StaffStudentCardList(
     modifier: Modifier = Modifier,
     studentName: String,
     studentEmail: String,
+    studentRollNumber: String,
     profileImageResId: Int,
+    searchQuery: String = "",
     selected: Boolean = false,
     isFavorite: Boolean = false,
     onSelectionChange: (Boolean) -> Unit = {},
@@ -88,17 +94,28 @@ fun StaffStudentCardList(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text(
+                    HighlightedText(
                         text = studentName,
+                        query = searchQuery,
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Text(
+                    HighlightedText(
                         text = studentEmail,
+                        query = searchQuery,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    HighlightedText(
+                        text = studentRollNumber,
+                        query = searchQuery,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Clip
                     )
                 }
             }
@@ -131,7 +148,9 @@ fun StaffStudentCardGrid(
     modifier: Modifier = Modifier,
     studentName: String,
     studentEmail: String,
+    studentRollNumber: String,
     profileImageResId: Int,
+    searchQuery: String = "",
     selected: Boolean = false,
     isFavorite: Boolean = false,
     onSelectionChange: (Boolean) -> Unit = {},
@@ -222,23 +241,72 @@ fun StaffStudentCardGrid(
                 }
             }
 
-            Column {
-                Text(
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                HighlightedText(
                     text = studentName,
+                    query = searchQuery,
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(
+                HighlightedText(
                     text = studentEmail,
+                    query = searchQuery,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                Spacer(modifier = Modifier.height(4.dp))
+                HighlightedText(
+                    text = studentRollNumber,
+                    query = searchQuery,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun HighlightedText(
+    text: String,
+    query: String,
+    style: androidx.compose.ui.text.TextStyle,
+    color: androidx.compose.ui.graphics.Color,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Clip
+) {
+    val annotated = rememberHighlightedText(text, query)
+    Text(
+        text = annotated,
+        style = style,
+        color = color,
+        maxLines = maxLines,
+        overflow = overflow
+    )
+}
+
+private fun rememberHighlightedText(text: String, query: String): AnnotatedString {
+    if (query.isBlank()) return AnnotatedString(text)
+    val source = text.lowercase()
+    val target = query.lowercase().trim()
+    val first = source.indexOf(target)
+    if (first < 0) return AnnotatedString(text)
+    return buildAnnotatedString {
+        append(text)
+        addStyle(
+            style = SpanStyle(background = NeonBlue.copy(alpha = 0.16f)),
+            start = first,
+            end = first + target.length
+        )
     }
 }
 
