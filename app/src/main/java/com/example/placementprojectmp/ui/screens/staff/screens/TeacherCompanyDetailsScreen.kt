@@ -360,7 +360,7 @@ private fun ExpandedDrawerContent(
             }
 
             item {
-                DrivesCounterSection()
+                CounterSection()
             }
 
             item {
@@ -1008,7 +1008,7 @@ private fun BulletDetailRow(
 }
 
 @Composable
-private fun DrivesCounterSection() {
+private fun CounterSection() {
     val imagePool = remember {
         listOf(
             R.drawable.std_1,

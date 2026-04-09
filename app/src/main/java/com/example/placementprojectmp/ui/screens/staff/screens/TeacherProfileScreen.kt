@@ -1,7 +1,12 @@
 package com.example.placementprojectmp.ui.screens.staff.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +30,10 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +50,7 @@ import com.example.placementprojectmp.ui.theme.colormap.FacultyPosition
 import com.example.placementprojectmp.ui.theme.colormap.PlacementRole
 import com.example.placementprojectmp.ui.theme.colormap.TeacherAccountState
 import com.example.placementprojectmp.ui.theme.colormap.UserRole
+import kotlin.random.Random
 
 @Composable
 fun TeacherProfileScreen(
@@ -114,7 +124,7 @@ private fun TeacherIdCardsSection() {
                     Text(
                         text = "2021 - Present",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                         fontWeight = FontWeight.Thin
                     )
                 }
@@ -142,13 +152,6 @@ private fun TeacherIdCardsSection() {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom
                 ) {
-                    Text(
-                        text = "FAC_024",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1
-                    )
                     AssistChip(
                         onClick = {},
                         label = { Text(text = "Placement In-Charge", style = MaterialTheme.typography.labelSmall) },
@@ -160,6 +163,13 @@ private fun TeacherIdCardsSection() {
                             enabled = true,
                             borderColor = statusColor
                         )
+                    )
+                    Text(
+                        text = "FAC_024",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1
                     )
                 }
             }
@@ -188,7 +198,7 @@ private fun FacultyInfoStatusCard() {
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -202,6 +212,7 @@ private fun FacultyInfoStatusCard() {
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(4.dp))
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -248,19 +259,12 @@ private fun StatusItem(
                     .background(dotColor)
             )
         }
-        Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.SemiBold
-            )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        Text(
+            text = "$label: $value",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 
@@ -362,7 +366,10 @@ private fun ProfessionalDetailsSection() {
         Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
 
         DetailField(label = "Qualification", value = "PhD in Artificial Intelligence")
-        DetailField(label = "Professional Experience", value = "12+ years teaching experience")
+        DetailField(
+            label = "Professional Experience",
+            value = "12+ years teaching experience\nSoftware Engineer at TCS (2018 - 2021)"
+        )
         DetailField(
             label = "Subjects Taught",
             value = "Machine Learning\nData Structures\nArtificial Intelligence"
@@ -393,58 +400,197 @@ private fun DetailField(
 
 @Composable
 private fun StatsGridSection() {
-    val cards = listOf(
-        "Departments" to "4",
-        "Placement Drives" to "23",
-        "Companies Managed" to "15",
-        "Students" to "320"
-    )
+    val companyPool = remember {
+        listOf(
+            R.drawable.comp_1,
+            R.drawable.comp_2,
+            R.drawable.comp_3
+        )
+    }
+    val studentPool = remember {
+        listOf(
+            R.drawable.std_1,
+            R.drawable.std_2
+        )
+    }
+    val drivesImages = remember {
+        val seeded = Random(401)
+        List(5) { companyPool[seeded.nextInt(companyPool.size)] }
+    }
+    val companiesImages = remember {
+        val seeded = Random(511)
+        List(5) { companyPool[seeded.nextInt(companyPool.size)] }
+    }
+    val studentsImages = remember {
+        val seeded = Random(629)
+        List(5) { studentPool[seeded.nextInt(studentPool.size)] }
+    }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        Text(
+            text = "Assigned Departments",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            StatCard(modifier = Modifier.weight(1f), title = cards[0].first, value = cards[0].second)
-            StatCard(modifier = Modifier.weight(1f), title = cards[1].first, value = cards[1].second)
+            ExpandableCounterCard(
+                modifier = Modifier.weight(1f),
+                title = "Assigned Departments",
+                countText = "+4",
+                colorDots = listOf(
+                    ColorMapper.getColor(Department.CSE),
+                    ColorMapper.getColor(Department.IT),
+                    ColorMapper.getColor(Department.ECE),
+                    ColorMapper.getColor(Department.MCA)
+                ),
+                items = listOf("Computer Science", "Information Technology", "AI & Data Science")
+            )
+            ExpandableCounterCard(
+                modifier = Modifier.weight(1f),
+                title = "Drives Coordinated",
+                countText = "+23",
+                imageDots = drivesImages,
+                items = listOf("Google Hiring Drive", "Amazon SDE Drive", "Infosys Campus Drive")
+            )
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            StatCard(modifier = Modifier.weight(1f), title = cards[2].first, value = cards[2].second)
-            StatCard(modifier = Modifier.weight(1f), title = cards[3].first, value = cards[3].second)
+            ExpandableCounterCard(
+                modifier = Modifier.weight(1f),
+                title = "Assigned Companies",
+                countText = "+15",
+                imageDots = companiesImages,
+                items = listOf("Google", "Microsoft", "TCS")
+            )
+            ExpandableCounterCard(
+                modifier = Modifier.weight(1f),
+                title = "Assigned Students",
+                countText = "+320",
+                imageDots = studentsImages,
+                items = listOf("Aditi Sharma", "Rahul Verma", "Sneha Gupta")
+            )
         }
     }
 }
 
 @Composable
-private fun StatCard(
+private fun ExpandableCounterCard(
     modifier: Modifier,
     title: String,
-    value: String
+    countText: String,
+    imageDots: List<Int> = emptyList(),
+    colorDots: List<Color> = emptyList(),
+    items: List<String>
 ) {
+    var expanded by remember { mutableStateOf(false) }
     Card(
-        modifier = modifier.height(92.dp),
+        modifier = modifier.clickable { expanded = !expanded },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(12.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold
+            Text(text = title, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
+            OverlapCounterStrip(
+                imageDots = imageDots,
+                colorDots = colorDots,
+                countText = countText
             )
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    items.take(3).forEachIndexed { index, label ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (imageDots.isNotEmpty()) {
+                                Image(
+                                    painter = painterResource(id = imageDots[index % imageDots.size]),
+                                    contentDescription = "item visual",
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .clip(CircleShape)
+                                        .background(colorDots[index % colorDots.size])
+                                )
+                            }
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun OverlapCounterStrip(
+    imageDots: List<Int>,
+    colorDots: List<Color>,
+    countText: String
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy((-10).dp), verticalAlignment = Alignment.CenterVertically) {
+            if (imageDots.isNotEmpty()) {
+                imageDots.take(5).forEach { res ->
+                    Image(
+                        painter = painterResource(id = res),
+                        contentDescription = "counter item",
+                        modifier = Modifier
+                            .size(22.dp)
+                            .clip(CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.55f), CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            } else {
+                colorDots.take(5).forEach { dotColor ->
+                    Box(
+                        modifier = Modifier
+                            .size(22.dp)
+                            .clip(CircleShape)
+                            .background(dotColor)
+                            .border(1.dp, MaterialTheme.colorScheme.surface, CircleShape)
+                    )
+                }
+            }
+        }
+        Text(
+            text = countText,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
