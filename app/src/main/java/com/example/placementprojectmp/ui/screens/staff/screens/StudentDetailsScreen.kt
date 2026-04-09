@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -30,11 +32,12 @@ import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.components.AppTopBar
 import com.example.placementprojectmp.ui.screens.staff.StaffStudentPortraitIds
 import com.example.placementprojectmp.ui.components.BulkActionBar
-import com.example.placementprojectmp.ui.components.FilterCapsule
-import com.example.placementprojectmp.ui.components.PaginationControls
-import com.example.placementprojectmp.ui.components.StudentCard
 import com.example.placementprojectmp.ui.components.StudentViewMode
-import com.example.placementprojectmp.ui.components.ViewModeSelector
+import com.example.placementprojectmp.ui.screens.staff.components.StaffFilterCapsule
+import com.example.placementprojectmp.ui.screens.staff.components.StaffPaginationControls
+import com.example.placementprojectmp.ui.screens.staff.components.StaffStudentCardGrid
+import com.example.placementprojectmp.ui.screens.staff.components.StaffStudentCardList
+import com.example.placementprojectmp.ui.screens.staff.components.StaffViewModeSelector
 
 private data class StudentItem(
     val id: String,
@@ -60,20 +63,40 @@ fun StudentDetailsScreen(
     onNotificationClick: () -> Unit = {}
 ) {
     var viewMode by remember { mutableStateOf(StudentViewMode.List) }
+    var selectedBranch by remember { mutableStateOf<String?>(null) }
     var selectedCourse by remember { mutableStateOf<String?>(null) }
-    var selectedStream by remember { mutableStateOf<String?>(null) }
     var selectedDomain by remember { mutableStateOf<String?>(null) }
-    val students = remember { dummyStudents() }
+    val students = remember { mutableStateListOf<StudentItem>().apply { addAll(dummyStudents()) } }
     val selectedIds = remember { mutableStateListOf<String>() }
     val favoriteIds = remember { mutableStateListOf<String>() }
     var currentPage by remember { mutableStateOf(1) }
     val totalPages = 28
     val pageSize = 10
     val startIndex = (currentPage - 1) * pageSize
-    val paginatedStudents = students.drop(startIndex).take(pageSize).ifEmpty { students }
     val portraitByStudentId = remember(students) {
         students.associate { it.id to StaffStudentPortraitIds.all.random() }
     }
+    val branchOptions = remember { listOf("CSE", "ECE", "ME", "CE", "EE") }
+    val courseOptions = remember { listOf("BTech", "MTech", "BCA", "MCA") }
+    val domainOptions = remember { listOf("Android", "Web", "Backend", "AI/ML", "Data") }
+    val metaByStudentId = remember(students) {
+        students.associate { s ->
+            s.id to Triple(
+                branchOptions.random(),
+                courseOptions.random(),
+                domainOptions.random()
+            )
+        }
+    }
+    val filteredStudents = remember(students, selectedBranch, selectedCourse, selectedDomain, metaByStudentId) {
+        students.filter { s ->
+            val (b, c, d) = metaByStudentId.getValue(s.id)
+            (selectedBranch == null || b == selectedBranch) &&
+                (selectedCourse == null || c == selectedCourse) &&
+                (selectedDomain == null || d == selectedDomain)
+        }
+    }
+    val paginatedStudents = filteredStudents.drop(startIndex).take(pageSize).ifEmpty { filteredStudents }
 
     Column(
         modifier = modifier
@@ -112,27 +135,45 @@ fun StudentDetailsScreen(
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    ViewModeSelector(
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        androidx.compose.material3.Text(
+                            text = "Student Details",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        )
+                        androidx.compose.material3.Text(
+                            text = "Manage student profile and actions",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Thin
+                        )
+                    }
+                    StaffViewModeSelector(
                         currentMode = viewMode,
                         onModeSelected = { viewMode = it }
                     )
                 }
             }
             item {
-                FilterCapsule(
+                StaffFilterCapsule(
                     modifier = Modifier.padding(horizontal = 20.dp),
+                    branchOptions = branchOptions,
+                    courseOptions = courseOptions,
+                    domainOptions = domainOptions,
+                    selectedBranch = selectedBranch,
                     selectedCourse = selectedCourse,
-                    selectedStream = selectedStream,
                     selectedDomain = selectedDomain,
-                    onCourseSelect = { selectedCourse = it },
-                    onStreamSelect = { selectedStream = it },
-                    onDomainSelect = { selectedDomain = it }
+                    onBranchSelect = { selectedBranch = it; currentPage = 1 },
+                    onCourseSelect = { selectedCourse = it; currentPage = 1 },
+                    onDomainSelect = { selectedDomain = it; currentPage = 1 }
                 )
             }
             when (viewMode) {
                 StudentViewMode.List, StudentViewMode.Expanded -> {
                     itemsIndexed(paginatedStudents) { _, student ->
-                        StudentCard(
+                        StaffStudentCardList(
                             modifier = Modifier.padding(horizontal = 20.dp),
                             studentName = student.name,
                             studentEmail = student.email,
@@ -145,12 +186,12 @@ fun StudentDetailsScreen(
                             onFavoriteToggle = {
                                 if (student.id in favoriteIds) favoriteIds.remove(student.id) else favoriteIds.add(student.id)
                             },
-                            viewMode = viewMode
+                            onMenuClick = { }
                         )
                     }
                 }
                 StudentViewMode.Grid -> {
-                    itemsIndexed(paginatedStudents.chunked(2)) { _, rowStudents ->
+                    itemsIndexed(paginatedStudents.chunked(3)) { _, rowStudents ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -158,7 +199,7 @@ fun StudentDetailsScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             rowStudents.forEach { student ->
-                                StudentCard(
+                                StaffStudentCardGrid(
                                     modifier = Modifier.weight(1f),
                                     studentName = student.name,
                                     studentEmail = student.email,
@@ -171,19 +212,19 @@ fun StudentDetailsScreen(
                                     onFavoriteToggle = {
                                         if (student.id in favoriteIds) favoriteIds.remove(student.id) else favoriteIds.add(student.id)
                                     },
-                                    viewMode = StudentViewMode.Grid
+                                    onMenuClick = { }
                                 )
                             }
-                            if (rowStudents.size == 1) {
-                                Box(modifier = Modifier.weight(1f))
-                            }
+                            repeat(3 - rowStudents.size) { Box(modifier = Modifier.weight(1f)) }
                         }
                     }
                 }
             }
             item {
-                PaginationControls(
-                    modifier = Modifier.fillMaxWidth(),
+                StaffPaginationControls(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
                     currentPage = currentPage,
                     totalPages = totalPages,
                     onPageSelected = { currentPage = it }
@@ -194,7 +235,12 @@ fun StudentDetailsScreen(
             modifier = Modifier.fillMaxWidth(),
             visible = selectedIds.isNotEmpty(),
             selectedCount = selectedIds.size,
-            onDelete = { selectedIds.clear() },
+            onDelete = {
+                val idsToDelete = selectedIds.toSet()
+                students.removeAll { it.id in idsToDelete }
+                favoriteIds.removeAll { it in idsToDelete }
+                selectedIds.clear()
+            },
             onFavorite = { selectedIds.forEach { id -> if (id !in favoriteIds) favoriteIds.add(id) }; selectedIds.clear() },
             onMove = { },
             onMore = { }
