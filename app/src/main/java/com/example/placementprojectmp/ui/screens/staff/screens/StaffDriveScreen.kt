@@ -1,8 +1,7 @@
 package com.example.placementprojectmp.ui.screens.staff.screens
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -12,11 +11,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -92,7 +94,7 @@ fun StaffDriveScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 10.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item {
@@ -226,17 +228,29 @@ private fun CompanyDriveCarouselItem(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            CompanyCard(
-                modifier = Modifier.fillParentMaxWidth(0.9f),
-                company = company,
-                onWebsiteClick = onWebsiteClick
-            )
-        }
-        item {
-            DriveCard(
-                modifier = Modifier.fillParentMaxWidth(0.9f),
-                company = company
-            )
+            BoxWithConstraints(modifier = Modifier.fillParentMaxWidth(1f)) {
+                val cardWidth = maxWidth * 0.9f
+                Row(
+                    modifier = Modifier
+                        .width(cardWidth * 2 + 12.dp)
+                        .height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    CompanyCard(
+                        modifier = Modifier
+                            .width(cardWidth)
+                            .fillMaxHeight(),
+                        company = company,
+                        onWebsiteClick = onWebsiteClick
+                    )
+                    DriveCard(
+                        modifier = Modifier
+                            .width(cardWidth)
+                            .fillMaxHeight(),
+                        company = company
+                    )
+                }
+            }
         }
     }
 }
@@ -255,7 +269,9 @@ private fun CompanyCard(
         label = "company_card_scale"
     )
     Card(
-        modifier = modifier.scale(scale),
+        modifier = modifier
+            .fillMaxHeight()
+            .scale(scale),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
@@ -263,11 +279,12 @@ private fun CompanyCard(
         onClick = {}
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(
+                modifier = Modifier.padding(14.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 Box(
                     modifier = Modifier
                         .size(10.dp)
@@ -326,31 +343,33 @@ private fun CompanyCard(
                         modifier = Modifier.weight(1f)
                     )
                 }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier.clickable { onWebsiteClick(company.website) }
-                ) {
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.clickable { onWebsiteClick(company.website) }
+                    ) {
+                        Text(
+                            text = company.website.removePrefix("https://").removePrefix("http://"),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline
+                        )
+                        Icon(
+                            imageVector = Icons.Default.ArrowOutward,
+                            contentDescription = "Open website",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
                     Text(
-                        text = company.website.removePrefix("https://").removePrefix("http://"),
+                        text = company.email,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        textDecoration = TextDecoration.Underline
-                    )
-                    Icon(
-                        imageVector = Icons.Default.ArrowOutward,
-                        contentDescription = "Open website",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(12.dp)
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
-                Text(
-                    text = company.email,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
                 Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -377,6 +396,7 @@ private fun CompanyCard(
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
+                    .padding(bottom = 14.dp)
                     .clip(CircleShape)
                     .background(NeonBlue)
                     .clickable { showOverlay = !showOverlay }
@@ -392,19 +412,21 @@ private fun CompanyCard(
 
             androidx.compose.animation.AnimatedVisibility(
                 visible = showOverlay,
-                modifier = Modifier
-                    .matchParentSize(),
-                enter = expandVertically(animationSpec = tween(220)),
-                exit = shrinkVertically(animationSpec = tween(200))
+                modifier = Modifier.matchParentSize(),
+                enter = fadeIn(animationSpec = tween(180)),
+                exit = fadeOut(animationSpec = tween(160))
             ) {
                 Box(
                     modifier = Modifier
-                        .matchParentSize()
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(18.dp))
                         .background(NeonBlue)
                         .clickable { showOverlay = false }
-                        .padding(12.dp)
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(0.dp)
+                    ) {
                         Text(
                             text = "Company Detail",
                             style = MaterialTheme.typography.headlineSmall,
@@ -434,7 +456,7 @@ private fun DriveCard(
     val registrationStatus = if (company.name.length % 3 == 0) DriveStatus.REGISTRATION_CLOSED else DriveStatus.REGISTRATION_OPEN
     val roles = listOf("SDE Intern", "Backend Intern", "QA Engineer", "Web Developer")
     Card(
-        modifier = modifier,
+        modifier = modifier.fillMaxHeight(),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
@@ -442,6 +464,7 @@ private fun DriveCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .fillMaxHeight()
                 .padding(14.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
@@ -483,6 +506,7 @@ private fun DriveCard(
                     }
                 }
             }
+            Spacer(modifier = Modifier.weight(1f))
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.End
@@ -513,7 +537,7 @@ private fun DriveTag(text: String) {
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
