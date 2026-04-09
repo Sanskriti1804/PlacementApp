@@ -33,6 +33,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Apartment
+import androidx.compose.material.icons.filled.ArrowOutward
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -67,7 +72,7 @@ import kotlin.math.roundToInt
 fun TeacherCompanyDetailsScreen(
     modifier: Modifier = Modifier
 ) {
-    val accent = MaterialTheme.colorScheme.primary
+    val accent = Color.Black
 
     var isExpanded by remember { mutableStateOf(true) }
     var dragOffset by remember { mutableStateOf(0f) }
@@ -86,7 +91,7 @@ fun TeacherCompanyDetailsScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(Color.Black)
     ) {
         // Accent header behind the drawer
         Box(
@@ -114,7 +119,7 @@ fun TeacherCompanyDetailsScreen(
                     }
                 ),
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = Color.Black,
             tonalElevation = 4.dp
         ) {
             if (!isExpanded) {
@@ -300,8 +305,8 @@ private fun ExpandedDrawerContent(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface),
-        color = MaterialTheme.colorScheme.surface
+            .background(Color.Black),
+        color = Color.Black
     ) {
         LazyColumn(
             modifier = Modifier
@@ -367,7 +372,6 @@ private fun CompanyOverviewSection(
     onAddNoteClick: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        // Top company name + status
         val interactionSource = remember { MutableInteractionSource() }
         val pressed by interactionSource.collectIsPressedAsState()
         val scale by animateFloatAsState(
@@ -376,79 +380,60 @@ private fun CompanyOverviewSection(
             label = "overview_scale"
         )
 
-        Card(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .scale(scale),
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            interactionSource = interactionSource,
-            onClick = onAddNoteClick
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.Top
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                    .width(120.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+                StatusPill(
+                    color = Color(0xFF2E7D32),
+                    label = "Active"
+                )
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(128.dp),
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.22f)
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    interactionSource = interactionSource,
+                    onClick = onAddNoteClick
                 ) {
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = "Google",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = "Bangalore, India",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    StatusPill(
-                        color = Color(0xFF2E7D32),
-                        label = "Active"
+                    Image(
+                        painter = painterResource(id = R.drawable.pfp_company),
+                        contentDescription = "Company",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
                 }
+            }
 
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(24.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = "Industry",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Technology",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    Column {
-                        Text(
-                            text = "Type",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Product Based",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "NEXORA SYSTEMS",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Color.White,
+                    fontWeight = FontWeight.Black
+                )
+                Text(
+                    text = "Campus hiring and talent acceleration",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -542,76 +527,81 @@ private fun StickyNoteCard(
 
 @Composable
 private fun CompanyBasicInfoSection() {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            text = "Location: Bangalore, India",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Text(
-            text = "Headquarter: Mountain View, USA",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Text(
-            text = "Email: hr@google.com",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-    }
-}
-
-@Composable
-private fun WebsiteLinkSection() {
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.97f else 1f,
-        animationSpec = tween(durationMillis = 140, easing = FastOutSlowInEasing),
-        label = "website_card_scale"
-    )
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .scale(scale),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        interactionSource = interactionSource,
-        onClick = {}
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "www.google.com",
-                style = MaterialTheme.typography.bodySmall.copy(
-                    textDecoration = TextDecoration.Underline
-                ),
-                color = MaterialTheme.colorScheme.primary
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Icon(
+                imageVector = Icons.Default.LocationOn,
+                contentDescription = "Location",
+                tint = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "→",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary
+                text = "Bangalore, India",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White
+            )
+        }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Icon(
+                imageVector = Icons.Default.Apartment,
+                contentDescription = "Headquarters",
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "Mountain View, USA",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White
+            )
+        }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Icon(
+                imageVector = Icons.Default.Email,
+                contentDescription = "Email",
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "careers@nexora.systems",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
 }
 
 @Composable
+private fun WebsiteLinkSection() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { }
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = "www.nexora.systems",
+            style = MaterialTheme.typography.titleMedium.copy(
+                textDecoration = TextDecoration.Underline
+            ),
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        Icon(
+            imageVector = Icons.Default.ArrowOutward,
+            contentDescription = "Open website",
+            tint = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@Composable
 private fun CompanyMetadataSection() {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        MetadataRow(label = "Industry Type", value = "Technology")
-        MetadataRow(label = "Company Type", value = "Product Based")
-        MetadataRow(label = "Headquarters", value = "USA")
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        MetadataChip("Technology")
+        MetadataChip("Product Based")
+        MetadataChip("Global Ops")
     }
     Divider(
         modifier = Modifier.padding(top = 8.dp),
@@ -620,98 +610,62 @@ private fun CompanyMetadataSection() {
 }
 
 @Composable
-private fun MetadataRow(
-    label: String,
+private fun MetadataChip(
     value: String
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
+    Card(
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+        )
     ) {
-        Box(
-            modifier = Modifier
-                .width(4.dp)
-                .height(14.dp)
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = "$label : ",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.White,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
     }
 }
 
 @Composable
 private fun TabSection() {
-    val tabs = listOf("Description", "Overview", "Sector")
-    var selectedTab by remember { mutableStateOf(0) }
-
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "←",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = tabs[selectedTab],
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = "→",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        TabRow(
-            selectedTabIndex = selectedTab,
-            containerColor = Color.Transparent
-        ) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    selected = selectedTab == index,
-                    onClick = { selectedTab = index },
-                    text = {
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                )
-            }
-        }
-
-        Crossfade(
-            targetState = selectedTab,
-            animationSpec = tween(durationMillis = 220, easing = FastOutSlowInEasing),
-            label = "tab_content"
-        ) { tabIndex ->
-            val text = when (tabIndex) {
-                0 -> "Google is a multinational technology company specializing in internet-related services, AI research, and cloud infrastructure."
-                1 -> "The company operates across search, ads, Android, Chrome, YouTube, and Google Cloud, driving digital transformation globally."
-                else -> "Primary sectors: Search, Advertising, Cloud Computing, Consumer Software, and Artificial Intelligence."
-            }
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        DescriptionBlock(
+            title = "Description",
+            content = "Nexora Systems is a campus hiring focused technology firm building recruitment automation and employability products. The company collaborates with academic institutions to run outcome-driven hiring pipelines. Teams include backend, mobile, cloud, and data specialists with structured mentoring for early-career talent. Fresh graduates work on real modules from the first quarter with guided reviews and milestone-based growth plans. The organization emphasizes practical engineering, communication, and long-term skill development."
+        )
+        DescriptionBlock(
+            title = "Overview",
+            content = "The company operates across India with hybrid delivery teams supporting both enterprise and education clients. Hiring programs include internships, apprenticeships, and full-time tracks designed for campus transitions. Internal platforms support candidate analytics, drive scheduling, and recruiter collaboration workflows. Leadership invests in upskilling through cohort-based learning sessions and regular technical workshops. Project execution follows agile practices with measurable outcomes and delivery transparency."
+        )
+        DescriptionBlock(
+            title = "Sector",
+            content = "Sector coverage includes SaaS platforms, HR technology, analytics, and AI-assisted workflow tools. Nexora's portfolio spans screening engines, placement dashboards, and institution engagement products. The roadmap prioritizes reliability, security, and scalable cloud-native architecture. The team is currently expanding into talent intelligence and predictive employability insights. Partnerships with campuses and industry mentors remain central to the company's growth strategy."
+        )
     }
+    Divider(
+        modifier = Modifier.padding(top = 8.dp),
+        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+    )
+}
+
+@Composable
+private fun DescriptionBlock(
+    title: String,
+    content: String
+) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleMedium,
+        color = Color(0xFF00D4FF),
+        fontWeight = FontWeight.Bold
+    )
+    Text(
+        text = content,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
 }
 
 @Composable
