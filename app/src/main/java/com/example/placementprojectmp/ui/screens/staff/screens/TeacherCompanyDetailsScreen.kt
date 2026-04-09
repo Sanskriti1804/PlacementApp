@@ -2,11 +2,13 @@ package com.example.placementprojectmp.ui.screens.staff.screens
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -41,6 +43,8 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -50,6 +54,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,6 +72,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
 import kotlin.math.roundToInt
+import kotlin.random.Random
+import kotlinx.coroutines.launch
 
 @Composable
 fun TeacherCompanyDetailsScreen(
@@ -711,8 +718,17 @@ private fun DescriptionBlock(
 
 @Composable
 private fun HrContactSection() {
+    val preferredMode = "Email"
+    val preferredColor = when (preferredMode) {
+        "Email" -> Color(0xFF2E7D32)
+        "Call" -> Color(0xFFFFC107)
+        else -> Color(0xFF1976D2)
+    }
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(154.dp),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -722,106 +738,69 @@ private fun HrContactSection() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                Text(
-                    text = "HR: Sarah Parker",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "HR",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                    Text(
+                        text = "Sarah Parker",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 2.dp)
+                    )
+                }
             }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         text = "Email: hr@google.com",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = "Phone: +91 9876543210",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
                 Column(
                     horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Text(
-                        text = "Preferred:",
-                        style = MaterialTheme.typography.labelSmall,
+                        text = "Preferred Mode",
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Text(
-                        text = "Email",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-        }
-    }
-
-    Divider(
-        modifier = Modifier.padding(top = 8.dp),
-        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-    )
-}
-
-@Composable
-private fun PlacementDrivesSection() {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = "Placement Drives & Job Roles",
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        val drives = listOf(
-            "Summer Internship Drive" to "SDE Intern",
-            "Campus Hiring Drive" to "Software Engineer"
-        )
-
-        drives.forEach { (drive, role) ->
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(preferredColor.copy(alpha = 0.2f))
+                            .border(1.dp, preferredColor.copy(alpha = 0.45f), RoundedCornerShape(999.dp))
+                            .padding(horizontal = 10.dp, vertical = 5.dp)
                     ) {
                         Text(
-                            text = drive,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = role,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = preferredMode,
+                            style = MaterialTheme.typography.labelLarge,
+                            color = preferredColor,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
@@ -831,14 +810,180 @@ private fun PlacementDrivesSection() {
 }
 
 @Composable
+private fun PlacementDrivesSection() {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(
+            text = "Placement Drives & Job Roles",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        val drives = listOf(
+            Triple("ONGOING", "SUMMER INTERNSHIP DRIVE", "SDE INTERN"),
+            Triple("UPCOMING", "CAMPUS HIRING DRIVE", "SOFTWARE ENGINEER")
+        )
+
+        drives.forEachIndexed { index, item ->
+            val (status, driveName, role) = item
+            val statusColor = when (status) {
+                "ONGOING" -> Color(0xFF2E7D32)
+                "COMPLETED" -> Color(0xFF1976D2)
+                else -> Color(0xFFFFC107)
+            }
+            val statusMessage = when (status) {
+                "ONGOING" -> "Drive currently in progress: active evaluation phase."
+                "COMPLETED" -> "Drive lifecycle closed: final selections published."
+                else -> "Drive queued: scheduled to start soon."
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Card(
+                    modifier = Modifier
+                        .weight(0.4f)
+                        .height(142.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF00D4FF))
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Row(
+                                modifier = Modifier.clickable {
+                                    scope.launch { snackbarHostState.showSnackbar(statusMessage) }
+                                },
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(9.dp)
+                                        .clip(CircleShape)
+                                        .background(statusColor)
+                                )
+                                Text(
+                                    text = status,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = Color.Black,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Text(
+                                text = driveName,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = Color.Black,
+                                fontWeight = FontWeight.Black
+                            )
+                            Text(
+                                text = role,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Black
+                            )
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.pfp_company),
+                                contentDescription = "Company logo",
+                                modifier = Modifier
+                                    .size(26.dp)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                            Text(
+                                text = if (index == 0) "03 Aug -> 22 Aug" else "05 Sep -> 26 Sep",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = Color.Black
+                            )
+                        }
+                    }
+                }
+
+                Card(
+                    modifier = Modifier
+                        .weight(0.6f)
+                        .height(142.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text("• CTC: 12 LPA", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                        Text("• Location: Bangalore", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                        Text("• Job Type: Hybrid", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                        Text("• Interview Rounds: 4", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                        Text("• Eligibility: 7.0+ CGPA", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                    }
+                }
+            }
+        }
+
+        SnackbarHost(hostState = snackbarHostState)
+        Divider(
+            modifier = Modifier.padding(top = 8.dp),
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+        )
+    }
+}
+
+@Composable
 private fun DrivesCounterSection() {
+    val imagePool = remember {
+        listOf(
+            R.drawable.std_1,
+            R.drawable.std_2,
+            R.drawable.std_3,
+            R.drawable.std_4
+        )
+    }
+    val stableRandomImages = remember {
+        val seeded = Random(1007)
+        List(5) { imagePool[seeded.nextInt(imagePool.size)] }
+    }
+    val highlightedIndices = remember {
+        val seeded = Random(2026)
+        setOf(seeded.nextInt(5), seeded.nextInt(5))
+    }
+    var expanded by remember { mutableStateOf(false) }
+    val overlapSpacing by animateDpAsState(
+        targetValue = if (expanded) 10.dp else (-14).dp,
+        animationSpec = tween(260),
+        label = "participants_spacing"
+    )
+    val avatarSize by animateDpAsState(
+        targetValue = if (expanded) 34.dp else 30.dp,
+        animationSpec = tween(260),
+        label = "participants_size"
+    )
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Card(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .clickable { expanded = !expanded },
             shape = RoundedCornerShape(18.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -849,55 +994,33 @@ private fun DrivesCounterSection() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy((-10).dp),
+                    horizontalArrangement = Arrangement.spacedBy(overlapSpacing),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    repeat(3) {
-                        Box(
+                    stableRandomImages.forEachIndexed { index, imageRes ->
+                        Image(
+                            painter = painterResource(id = imageRes),
+                            contentDescription = "Participant",
                             modifier = Modifier
-                                .size(28.dp)
+                                .size(avatarSize)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "\uD83D\uDC64",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
+                                .border(
+                                    width = if (index in highlightedIndices) 2.dp else 1.dp,
+                                    color = if (index in highlightedIndices) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                                    shape = CircleShape
+                                ),
+                            contentScale = ContentScale.Crop
+                        )
                     }
                 }
                 Text(
                     text = "+43",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
-
-        Card(
-            modifier = Modifier
-                .width(56.dp)
-                .height(56.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-            onClick = {}
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "+",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }
