@@ -13,6 +13,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -41,10 +42,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apartment
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowOutward
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -78,6 +79,7 @@ import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
 import kotlin.math.roundToInt
 import kotlin.random.Random
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -896,7 +898,7 @@ private fun PlacementDrivesSection() {
                                 }
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.End),
+                                    horizontalArrangement = Arrangement.End,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
@@ -949,17 +951,32 @@ private fun PlacementDrivesSection() {
                     .clickable {
                         val next = (listState.firstVisibleItemIndex + 1).coerceAtMost(drives.lastIndex)
                         if (next != listState.firstVisibleItemIndex) {
-                            scope.launch { listState.animateScrollToItem(next) }
+                            scope.launch {
+                                val visible = listState.layoutInfo.visibleItemsInfo.firstOrNull()
+                                val fallback = 320f
+                                val distance = ((visible?.size ?: fallback.toInt()) + 10).toFloat()
+                                val steps = 24
+                                var progressed = 0f
+                                repeat(steps) { step ->
+                                    val t = (step + 1) / steps.toFloat()
+                                    val eased = 1f - (1f - t) * (1f - t)
+                                    val target = distance * eased
+                                    listState.scrollBy(target - progressed)
+                                    progressed = target
+                                    delay(14)
+                                }
+                                listState.animateScrollToItem(next)
+                            }
                         }
                     },
                 shape = CircleShape,
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.35f)
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.58f)
                 )
             ) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = Icons.Default.ArrowForward,
+                        imageVector = Icons.Default.PlayArrow,
                         contentDescription = "Next card",
                         tint = MaterialTheme.colorScheme.onSurface
                     )
@@ -1150,6 +1167,8 @@ private fun DrivesCounterSection() {
 
 @Composable
 private fun PlacementHistorySection() {
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
             text = "Placement History",
@@ -1169,6 +1188,7 @@ private fun PlacementHistorySection() {
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
             val historyCardWidth = maxWidth - 2.dp
             LazyRow(
+                state = listState,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(items) { pair ->
@@ -1184,7 +1204,7 @@ private fun PlacementHistorySection() {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(12.dp),
+                            .padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Row(
@@ -1196,11 +1216,14 @@ private fun PlacementHistorySection() {
                                 Text(text = driveName, style = MaterialTheme.typography.bodyLarge, color = Color.Black, fontWeight = FontWeight.Black)
                                 Text(text = yearText, style = MaterialTheme.typography.bodySmall, color = Color.Black.copy(alpha = 0.8f))
                             }
-                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                Text(text = "\u2022 SDE Intern", style = MaterialTheme.typography.bodyMedium, color = Color.Black)
-                                Text(text = "\u2022 Web Developer", style = MaterialTheme.typography.bodyMedium, color = Color.Black)
-                                Text(text = "\u2022 QA Tester", style = MaterialTheme.typography.bodyMedium, color = Color.Black)
-                                Text(text = "\u2022 Backend Intern", style = MaterialTheme.typography.bodyMedium, color = Color.Black)
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                                horizontalAlignment = Alignment.End
+                            ) {
+                                Text(text = "\u2022 SDE Intern", style = MaterialTheme.typography.bodyLarge, color = Color.Black)
+                                Text(text = "\u2022 Web Developer", style = MaterialTheme.typography.bodyLarge, color = Color.Black)
+                                Text(text = "\u2022 QA Tester", style = MaterialTheme.typography.bodyLarge, color = Color.Black)
+                                Text(text = "\u2022 Backend Intern", style = MaterialTheme.typography.bodyLarge, color = Color.Black)
                             }
                         }
                         if (!expanded) {
@@ -1264,7 +1287,46 @@ private fun PlacementHistorySection() {
                     }
                 }
             }
-        }
+            }
+
+            Card(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .size(32.dp)
+                    .clickable {
+                        val next = (listState.firstVisibleItemIndex + 1).coerceAtMost(items.lastIndex)
+                        if (next != listState.firstVisibleItemIndex) {
+                            scope.launch {
+                                val visible = listState.layoutInfo.visibleItemsInfo.firstOrNull()
+                                val fallback = 320f
+                                val distance = ((visible?.size ?: fallback.toInt()) + 10).toFloat()
+                                val steps = 24
+                                var progressed = 0f
+                                repeat(steps) { step ->
+                                    val t = (step + 1) / steps.toFloat()
+                                    val eased = 1f - (1f - t) * (1f - t)
+                                    val target = distance * eased
+                                    listState.scrollBy(target - progressed)
+                                    progressed = target
+                                    delay(14)
+                                }
+                                listState.animateScrollToItem(next)
+                            }
+                        }
+                    },
+                shape = CircleShape,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.58f)
+                )
+            ) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "Next history card",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
         }
     }
 }
@@ -1307,7 +1369,7 @@ private fun StatisticCard(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = value,
                 style = MaterialTheme.typography.titleLarge,
