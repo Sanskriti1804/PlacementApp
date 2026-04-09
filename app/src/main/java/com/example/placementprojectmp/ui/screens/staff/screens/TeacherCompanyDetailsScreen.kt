@@ -728,7 +728,7 @@ private fun HrContactSection() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(154.dp),
+            .height(128.dp),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -739,45 +739,39 @@ private fun HrContactSection() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "HR",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(top = 2.dp)
-                    )
-                    Text(
-                        text = "Sarah Parker",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = 2.dp)
-                    )
-                }
+                Text(
+                    text = "HR: Sarah Parker",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(
-                        text = "Email: hr@google.com",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "Phone: +91 9876543210",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {5
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Email:", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
+                        Text("hr@google.com", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("InMail:", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
+                        Text("linkedin.com/in/sarah-parker", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Phone no.:", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
+                        Text("9998108999", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
                 }
 
                 Column(
@@ -817,9 +811,10 @@ private fun PlacementDrivesSection() {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
             text = "Placement Drives & Job Roles",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
+        Divider(Modifier.padding(2.dp))
 
         val drives = listOf(
             Triple("ONGOING", "SUMMER INTERNSHIP DRIVE", "SDE INTERN"),
@@ -827,7 +822,7 @@ private fun PlacementDrivesSection() {
         )
 
         drives.forEachIndexed { index, item ->
-            val (status, driveName, role) = item
+            val (status, driveName, _) = item
             val statusColor = when (status) {
                 "ONGOING" -> Color(0xFF2E7D32)
                 "COMPLETED" -> Color(0xFF1976D2)
@@ -841,19 +836,19 @@ private fun PlacementDrivesSection() {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Card(
                     modifier = Modifier
                         .weight(0.4f)
-                        .height(142.dp),
+                        .height(152.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF00D4FF))
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF00D4FF).copy(alpha = 0.8f))
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(12.dp),
+                            .padding(8.dp),
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -881,29 +876,18 @@ private fun PlacementDrivesSection() {
                                 text = driveName,
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = Color.Black,
-                                fontWeight = FontWeight.Black
-                            )
-                            Text(
-                                text = role,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.Black
+                                fontWeight = FontWeight.Black,
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.End),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.pfp_company),
-                                contentDescription = "Company logo",
-                                modifier = Modifier
-                                    .size(26.dp)
-                                    .clip(CircleShape),
-                                contentScale = ContentScale.Crop
-                            )
                             Text(
-                                text = if (index == 0) "03 Aug -> 22 Aug" else "05 Sep -> 26 Sep",
+                                text = if (index == 0) "03 Aug - 22 Aug" else "05 Sep - 26 Sep",
                                 style = MaterialTheme.typography.labelMedium,
                                 color = Color.Black
                             )
@@ -914,10 +898,10 @@ private fun PlacementDrivesSection() {
                 Card(
                     modifier = Modifier
                         .weight(0.6f)
-                        .height(142.dp),
+                        .height(152.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
                     ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
@@ -925,22 +909,47 @@ private fun PlacementDrivesSection() {
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text("• CTC: 12 LPA", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
-                        Text("• Location: Bangalore", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
-                        Text("• Job Type: Hybrid", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
-                        Text("• Interview Rounds: 4", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
-                        Text("• Eligibility: 7.0+ CGPA", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                        Text(
+                            text = "Software Engineer Intern - Web Applications",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        BulletDetailRow(keyText = "Responsibility", valueText = "Worked on web modules")
+                        BulletDetailRow(keyText = "Tech Stack", valueText = "Kotlin, REST APIs")
+                        BulletDetailRow(keyText = "CTC / LPA", valueText = "12 LPA")
+                        BulletDetailRow(keyText = "Interview Rounds", valueText = "4")
+                        BulletDetailRow(keyText = "Eligibility", valueText = "7.0+ CGPA")
                     }
                 }
             }
         }
 
         SnackbarHost(hostState = snackbarHostState)
-        Divider(
-            modifier = Modifier.padding(top = 8.dp),
-            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+    }
+}
+
+@Composable
+private fun BulletDetailRow(
+    keyText: String,
+    valueText: String
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            text = "\u2022 $keyText:",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = valueText,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
