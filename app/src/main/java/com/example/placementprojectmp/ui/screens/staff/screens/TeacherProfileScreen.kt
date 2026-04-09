@@ -52,6 +52,7 @@ import com.example.placementprojectmp.ui.theme.colormap.FacultyPosition
 import com.example.placementprojectmp.ui.theme.colormap.PlacementRole
 import com.example.placementprojectmp.ui.theme.colormap.TeacherAccountState
 import com.example.placementprojectmp.ui.theme.colormap.UserRole
+import com.example.placementprojectmp.ui.theme.NeonBlue
 import kotlin.random.Random
 
 @Composable
@@ -441,10 +442,11 @@ private fun StatsGridSection() {
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = "Assigned Departments",
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = NeonBlue,
             fontWeight = FontWeight.SemiBold
         )
         Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
@@ -586,6 +588,14 @@ private fun CounterList(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
+        }
+        if (items.size > 3) {
+            Text(
+                text = "+${items.size - 3}",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
         }
     }
 }
