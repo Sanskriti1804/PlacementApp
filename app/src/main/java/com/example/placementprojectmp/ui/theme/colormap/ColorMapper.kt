@@ -58,7 +58,7 @@ object ColorMapper {
     }
 
     fun getColor(role: PlacementRole): Color = when (role) {
-        PlacementRole.PLACEMENT_COORDINATOR -> Color(0xFF8E24AA)
+        PlacementRole.PLACEMENT_COORDINATOR -> Color(0xFFD58DE7)
         PlacementRole.TRAINING_AND_PLACEMENT_OFFICER -> Color(0xFF1E88E5)
         PlacementRole.DEPARTMENT_PLACEMENT_COORDINATOR -> Color(0xFF3949AB)
         PlacementRole.INTERNSHIP_COORDINATOR -> Color(0xFF00897B)

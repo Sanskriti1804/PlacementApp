@@ -25,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.placementprojectmp.ui.components.AppTopBar
 import com.example.placementprojectmp.ui.screens.staff.StaffStudentPortraitIds
 import com.example.placementprojectmp.ui.components.BulkActionBar
 import com.example.placementprojectmp.ui.components.NeonGlassToastHost
@@ -104,10 +103,6 @@ fun StudentDetailsScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         Column {
-            AppTopBar(
-                onMenuClick = onMenuClick,
-                onNotificationClick = onNotificationClick
-            )
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
