@@ -420,8 +420,9 @@ private fun CompanyOverviewSection(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(top = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .height(136.dp)
+                    .padding(bottom = 4.dp),
+                verticalArrangement = Arrangement.Bottom
             ) {
                 Text(
                     text = "NEXORA SYSTEMS",
@@ -431,8 +432,10 @@ private fun CompanyOverviewSection(
                 )
                 Text(
                     text = "Campus hiring and talent acceleration",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -454,7 +457,7 @@ private fun StatusPill(
     ) {
         Box(
             modifier = Modifier
-                .size(8.dp)
+                .size(10.dp)
                 .clip(CircleShape)
                 .background(color)
         )
@@ -527,12 +530,13 @@ private fun StickyNoteCard(
 
 @Composable
 private fun CompanyBasicInfoSection() {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Icon(
                 imageVector = Icons.Default.LocationOn,
                 contentDescription = "Location",
-                tint = MaterialTheme.colorScheme.primary
+                tint = Color.White,
+                modifier = Modifier.size(20.dp)
             )
             Text(
                 text = "Bangalore, India",
@@ -540,56 +544,49 @@ private fun CompanyBasicInfoSection() {
                 color = Color.White
             )
         }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Icon(
-                imageVector = Icons.Default.Apartment,
-                contentDescription = "Headquarters",
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = "Mountain View, USA",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White
-            )
-        }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Icon(
-                imageVector = Icons.Default.Email,
-                contentDescription = "Email",
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = "careers@nexora.systems",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        Text(
+            text = "Mountain View, USA",
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.White
+        )
+        Text(
+            text = "careers@nexora.systems",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
 @Composable
 private fun WebsiteLinkSection() {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { }
             .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = "www.nexora.systems",
-            style = MaterialTheme.typography.titleMedium.copy(
-                textDecoration = TextDecoration.Underline
-            ),
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
-        Icon(
-            imageVector = Icons.Default.ArrowOutward,
-            contentDescription = "Open website",
-            tint = MaterialTheme.colorScheme.primary
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(0.82f)
+                .clickable { },
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "www.nexora.systems",
+                style = MaterialTheme.typography.titleLarge.copy(
+                    textDecoration = TextDecoration.Underline
+                ),
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            Icon(
+                imageVector = Icons.Default.ArrowOutward,
+                contentDescription = "Open website",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
 }
 
