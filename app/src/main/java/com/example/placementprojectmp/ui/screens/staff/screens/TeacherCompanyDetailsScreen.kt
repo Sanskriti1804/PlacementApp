@@ -17,6 +17,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -37,6 +41,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apartment
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowOutward
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocationOn
@@ -807,6 +812,7 @@ private fun HrContactSection() {
 private fun PlacementDrivesSection() {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
@@ -821,109 +827,142 @@ private fun PlacementDrivesSection() {
             Triple("UPCOMING", "CAMPUS HIRING DRIVE", "SOFTWARE ENGINEER")
         )
 
-        drives.forEachIndexed { index, item ->
-            val (status, driveName, _) = item
-            val statusColor = when (status) {
-                "ONGOING" -> Color(0xFF2E7D32)
-                "COMPLETED" -> Color(0xFF1976D2)
-                else -> Color(0xFFFFC107)
-            }
-            val statusMessage = when (status) {
-                "ONGOING" -> "Drive currently in progress: active evaluation phase."
-                "COMPLETED" -> "Drive lifecycle closed: final selections published."
-                else -> "Drive queued: scheduled to start soon."
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val cardPairWidth = maxWidth - 2.dp
+            LazyRow(
+                state = listState,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(end = 38.dp)
             ) {
-                Card(
-                    modifier = Modifier
-                        .weight(0.4f)
-                        .height(152.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF00D4FF).copy(alpha = 0.8f))
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(8.dp),
-                        verticalArrangement = Arrangement.SpaceBetween
+                items(drives) { item ->
+                    val (status, driveName, _) = item
+                    val statusColor = when (status) {
+                        "ONGOING" -> Color(0xFF2E7D32)
+                        "COMPLETED" -> Color(0xFF1976D2)
+                        else -> Color(0xFFFFC107)
+                    }
+                    val statusMessage = when (status) {
+                        "ONGOING" -> "Drive currently in progress: active evaluation phase."
+                        "COMPLETED" -> "Drive lifecycle closed: final selections published."
+                        else -> "Drive queued: scheduled to start soon."
+                    }
+
+                    Row(
+                        modifier = Modifier.width(cardPairWidth),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Row(
-                                modifier = Modifier.clickable {
-                                    scope.launch { snackbarHostState.showSnackbar(statusMessage) }
-                                },
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(9.dp)
-                                        .clip(CircleShape)
-                                        .background(statusColor)
-                                )
-                                Text(
-                                    text = status,
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = Color.Black,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            Text(
-                                text = driveName,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = Color.Black,
-                                fontWeight = FontWeight.Black,
-                                maxLines = 3,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.End),
-                            verticalAlignment = Alignment.CenterVertically
+                        Card(
+                            modifier = Modifier
+                                .weight(0.4f)
+                                .height(152.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF00D4FF).copy(alpha = 0.8f))
                         ) {
-                            Text(
-                                text = if (index == 0) "03 Aug - 22 Aug" else "05 Sep - 26 Sep",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = Color.Black
-                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(8.dp),
+                                verticalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Row(
+                                        modifier = Modifier.clickable {
+                                            scope.launch { snackbarHostState.showSnackbar(statusMessage) }
+                                        },
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(9.dp)
+                                                .clip(CircleShape)
+                                                .background(statusColor)
+                                        )
+                                        Text(
+                                            text = status,
+                                            style = MaterialTheme.typography.labelLarge,
+                                            color = Color.Black,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    Text(
+                                        text = driveName,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = Color.Black,
+                                        fontWeight = FontWeight.Black,
+                                        maxLines = 3,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.End),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = if (driveName.contains("SUMMER")) "03 Aug - 22 Aug" else "05 Sep - 26 Sep",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = Color.Black
+                                    )
+                                }
+                            }
+                        }
+
+                        Card(
+                            modifier = Modifier
+                                .weight(0.6f)
+                                .height(152.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = "Software Engineer Intern - Web Applications",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                BulletDetailRow(keyText = "Responsibility", valueText = "Worked on web modules")
+                                BulletDetailRow(keyText = "Tech Stack", valueText = "Kotlin, REST APIs")
+                                BulletDetailRow(keyText = "CTC / LPA", valueText = "12 LPA")
+                                BulletDetailRow(keyText = "Interview Rounds", valueText = "4")
+                                BulletDetailRow(keyText = "Eligibility", valueText = "7.0+ CGPA")
+                            }
                         }
                     }
                 }
+            }
 
-                Card(
-                    modifier = Modifier
-                        .weight(0.6f)
-                        .height(152.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            text = "Software Engineer Intern - Web Applications",
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        BulletDetailRow(keyText = "Responsibility", valueText = "Worked on web modules")
-                        BulletDetailRow(keyText = "Tech Stack", valueText = "Kotlin, REST APIs")
-                        BulletDetailRow(keyText = "CTC / LPA", valueText = "12 LPA")
-                        BulletDetailRow(keyText = "Interview Rounds", valueText = "4")
-                        BulletDetailRow(keyText = "Eligibility", valueText = "7.0+ CGPA")
-                    }
+            Card(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .size(32.dp)
+                    .clickable {
+                        val next = (listState.firstVisibleItemIndex + 1).coerceAtMost(drives.lastIndex)
+                        if (next != listState.firstVisibleItemIndex) {
+                            scope.launch { listState.animateScrollToItem(next) }
+                        }
+                    },
+                shape = CircleShape,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.35f)
+                )
+            ) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowForward,
+                        contentDescription = "Next card",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             }
         }
@@ -968,6 +1007,7 @@ private fun DrivesCounterSection() {
         val seeded = Random(1007)
         List(5) { imagePool[seeded.nextInt(imagePool.size)] }
     }
+    val studentNames = remember { listOf("Aarav", "Meera", "Riya", "Kabir", "Dev") }
     val highlightedIndices = remember {
         val seeded = Random(2026)
         setOf(seeded.nextInt(5), seeded.nextInt(5))
@@ -1040,7 +1080,10 @@ private fun DrivesCounterSection() {
                         .padding(horizontal = 12.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    val gridItems = (stableRandomImages.map { it to ("Student" to "2025") } + listOf(0 to ("+43" to "")))
+                    val gridItems = (
+                        stableRandomImages.mapIndexed { idx, it -> it to (studentNames[idx] to "2025") } +
+                            listOf(0 to ("+43" to ""))
+                        )
                     gridItems.chunked(3).forEach { rowItems ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -1053,13 +1096,13 @@ private fun DrivesCounterSection() {
                                             .weight(1f)
                                             .height(86.dp)
                                             .clip(RoundedCornerShape(12.dp))
-                                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)),
+                                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
                                             text = meta.first,
                                             style = MaterialTheme.typography.titleMedium,
-                                            color = MaterialTheme.colorScheme.primary,
+                                            color = MaterialTheme.colorScheme.onSurface,
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
@@ -1082,16 +1125,25 @@ private fun DrivesCounterSection() {
                                                 ),
                                             contentScale = ContentScale.Crop
                                         )
-                                        Text("Student", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                        Text("2025", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text(meta.first, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
+                                        Text(meta.second, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                 }
                             }
-                            repeat(3 - rowItems.size) { Spacer(modifier = Modifier.weight(1f)) }
+                            repeat(3 - rowItems.size) { Spacer(modifier = Modifier.width(0.dp)) }
                         }
                     }
                 }
             }
+        }
+        if (!expanded) {
+            Text(
+                text = "CANDIDATES",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+                ,
+                maxLines = 1
+            )
         }
     }
 }
@@ -1101,9 +1153,10 @@ private fun PlacementHistorySection() {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
             text = "Placement History",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
+        Divider(Modifier.padding(2.dp))
         val items = listOf(
             "SUMMER INTERNSHIP DRIVE" to "2025",
             "CAMPUS HIRING DRIVE" to "2024"
@@ -1113,93 +1166,106 @@ private fun PlacementHistorySection() {
             val pool = listOf(R.drawable.std_1, R.drawable.std_2, R.drawable.std_3, R.drawable.std_4)
             List(5) { pool[seeded.nextInt(pool.size)] }
         }
-        items.forEach { (driveName, yearText) ->
-            var expanded by remember(driveName) { mutableStateOf(false) }
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0x8000D4FF)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                onClick = { expanded = !expanded }
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val historyCardWidth = maxWidth - 2.dp
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                items(items) { pair ->
+                    val (driveName, yearText) = pair
+                var expanded by remember(driveName) { mutableStateOf(false) }
+                Card(
+                    modifier = Modifier.width(historyCardWidth),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0x8000D4FF)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    onClick = { expanded = !expanded }
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Column {
-                            Text(text = driveName, style = MaterialTheme.typography.bodyLarge, color = Color.Black, fontWeight = FontWeight.Black)
-                            Text(text = yearText, style = MaterialTheme.typography.bodySmall, color = Color.Black.copy(alpha = 0.8f))
-                        }
-                        Text("Job roles offered", style = MaterialTheme.typography.bodyMedium, color = Color.Black)
-                    }
-                    if (!expanded) {
-                        Row(horizontalArrangement = Arrangement.spacedBy((-10).dp), verticalAlignment = Alignment.CenterVertically) {
-                            historyImages.forEach { img ->
-                                Image(
-                                    painter = painterResource(id = img),
-                                    contentDescription = "History participant",
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(CircleShape)
-                                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
-                                    contentScale = ContentScale.Crop
-                                )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(text = driveName, style = MaterialTheme.typography.bodyLarge, color = Color.Black, fontWeight = FontWeight.Black)
+                                Text(text = yearText, style = MaterialTheme.typography.bodySmall, color = Color.Black.copy(alpha = 0.8f))
+                            }
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Text(text = "\u2022 SDE Intern", style = MaterialTheme.typography.bodyMedium, color = Color.Black)
+                                Text(text = "\u2022 Web Developer", style = MaterialTheme.typography.bodyMedium, color = Color.Black)
+                                Text(text = "\u2022 QA Tester", style = MaterialTheme.typography.bodyMedium, color = Color.Black)
+                                Text(text = "\u2022 Backend Intern", style = MaterialTheme.typography.bodyMedium, color = Color.Black)
                             }
                         }
-                    } else {
-                        val gridItems = (historyImages.map { it to ("Student" to yearText) } + listOf(0 to ("+8" to "")))
-                        gridItems.chunked(3).forEach { rowItems ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                rowItems.forEach { (resId, meta) ->
-                                    if (resId == 0) {
-                                        Box(
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .height(84.dp)
-                                                .clip(RoundedCornerShape(12.dp))
-                                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(meta.first, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                                        }
-                                    } else {
-                                        Column(
-                                            modifier = Modifier.weight(1f),
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                                        ) {
-                                            Image(
-                                                painter = painterResource(id = resId),
-                                                contentDescription = "History participant",
+                        if (!expanded) {
+                            Row(horizontalArrangement = Arrangement.spacedBy((-10).dp), verticalAlignment = Alignment.CenterVertically) {
+                                historyImages.forEach { img ->
+                                    Image(
+                                        painter = painterResource(id = img),
+                                        contentDescription = "History participant",
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .clip(CircleShape)
+                                            .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                            }
+                        } else {
+                            val names = listOf("Aarav", "Meera", "Riya", "Kabir", "Dev")
+                            val gridItems = (historyImages.mapIndexed { idx, it -> it to (names[idx] to "2025") } + listOf(0 to ("+8" to "")))
+                            gridItems.chunked(3).forEach { rowItems ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    rowItems.forEach { (resId, meta) ->
+                                        if (resId == 0) {
+                                            Box(
                                                 modifier = Modifier
-                                                    .size(36.dp)
-                                                    .clip(CircleShape)
-                                                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
-                                                contentScale = ContentScale.Crop
-                                            )
-                                            Text(meta.first, style = MaterialTheme.typography.labelSmall, color = Color.Black)
-                                            Text(meta.second, style = MaterialTheme.typography.labelSmall, color = Color.Black.copy(alpha = 0.8f))
+                                                    .weight(1f)
+                                                    .height(84.dp)
+                                                    .clip(RoundedCornerShape(12.dp))
+                                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(meta.first, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
+                                            }
+                                        } else {
+                                            Column(
+                                                modifier = Modifier.weight(1f),
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                verticalArrangement = Arrangement.spacedBy(2.dp)
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(id = resId),
+                                                    contentDescription = "History participant",
+                                                    modifier = Modifier
+                                                        .size(36.dp)
+                                                        .clip(CircleShape)
+                                                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                                                    contentScale = ContentScale.Crop
+                                                )
+                                                Text(meta.first, style = MaterialTheme.typography.bodyMedium, color = Color.Black, fontWeight = FontWeight.SemiBold)
+                                                Text(meta.second, style = MaterialTheme.typography.labelSmall, color = Color.Black.copy(alpha = 0.8f))
+                                            }
                                         }
                                     }
+                                    repeat(3 - rowItems.size) { Spacer(modifier = Modifier.width(0.dp)) }
                                 }
-                                repeat(3 - rowItems.size) { Spacer(modifier = Modifier.weight(1f)) }
                             }
                         }
                     }
-                                }
+                }
             }
         }
-        Divider(modifier = Modifier.padding(top = 6.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+        }
     }
 }
 
@@ -1236,9 +1302,12 @@ private fun StatisticCard(
         ) {
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = value,
                 style = MaterialTheme.typography.titleLarge,
@@ -1252,7 +1321,7 @@ private fun StatisticCard(
 
 @Composable
 private fun DocumentsSection() {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -1260,20 +1329,24 @@ private fun DocumentsSection() {
         ) {
             Text(
                 text = "Documents",
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Card(
-                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.size(36.dp),
+                shape = CircleShape,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
                 onClick = {}
             ) {
-                Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
                     Text("+", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
         }
-        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+        Divider(Modifier.padding(2.dp))
 
         val docs = listOf("CDC", "Job Description", "Offer Letter", "Drive Guidelines")
         docs.chunked(2).forEach { rowDocs ->
