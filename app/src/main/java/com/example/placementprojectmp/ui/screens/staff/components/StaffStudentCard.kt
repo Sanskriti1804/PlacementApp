@@ -3,6 +3,7 @@ package com.example.placementprojectmp.ui.screens.staff.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -156,33 +157,44 @@ fun StaffStudentCardGrid(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    modifier = Modifier.padding(top = 0.dp)
+                ) {
                     Checkbox(
                         checked = selected,
                         onCheckedChange = onSelectionChange,
+                        modifier = Modifier.size(20.dp),
                         colors = CheckboxDefaults.colors(
                             checkedColor = MaterialTheme.colorScheme.primary,
                             uncheckedColor = MaterialTheme.colorScheme.outline
                         )
                     )
-                    IconButton(
-                        onClick = onFavoriteToggle,
-                        modifier = Modifier.size(36.dp)
+                    Box(
+                        modifier = Modifier
+                            .size(22.dp)
+                            .clickable { onFavoriteToggle() },
+                        contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = if (isFavorite) Icons.Default.Star else Icons.Outlined.StarBorder,
                             contentDescription = "Favorite",
+                            modifier = Modifier.size(20.dp),
                             tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
-                IconButton(
-                    onClick = onMenuClick,
-                    modifier = Modifier.size(36.dp)
+                Box(
+                    modifier = Modifier
+                        .size(22.dp)
+                        .clickable { onMenuClick() },
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "More",
+                        modifier = Modifier.size(18.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -191,12 +203,12 @@ fun StaffStudentCardGrid(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(72.dp),
+                    .height(68.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
+                        .size(64.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(MaterialTheme.colorScheme.surface),
                     contentAlignment = Alignment.Center
@@ -204,7 +216,7 @@ fun StaffStudentCardGrid(
                     Image(
                         painter = androidx.compose.ui.res.painterResource(profileImageResId),
                         contentDescription = "Profile",
-                        modifier = Modifier.size(56.dp),
+                        modifier = Modifier.size(64.dp),
                         contentScale = ContentScale.Crop
                     )
                 }
