@@ -99,7 +99,7 @@ fun StaffDriveScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         text = "Manage",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Normal
                     )
@@ -113,10 +113,11 @@ fun StaffDriveScreen(
             }
 
             item {
+                val drivesCount = 5
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.Top
                 ) {
                     Text(
                         text = "Companies",
@@ -125,9 +126,30 @@ fun StaffDriveScreen(
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
-                        text = "Count ${companies.size}",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = "(${companies.size})",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                Divider(modifier = Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        text = "Drives",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = "($drivesCount)",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
                 Divider(modifier = Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
@@ -246,14 +268,13 @@ private fun CompanyCard(
                 .padding(14.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .clip(CircleShape)
-                            .background(ColorMapper.getColor(company.status))
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(ColorMapper.getColor(company.status))
+                )
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Box(
                         modifier = Modifier
                             .size(38.dp)
@@ -268,7 +289,6 @@ private fun CompanyCard(
                             contentScale = ContentScale.Fit
                         )
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = company.name,
@@ -286,16 +306,44 @@ private fun CompanyCard(
                         )
                     }
                 }
-                CompanyField("Industry", company.industry)
-                CompanyField("Technology", company.technology)
-                CompanyField("Company Type", company.companyType)
-                Text(
-                    text = company.website.removePrefix("https://").removePrefix("http://"),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    textDecoration = TextDecoration.Underline,
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    CompanyField(
+                        label = "Industry",
+                        value = company.industry,
+                        modifier = Modifier.weight(1f)
+                    )
+                    CompanyField(
+                        label = "Technology",
+                        value = company.technology,
+                        modifier = Modifier.weight(1f)
+                    )
+                    CompanyField(
+                        label = "Company",
+                        value = company.companyType,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier.clickable { onWebsiteClick(company.website) }
-                )
+                ) {
+                    Text(
+                        text = company.website.removePrefix("https://").removePrefix("http://"),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ArrowOutward,
+                        contentDescription = "Open website",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(12.dp)
+                    )
+                }
                 Text(
                     text = company.email,
                     style = MaterialTheme.typography.bodySmall,
@@ -304,21 +352,26 @@ private fun CompanyCard(
                     overflow = TextOverflow.Ellipsis
                 )
                 Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
-                Text(
-                    text = "HR = ${company.hrName}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = company.email,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = company.hrPhone,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = "HR: ${company.hrName}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = company.email,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = company.hrPhone,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             Box(
@@ -340,29 +393,27 @@ private fun CompanyCard(
             androidx.compose.animation.AnimatedVisibility(
                 visible = showOverlay,
                 modifier = Modifier
-                    .align(Alignment.Center)
-                    .fillMaxWidth(),
+                    .matchParentSize(),
                 enter = expandVertically(animationSpec = tween(220)),
                 exit = shrinkVertically(animationSpec = tween(200))
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(170.dp)
+                        .matchParentSize()
                         .background(NeonBlue)
                         .clickable { showOverlay = false }
                         .padding(12.dp)
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(
-                            text = "Company Details",
-                            style = MaterialTheme.typography.titleMedium,
+                            text = "Company Detail",
+                            style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = company.description,
-                            style = MaterialTheme.typography.bodySmall,
+                            text = company.description + " The hiring team collaborates with placement cells for curated role-matching and timeline tracking.",
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimary,
                             maxLines = 5,
                             overflow = TextOverflow.Ellipsis
@@ -469,8 +520,15 @@ private fun DriveTag(text: String) {
 }
 
 @Composable
-private fun CompanyField(label: String, value: String) {
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+private fun CompanyField(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
