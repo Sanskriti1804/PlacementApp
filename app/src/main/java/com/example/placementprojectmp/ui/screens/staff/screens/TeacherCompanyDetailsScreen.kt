@@ -999,38 +999,98 @@ private fun DrivesCounterSection() {
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            if (!expanded) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(overlapSpacing),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    stableRandomImages.forEachIndexed { index, imageRes ->
-                        Image(
-                            painter = painterResource(id = imageRes),
-                            contentDescription = "Participant",
-                            modifier = Modifier
-                                .size(avatarSize)
-                                .clip(CircleShape)
-                                .border(
-                                    width = if (index in highlightedIndices) 2.dp else 1.dp,
-                                    color = if (index in highlightedIndices) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                                    shape = CircleShape
-                                ),
-                            contentScale = ContentScale.Crop
-                        )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(overlapSpacing),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        stableRandomImages.forEachIndexed { index, imageRes ->
+                            Image(
+                                painter = painterResource(id = imageRes),
+                                contentDescription = "Participant",
+                                modifier = Modifier
+                                    .size(avatarSize)
+                                    .clip(CircleShape)
+                                    .border(
+                                        width = if (index in highlightedIndices) 2.dp else 1.dp,
+                                        color = if (index in highlightedIndices) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                                        shape = CircleShape
+                                    ),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
+                    Text(
+                        text = "+43",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    val gridItems = (stableRandomImages.map { it to ("Student" to "2025") } + listOf(0 to ("+43" to "")))
+                    gridItems.chunked(3).forEach { rowItems ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            rowItems.forEach { (resId, meta) ->
+                                if (resId == 0) {
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(86.dp)
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = meta.first,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                } else {
+                                    Column(
+                                        modifier = Modifier.weight(1f),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Image(
+                                            painter = painterResource(id = resId),
+                                            contentDescription = "Participant",
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .clip(CircleShape)
+                                                .border(
+                                                    width = if ((stableRandomImages.indexOf(resId)) in highlightedIndices) 2.dp else 1.dp,
+                                                    color = if ((stableRandomImages.indexOf(resId)) in highlightedIndices) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                                                    shape = CircleShape
+                                                ),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                        Text("Student", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text("2025", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                            }
+                            repeat(3 - rowItems.size) { Spacer(modifier = Modifier.weight(1f)) }
+                        }
                     }
                 }
-                Text(
-                    text = "+43",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
             }
         }
     }
@@ -1038,119 +1098,108 @@ private fun DrivesCounterSection() {
 
 @Composable
 private fun PlacementHistorySection() {
-    Divider(
-        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-    )
-
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
             text = "Placement History",
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
-
-        val history = listOf(
-            "Summer 2025" to ("Multiple SDE roles" to "+25 Selected"),
-            "Winter 2024" to ("Intern & FTE mix" to "+18 Selected")
+        val items = listOf(
+            "SUMMER INTERNSHIP DRIVE" to "2025",
+            "CAMPUS HIRING DRIVE" to "2024"
         )
-
-        history.forEach { (driveName, columns) ->
-            val (roles, alumni) = columns
-            Row(
+        val historyImages = remember {
+            val seeded = Random(3012)
+            val pool = listOf(R.drawable.std_1, R.drawable.std_2, R.drawable.std_3, R.drawable.std_4)
+            List(5) { pool[seeded.nextInt(pool.size)] }
+        }
+        items.forEach { (driveName, yearText) ->
+            var expanded by remember(driveName) { mutableStateOf(false) }
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.Top
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0x8000D4FF)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                onClick = { expanded = !expanded }
             ) {
-                Card(
-                    modifier = Modifier.weight(0.35f),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(12.dp)
-                    ) {
-                        Text(
-                            text = driveName,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-
-                Card(
-                    modifier = Modifier.weight(0.65f),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = "Job Roles",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                text = roles,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                        Column {
+                            Text(text = driveName, style = MaterialTheme.typography.bodyLarge, color = Color.Black, fontWeight = FontWeight.Black)
+                            Text(text = yearText, style = MaterialTheme.typography.bodySmall, color = Color.Black.copy(alpha = 0.8f))
                         }
-
-                        Column(
-                            horizontalAlignment = Alignment.End,
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
+                        Text("Job roles offered", style = MaterialTheme.typography.bodyMedium, color = Color.Black)
+                    }
+                    if (!expanded) {
+                        Row(horizontalArrangement = Arrangement.spacedBy((-10).dp), verticalAlignment = Alignment.CenterVertically) {
+                            historyImages.forEach { img ->
+                                Image(
+                                    painter = painterResource(id = img),
+                                    contentDescription = "History participant",
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(CircleShape)
+                                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+                    } else {
+                        val gridItems = (historyImages.map { it to ("Student" to yearText) } + listOf(0 to ("+8" to "")))
+                        gridItems.chunked(3).forEach { rowItems ->
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy((-8).dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
-                                repeat(3) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(24.dp)
-                                            .clip(CircleShape)
-                                            .background(
-                                                MaterialTheme.colorScheme.primary.copy(
-                                                    alpha = 0.15f
-                                                )
+                                rowItems.forEach { (resId, meta) ->
+                                    if (resId == 0) {
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .height(84.dp)
+                                                .clip(RoundedCornerShape(12.dp))
+                                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(meta.first, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                                        }
+                                    } else {
+                                        Column(
+                                            modifier = Modifier.weight(1f),
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            Image(
+                                                painter = painterResource(id = resId),
+                                                contentDescription = "History participant",
+                                                modifier = Modifier
+                                                    .size(36.dp)
+                                                    .clip(CircleShape)
+                                                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                                                contentScale = ContentScale.Crop
                                             )
-                                            .clickable(
-                                                interactionSource = remember { MutableInteractionSource() },
-                                                indication = null
-                                            ) {},
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = "\uD83D\uDC64",
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
+                                            Text(meta.first, style = MaterialTheme.typography.labelSmall, color = Color.Black)
+                                            Text(meta.second, style = MaterialTheme.typography.labelSmall, color = Color.Black.copy(alpha = 0.8f))
+                                        }
                                     }
                                 }
+                                repeat(3 - rowItems.size) { Spacer(modifier = Modifier.weight(1f)) }
                             }
-                            Text(
-                                text = alumni,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
                         }
                     }
-                }
+                                }
             }
         }
+        Divider(modifier = Modifier.padding(top = 6.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
     }
 }
 
@@ -1160,31 +1209,22 @@ private fun StatisticsCardsSection() {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        StatisticCard(
-            value = "12",
-            label = "Drives Conducted"
-        )
-        StatisticCard(
-            value = "15 LPA",
-            label = "Average Salary"
-        )
-        StatisticCard(
-            value = "45 LPA",
-            label = "Highest Package"
-        )
+        StatisticCard(modifier = Modifier.weight(1f), value = "12", label = "Drives Conducted")
+        StatisticCard(modifier = Modifier.weight(1f), value = "48", label = "Total Selections")
     }
 }
 
 @Composable
 private fun StatisticCard(
+    modifier: Modifier = Modifier,
     value: String,
     label: String
 ) {
     Card(
-//        modifier = Modifier.weight(1f),
+        modifier = modifier,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -1192,17 +1232,19 @@ private fun StatisticCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleLarge,
+                color = Color(0xFF00D4FF),
+                modifier = Modifier.align(Alignment.End),
+                fontWeight = FontWeight.Bold
             )
         }
     }
@@ -1210,84 +1252,73 @@ private fun StatisticCard(
 
 @Composable
 private fun DocumentsSection() {
-    Divider(
-        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-    )
-
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(
-            text = "Documents",
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        val docs = listOf("CDC", "Job Description", "Offer Letter", "Drive Guidelines")
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            docs.forEachIndexed { index, title ->
-                val offset = index * 10
-                Card(
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .padding(start = offset.dp)
-                        .animateContentSize(),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(24.dp)
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "📁",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-            }
-
+            Text(
+                text = "Documents",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
             Card(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd),
-                shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
                 onClick = {}
             ) {
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "+",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+                Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) {
+                    Text("+", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimary)
+                }
+            }
+        }
+        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+
+        val docs = listOf("CDC", "Job Description", "Offer Letter", "Drive Guidelines")
+        docs.chunked(2).forEach { rowDocs ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                rowDocs.forEach { title ->
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .animateContentSize(),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+                        onClick = {}
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "📁",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                            Text(
+                                text = title,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
                 }
             }
         }
