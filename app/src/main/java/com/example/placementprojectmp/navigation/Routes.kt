@@ -85,6 +85,13 @@ object Routes {
     /** System module – placeholder for error, maintenance, force update, etc. */
     object SystemRoutes {
         const val Root = "system_root"
+        const val SystemContainer = "system_container"
+        const val Start = "system_start_screen"
+        const val SystemDashboard = "system_dashboard_screen"
+        const val SystemManagement = "system_management_screen"
+        const val JobManagement = "system_job_management_screen"
+        const val SystemProfile = "system_profile_screen"
+        const val SystemSettings = "system_settings_screen"
     }
 
     const val Splash = "splash"

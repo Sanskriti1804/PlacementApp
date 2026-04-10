@@ -17,13 +17,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.placementprojectmp.auth.TokenStore
 import com.example.placementprojectmp.ui.screens.shared.screens.AboutAppScreen
-import com.example.placementprojectmp.ui.screens.shared.screens.AppIntroductionScreen
-import com.example.placementprojectmp.ui.screens.shared.screens.IntroductionMode
 import com.example.placementprojectmp.ui.screens.shared.screens.LoadingScreen
 import com.example.placementprojectmp.ui.screens.shared.screens.LoginScreen
 import com.example.placementprojectmp.ui.screens.shared.screens.RoleSelectionScreen
 import com.example.placementprojectmp.ui.screens.shared.screens.SplashScreen
-import kotlinx.coroutines.delay
 import com.example.placementprojectmp.ui.screens.student.screens.AcademicPerdormanceScreen
 import com.example.placementprojectmp.ui.screens.student.screens.ApplicationScreen
 import com.example.placementprojectmp.ui.screens.student.screens.ApplicationStatusScreen
@@ -47,6 +44,13 @@ import com.example.placementprojectmp.ui.screens.staff.screens.StaffMainContaine
 import com.example.placementprojectmp.ui.screens.staff.screens.PlacementWorkspaceScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.TeacherCompanyDetailsScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.TeacherProfileScreen
+import com.example.placementprojectmp.ui.screens.system.screens.JobManagementScreen
+import com.example.placementprojectmp.ui.screens.system.screens.StartScreen
+import com.example.placementprojectmp.ui.screens.system.screens.SystemContainerScreen
+import com.example.placementprojectmp.ui.screens.system.screens.SystemDashboardScreen
+import com.example.placementprojectmp.ui.screens.system.screens.SystemManagementScreen
+import com.example.placementprojectmp.ui.screens.system.screens.SystemProfileScreen
+import com.example.placementprojectmp.ui.screens.system.screens.SystemSettingsScreen
 
 /**
  * Root navigation host with four graphs: Startup, Student, Staff, System.
@@ -64,7 +68,8 @@ fun AppNavGraph(
     val token by tokenStore.tokenFlow.collectAsState(initial = null)
     val role by tokenStore.roleFlow.collectAsState(initial = null)
     // TESTING: staff graph as root start — delete next line and uncomment block below when done.
-    val safeRootStartDestination = Routes.GraphRoutes.Staff
+    val safeRootStartDestination = Routes.GraphRoutes.System
+
 
     /*
     val safeRootStartDestination = when {
@@ -337,7 +342,28 @@ private fun androidx.navigation.NavGraphBuilder.systemGraph(
         startDestination = Routes.SystemRoutes.Root
     ) {
         composable(Routes.SystemRoutes.Root) {
-            // Placeholder – for future error, maintenance, force update screens
+            SystemContainerScreen(modifier = modifier)
+        }
+        composable(Routes.SystemRoutes.SystemContainer) {
+            SystemContainerScreen(modifier = modifier)
+        }
+        composable(Routes.SystemRoutes.SystemDashboard) {
+            SystemDashboardScreen(modifier = modifier)
+        }
+        composable(Routes.SystemRoutes.SystemManagement) {
+            SystemManagementScreen(modifier = modifier)
+        }
+        composable(Routes.SystemRoutes.Start) {
+            StartScreen(modifier = modifier)
+        }
+        composable(Routes.SystemRoutes.SystemProfile) {
+            SystemProfileScreen(modifier = modifier)
+        }
+        composable(Routes.SystemRoutes.SystemSettings) {
+            SystemSettingsScreen(modifier = modifier)
+        }
+        composable(Routes.SystemRoutes.JobManagement) {
+            JobManagementScreen(modifier = modifier)
         }
     }
 }
