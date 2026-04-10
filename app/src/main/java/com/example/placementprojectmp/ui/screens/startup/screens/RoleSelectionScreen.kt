@@ -1,5 +1,6 @@
-package com.example.placementprojectmp.ui.screens.shared.screens
+package com.example.placementprojectmp.ui.screens.startup.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -105,7 +106,7 @@ fun RoleSelectionScreen(
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
-                            androidx.compose.foundation.Image(
+                            Image(
                                 painter = painterResource(role.iconResId),
                                 contentDescription = null,
                                 modifier = Modifier.size(30.dp)

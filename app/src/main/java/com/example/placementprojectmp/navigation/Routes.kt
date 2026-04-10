@@ -59,6 +59,10 @@ object Routes {
         const val ApplicationScreen = "application_screen"
         const val ApplicationStatusScreen = "application_status_screen"
         const val DashboardStudent = "dashboard/student"
+        /** Shared [com.example.placementprojectmp.ui.screens.shared.screens.JobDetailScreen] with [jobId] argument. */
+        const val JobDetailWithJobId = "job_detail_screen/{jobId}"
+
+        fun jobDetailScreen(jobId: String): String = "job_detail_screen/$jobId"
     }
 
     /** Staff module – staff dashboards and management screens. */

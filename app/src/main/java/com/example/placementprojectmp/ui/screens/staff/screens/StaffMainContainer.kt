@@ -49,6 +49,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.placementprojectmp.navigation.Routes
 import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
+import com.example.placementprojectmp.ui.screens.shared.screens.TeacherCompanyDetailsScreen
 
 /**
  * Staff shell: same bottom bar pattern as [com.example.placementprojectmp.ui.screens.student.screens.StudentMainContainer].

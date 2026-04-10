@@ -1,4 +1,4 @@
-package com.example.placementprojectmp.ui.screens.shared.screens
+package com.example.placementprojectmp.ui.screens.startup.screens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.screens.shared.component.AppLogo
 import com.example.placementprojectmp.ui.components.GlowingProgressBar
+import kotlinx.coroutines.delay
 
 @Composable
 fun LoadingScreen(
@@ -34,7 +35,7 @@ fun LoadingScreen(
         progress = 1f
     }
     LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(2500)
+        delay(2500)
         if (onNavigateToAbout != null) {
             onNavigateToAbout()
         }

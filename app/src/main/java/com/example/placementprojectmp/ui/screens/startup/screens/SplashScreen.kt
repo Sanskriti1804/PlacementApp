@@ -1,4 +1,4 @@
-package com.example.placementprojectmp.ui.screens.shared.screens
+package com.example.placementprojectmp.ui.screens.startup.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.screens.shared.component.AppLogo
 import androidx.compose.material3.MaterialTheme
+import kotlinx.coroutines.delay
 
 private const val SPLASH_DELAY_MS = 2000L
 
@@ -21,7 +22,7 @@ fun SplashScreen(
     onNavigateToAbout: (() -> Unit)? = null
 ) {
     LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(SPLASH_DELAY_MS)
+        delay(SPLASH_DELAY_MS)
         onNavigateToAbout?.invoke()
     }
 

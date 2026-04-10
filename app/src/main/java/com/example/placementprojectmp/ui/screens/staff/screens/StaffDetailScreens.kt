@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
@@ -34,7 +33,7 @@ import com.example.placementprojectmp.ui.theme.colormap.ApplicationStatus
 import com.example.placementprojectmp.ui.theme.colormap.ColorMapper
 import com.example.placementprojectmp.viewmodel.StaffCandidateDetailViewModel
 import com.example.placementprojectmp.viewmodel.StaffDriveDetailViewModel
-import com.example.placementprojectmp.viewmodel.StaffJobDetailViewModel
+import com.example.placementprojectmp.ui.screens.shared.screens.JobDetailScreen
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -112,73 +111,9 @@ fun StaffDriveDetailScreen(
 @Composable
 fun StaffJobDetailScreen(
     modifier: Modifier = Modifier,
-    jobId: String,
-    viewModel: StaffJobDetailViewModel = koinViewModel()
+    jobId: String
 ) {
-    val state by viewModel.uiState
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(22.dp)
-    ) {
-        item { SectionHeader(title = "Job Detail ($jobId)") }
-        item {
-            Card(shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Veltrix Labs", style = MaterialTheme.typography.titleMedium)
-                    Text("Pune, India", style = MaterialTheme.typography.bodySmall)
-                    Text("Associate Android Engineer", style = MaterialTheme.typography.titleLarge)
-                }
-            }
-        }
-        item {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatusChip("Internship", ColorMapper.getColor(ApplicationStatus.APPLIED))
-                StatusChip("Tech", ColorMapper.getColor(ApplicationStatus.INTERVIEW_SCHEDULED))
-                StatusChip("Open", ColorMapper.getColor(ApplicationStatus.SELECTED))
-            }
-        }
-        item {
-            Card(shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SectionHeader("Compensation")
-                    InfoRow("CTC", "12 LPA")
-                    InfoRow("Internship Duration", "6 months")
-                    InfoRow("PPO", "Yes")
-                    InfoRow("Perks", "Health + Learning allowance")
-                }
-            }
-        }
-        item {
-            Card(shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SectionHeader("Description")
-                    state.data.forEach {
-                        val pair = it.split(":")
-                        if (pair.size >= 2) InfoRow(pair[0], pair.drop(1).joinToString(":").trim())
-                    }
-                }
-            }
-        }
-        item {
-            ExpandableCard(title = "Selection Process (3 rounds)") {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    InfoRow("Aptitude", "146")
-                    InfoRow("Technical", "61")
-                    InfoRow("HR", "24")
-                }
-            }
-        }
-        item {
-            Card(shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SectionHeader("Application Stats")
-                    InfoRow("Total applied", "146")
-                    InfoRow("Selected", "9")
-                }
-            }
-        }
-    }
+    JobDetailScreen(modifier = modifier, jobId = jobId)
 }
 
 @OptIn(ExperimentalFoundationApi::class)

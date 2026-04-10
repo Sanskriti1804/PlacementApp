@@ -16,18 +16,18 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.placementprojectmp.auth.TokenStore
-import com.example.placementprojectmp.ui.screens.shared.screens.AboutAppScreen
-import com.example.placementprojectmp.ui.screens.shared.screens.LoadingScreen
-import com.example.placementprojectmp.ui.screens.shared.screens.LoginScreen
-import com.example.placementprojectmp.ui.screens.shared.screens.RoleSelectionScreen
-import com.example.placementprojectmp.ui.screens.shared.screens.SplashScreen
+import com.example.placementprojectmp.ui.screens.startup.screens.AboutAppScreen
+import com.example.placementprojectmp.ui.screens.startup.screens.LoadingScreen
+import com.example.placementprojectmp.ui.screens.startup.screens.LoginScreen
+import com.example.placementprojectmp.ui.screens.startup.screens.RoleSelectionScreen
+import com.example.placementprojectmp.ui.screens.startup.screens.SplashScreen
 import com.example.placementprojectmp.ui.screens.student.screens.AcademicPerdormanceScreen
 import com.example.placementprojectmp.ui.screens.student.screens.ApplicationScreen
 import com.example.placementprojectmp.ui.screens.student.screens.ApplicationStatusScreen
 import com.example.placementprojectmp.ui.screens.student.screens.AptitudeTestDetailsScreen
 import com.example.placementprojectmp.ui.screens.student.screens.AptitudeTestPlayerScreen
 import com.example.placementprojectmp.ui.screens.student.screens.AptitudeTestResultScreen
-import com.example.placementprojectmp.ui.screens.student.screens.ChatbotScreen
+import com.example.placementprojectmp.ui.screens.shared.screens.ChatbotScreen
 import com.example.placementprojectmp.ui.screens.student.screens.OpportunitiesScreen
 import com.example.placementprojectmp.ui.screens.student.screens.PreparationScreen
 import com.example.placementprojectmp.ui.screens.student.screens.ProfileScreen
@@ -35,6 +35,7 @@ import com.example.placementprojectmp.ui.screens.student.screens.PyqQuestionsScr
 import com.example.placementprojectmp.ui.screens.staff.screens.StudentDetailsScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentDashboardScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentMainContainer
+import com.example.placementprojectmp.ui.screens.shared.screens.JobDetailScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentProfileFormScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffDriveScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffCandidateDetailScreen
@@ -42,7 +43,7 @@ import com.example.placementprojectmp.ui.screens.staff.screens.StaffDriveDetailS
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffJobDetailScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffMainContainer
 import com.example.placementprojectmp.ui.screens.staff.screens.PlacementWorkspaceScreen
-import com.example.placementprojectmp.ui.screens.staff.screens.TeacherCompanyDetailsScreen
+import com.example.placementprojectmp.ui.screens.shared.screens.TeacherCompanyDetailsScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.TeacherProfileScreen
 import com.example.placementprojectmp.ui.screens.system.screens.JobManagementScreen
 import com.example.placementprojectmp.ui.screens.system.screens.StartScreen
@@ -68,7 +69,7 @@ fun AppNavGraph(
     val token by tokenStore.tokenFlow.collectAsState(initial = null)
     val role by tokenStore.roleFlow.collectAsState(initial = null)
     // TESTING: staff graph as root start — delete next line and uncomment block below when done.
-    val safeRootStartDestination = Routes.GraphRoutes.Staff
+    val safeRootStartDestination = Routes.GraphRoutes.Student
 
 
 
@@ -273,7 +274,19 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
             ChatbotScreen(modifier = modifier)
         }
         composable(Routes.StudentRoutes.OpportunitiesOuter) {
-            OpportunitiesScreen(modifier = modifier)
+            OpportunitiesScreen(
+                modifier = modifier,
+                onJobClick = { jobId ->
+                    navController.navigate(Routes.StudentRoutes.jobDetailScreen(jobId))
+                }
+            )
+        }
+        composable(
+            route = Routes.StudentRoutes.JobDetailWithJobId,
+            arguments = listOf(navArgument("jobId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val jobId = backStackEntry.arguments?.getString("jobId").orEmpty()
+            JobDetailScreen(modifier = modifier, jobId = jobId)
         }
         composable(Routes.StudentRoutes.StudentProfileForm) {
             StudentProfileFormScreen(modifier = modifier)

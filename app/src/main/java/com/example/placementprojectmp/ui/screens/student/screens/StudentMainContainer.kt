@@ -42,11 +42,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.placementprojectmp.navigation.Routes
+import com.example.placementprojectmp.ui.screens.shared.screens.JobDetailScreen
 
 /**
  * Main container for the student module: Scaffold with top content area and custom bottom navigation.
@@ -84,7 +87,19 @@ fun StudentMainContainer(
                 )
             }
             composable(Routes.StudentRoutes.Opportunities) {
-                OpportunitiesScreen(modifier = modifier)
+                OpportunitiesScreen(
+                    modifier = modifier,
+                    onJobClick = { jobId ->
+                        innerNavController.navigate(Routes.StudentRoutes.jobDetailScreen(jobId))
+                    }
+                )
+            }
+            composable(
+                route = Routes.StudentRoutes.JobDetailWithJobId,
+                arguments = listOf(navArgument("jobId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val jobId = backStackEntry.arguments?.getString("jobId").orEmpty()
+                JobDetailScreen(modifier = modifier, jobId = jobId)
             }
             composable(Routes.StudentRoutes.Dashboard) {
                 StudentDashboardScreen(

@@ -1,4 +1,4 @@
-package com.example.placementprojectmp.ui.screens.staff.screens
+package com.example.placementprojectmp.ui.screens.shared.screens
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -473,7 +474,7 @@ private fun PlacementDrivesSection() {
             LazyRow(
                 state = listState,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(end = 38.dp)
+                contentPadding = PaddingValues(end = 38.dp)
             ) {
                 items(drives) { item ->
                     val (status, driveName, _) = item

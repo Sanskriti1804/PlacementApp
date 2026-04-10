@@ -1,4 +1,4 @@
-package com.example.placementprojectmp.ui.screens.shared.screens
+package com.example.placementprojectmp.ui.screens.startup.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

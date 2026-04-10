@@ -234,7 +234,8 @@ private fun OpportunitiesJobsDrivesTabRow(
 fun OpportunitiesScreen(
     modifier: Modifier = Modifier,
     onMenuClick: () -> Unit = {},
-    onNotificationClick: () -> Unit = {}
+    onNotificationClick: () -> Unit = {},
+    onJobClick: (jobId: String) -> Unit = {}
 ) {
     val allJobs = remember { studentOpportunitiesDummyJobs() }
     val allDrives = remember { studentOpportunitiesDummyDrives() }
@@ -329,7 +330,7 @@ fun OpportunitiesScreen(
                     JobCard(
                         job = job,
                         onApplyClick = { },
-                        onClick = { }
+                        onClick = { onJobClick(job.id) }
                     )
                 }
             }
