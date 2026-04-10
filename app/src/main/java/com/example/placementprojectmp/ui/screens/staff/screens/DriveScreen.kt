@@ -4,12 +4,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,19 +24,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowOutward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
@@ -62,30 +53,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.placementprojectmp.ui.theme.NeonBlue
+import com.example.placementprojectmp.ui.screens.shared.cards.CompanyCard
+import com.example.placementprojectmp.ui.screens.shared.cards.DriveCard
+import com.example.placementprojectmp.ui.screens.shared.cards.JobCard
 import com.example.placementprojectmp.viewmodel.ApplicationTab
-import com.example.placementprojectmp.viewmodel.DriveUiModel
 import com.example.placementprojectmp.viewmodel.FilterState
 import com.example.placementprojectmp.viewmodel.Industry
-import com.example.placementprojectmp.viewmodel.JobDepartment
 import com.example.placementprojectmp.viewmodel.JobType
 import com.example.placementprojectmp.viewmodel.JobUiModel
-import com.example.placementprojectmp.viewmodel.StaffDriveUiState
 import com.example.placementprojectmp.viewmodel.StaffDriveViewModel
 import com.example.placementprojectmp.viewmodel.Status
 import com.example.placementprojectmp.viewmodel.WorkMode
 import org.koin.androidx.compose.koinViewModel
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun StaffDriveScreen(
@@ -175,7 +159,7 @@ fun StaffDriveScreen(
 
                 ApplicationTab.DRIVE -> {
                     items(state.filteredDrives, key = { it.id }) { drive ->
-                        ApplicationDriveCard(
+                        DriveCard(
                             drive = drive,
                             onRegisterClick = {},
                             onClick = { onDriveClick(drive.id) },
@@ -371,197 +355,6 @@ private fun ApplicationTabRow(
     }
 }
 
-@Composable
-private fun ApplicationDriveCard(
-    drive: DriveUiModel,
-    onRegisterClick: () -> Unit,
-    onClick: () -> Unit,
-    onCandidateDoubleClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        onClick = onClick
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                LogoImage(logoResId = drive.companyLogoResId)
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = drive.companyName,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = drive.driveName,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                DateText(label = "Start", date = drive.startDate)
-            }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                BottomActionRow(
-                    dateLabel = "Register closes at",
-                    date = drive.lastDateToRegister,
-                    buttonText = "Register",
-                    onButtonClick = onRegisterClick
-                )
-            }
-            CandidateBadge(
-                count = drive.candidateCount,
-                onDoubleClick = onCandidateDoubleClick
-            )
-        }
-    }
-}
-
-@Composable
-private fun JobCard(
-    job: JobUiModel,
-    onApplyClick: () -> Unit,
-    onClick: () -> Unit,
-    onCandidateDoubleClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        onClick = onClick
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                LogoImage(logoResId = job.companyLogoResId)
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = job.companyName,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = job.location,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-            Text(
-                text = job.jobRole,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold
-            )
-            StatusChip(department = job.department)
-            BottomActionRow(
-                dateLabel = "Last date to apply",
-                date = job.lastDate,
-                buttonText = "Apply",
-                onButtonClick = onApplyClick
-            )
-            CandidateBadge(
-                count = job.appliedCount,
-                onDoubleClick = onCandidateDoubleClick
-            )
-        }
-    }
-}
-
-@Composable
-private fun LogoImage(
-    logoResId: Int,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .size(42.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant),
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource(id = logoResId),
-            contentDescription = "Company logo",
-            modifier = Modifier.size(28.dp),
-            contentScale = ContentScale.Fit
-        )
-    }
-}
-
-@Composable
-private fun BottomActionRow(
-    dateLabel: String,
-    date: LocalDate,
-    buttonText: String,
-    onButtonClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        DateText(label = dateLabel, date = date)
-        OutlinedButton(onClick = onButtonClick, shape = RoundedCornerShape(14.dp)) {
-            Text(text = buttonText)
-        }
-    }
-}
-
-@Composable
-private fun DateText(
-    label: String,
-    date: LocalDate
-) {
-    Text(
-        text = "$label: ${date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))}",
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-}
-
-@Composable
-private fun StatusChip(
-    department: JobDepartment
-) {
-    val color = when (department) {
-        JobDepartment.TECH -> Color(0xFF1E88E5)
-        JobDepartment.MANAGEMENT -> Color(0xFF8E24AA)
-        JobDepartment.CORE -> Color(0xFFEF6C00)
-    }
-    AssistChip(
-        onClick = {},
-        label = {
-            Text(
-                text = department.name.lowercase().replaceFirstChar { it.uppercase() },
-                color = color
-            )
-        },
-        leadingIcon = {
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .clip(CircleShape)
-                    .background(color)
-            )
-        }
-    )
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddEntityBottomSheet(
@@ -713,135 +506,5 @@ private fun <T> FilterChipRow(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun CompanyCard(
-    modifier: Modifier,
-    company: com.example.placementprojectmp.viewmodel.CompanyUiModel,
-    onWebsiteClick: (String) -> Unit,
-    onClick: () -> Unit,
-    onCandidateDoubleClick: () -> Unit
-) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-        onClick = onClick
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                LogoImage(logoResId = company.logoResId)
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = company.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = company.location,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                CompanyField(label = "Industry", value = company.industry.name.lowercase(), modifier = Modifier.weight(1f))
-                CompanyField(label = "Type", value = company.companyType, modifier = Modifier.weight(1f))
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.clickable { onWebsiteClick(company.website) }
-            ) {
-                Text(
-                    text = company.website.removePrefix("https://").removePrefix("http://"),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    textDecoration = TextDecoration.Underline
-                )
-                Icon(
-                    imageVector = Icons.Default.ArrowOutward,
-                    contentDescription = "Open website",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(12.dp)
-                )
-            }
-            Text(
-                text = company.description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
-            )
-            CandidateBadge(
-                count = company.candidateCount,
-                onDoubleClick = onCandidateDoubleClick
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun CandidateBadge(
-    count: Int,
-    onDoubleClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(999.dp))
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
-            .combinedClickable(
-                onClick = {},
-                onDoubleClick = onDoubleClick
-            )
-            .padding(horizontal = 10.dp, vertical = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(8.dp)
-                .clip(CircleShape)
-                .background(NeonBlue)
-        )
-        Text(
-            text = "$count candidates",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
-private fun CompanyField(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = value.replaceFirstChar { it.uppercase() },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
     }
 }

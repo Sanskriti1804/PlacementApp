@@ -59,7 +59,7 @@ import com.example.placementprojectmp.ui.screens.shared.component.NeonGlassToast
 import com.example.placementprojectmp.ui.components.SearchBar
 import com.example.placementprojectmp.ui.components.StudentViewMode
 import com.example.placementprojectmp.ui.theme.NeonBlue
-import com.example.placementprojectmp.ui.screens.staff.components.StaffFilterCapsule
+import com.example.placementprojectmp.ui.screens.shared.component.FilterCapsuleRow
 import com.example.placementprojectmp.ui.screens.staff.components.StaffPaginationControls
 import com.example.placementprojectmp.ui.screens.staff.components.StaffStudentCardGrid
 import com.example.placementprojectmp.ui.screens.staff.components.StaffStudentCardList
@@ -269,7 +269,7 @@ fun StudentDetailsScreen(
                     )
                 }
                 item {
-                    StaffFilterCapsule(
+                    FilterCapsuleRow(
                         modifier = Modifier.padding(horizontal = 20.dp),
                         branchOptions = branchOptions,
                         courseOptions = courseOptions,

@@ -1,6 +1,5 @@
 package com.example.placementprojectmp.ui.screens.staff.screens
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -50,8 +49,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -74,6 +71,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
+import com.example.placementprojectmp.ui.screens.shared.component.AppTabSection
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlinx.coroutines.delay
@@ -348,7 +346,14 @@ private fun ExpandedDrawerContent(
             }
 
             item {
-                TabSection()
+                AppTabSection(
+                    tabTitles = listOf("Description", "Overview", "Sector"),
+                    tabContents = listOf(
+                        "Nexora Systems is a campus hiring focused technology firm building recruitment automation and employability products. The company collaborates with academic institutions to run outcome-driven hiring pipelines. Teams include backend, mobile, cloud, and data specialists with structured mentoring for early-career talent. Fresh graduates work on real modules from the first quarter with guided reviews and milestone-based growth plans. The organization emphasizes practical engineering, communication, and long-term skill development.",
+                        "The company operates across India with hybrid delivery teams supporting both enterprise and education clients. Hiring programs include internships, apprenticeships, and full-time tracks designed for campus transitions. Internal platforms support candidate analytics, drive scheduling, and recruiter collaboration workflows. Leadership invests in upskilling through cohort-based learning sessions and regular technical workshops. Project execution follows agile practices with measurable outcomes and delivery transparency.",
+                        "Sector coverage includes SaaS platforms, HR technology, analytics, and AI-assisted workflow tools. Nexora's portfolio spans screening engines, placement dashboards, and institution engagement products. The roadmap prioritizes reliability, security, and scalable cloud-native architecture. The team is currently expanding into talent intelligence and predictive employability insights. Partnerships with campuses and industry mentors remain central to the company's growth strategy."
+                    )
+                )
             }
 
             item {
@@ -652,51 +657,6 @@ private fun MetadataRow(
                 text = value,
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color.White
-            )
-        }
-    }
-}
-
-@Composable
-private fun TabSection() {
-    val tabs = listOf("Description", "Overview", "Sector")
-    var selectedTab by remember { mutableStateOf(0) }
-
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        TabRow(
-            selectedTabIndex = selectedTab,
-            containerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.primary
-        ) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    selected = selectedTab == index,
-                    onClick = { selectedTab = index },
-                    text = {
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = if (selectedTab == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                )
-            }
-        }
-
-        Crossfade(
-            targetState = selectedTab,
-            animationSpec = tween(durationMillis = 220, easing = FastOutSlowInEasing),
-            label = "company_tab_content"
-        ) { tabIndex ->
-            val content = when (tabIndex) {
-                0 -> "Nexora Systems is a campus hiring focused technology firm building recruitment automation and employability products. The company collaborates with academic institutions to run outcome-driven hiring pipelines. Teams include backend, mobile, cloud, and data specialists with structured mentoring for early-career talent. Fresh graduates work on real modules from the first quarter with guided reviews and milestone-based growth plans. The organization emphasizes practical engineering, communication, and long-term skill development."
-                1 -> "The company operates across India with hybrid delivery teams supporting both enterprise and education clients. Hiring programs include internships, apprenticeships, and full-time tracks designed for campus transitions. Internal platforms support candidate analytics, drive scheduling, and recruiter collaboration workflows. Leadership invests in upskilling through cohort-based learning sessions and regular technical workshops. Project execution follows agile practices with measurable outcomes and delivery transparency."
-                else -> "Sector coverage includes SaaS platforms, HR technology, analytics, and AI-assisted workflow tools. Nexora's portfolio spans screening engines, placement dashboards, and institution engagement products. The roadmap prioritizes reliability, security, and scalable cloud-native architecture. The team is currently expanding into talent intelligence and predictive employability insights. Partnerships with campuses and industry mentors remain central to the company's growth strategy."
-            }
-            Text(
-                text = content,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
