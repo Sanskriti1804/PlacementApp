@@ -1,9 +1,8 @@
 package com.example.placementprojectmp.ui.screens.staff.screens
 
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -11,102 +10,125 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowOutward
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.placementprojectmp.R
 import com.example.placementprojectmp.ui.theme.NeonBlue
-import com.example.placementprojectmp.ui.theme.colormap.ColorMapper
-import com.example.placementprojectmp.ui.theme.colormap.CompanyStatus
-import com.example.placementprojectmp.ui.theme.colormap.DriveStatus
-
-private data class DriveCompanyUiModel(
-    val name: String,
-    val location: String,
-    val status: CompanyStatus,
-    val industry: String,
-    val technology: String,
-    val companyType: String,
-    val website: String,
-    val email: String,
-    val hrName: String,
-    val hrPhone: String,
-    val description: String,
-    val logoResId: Int,
-    val driveName: String,
-    val driveDate: String
-)
+import com.example.placementprojectmp.viewmodel.ApplicationTab
+import com.example.placementprojectmp.viewmodel.DriveUiModel
+import com.example.placementprojectmp.viewmodel.FilterState
+import com.example.placementprojectmp.viewmodel.Industry
+import com.example.placementprojectmp.viewmodel.JobDepartment
+import com.example.placementprojectmp.viewmodel.JobType
+import com.example.placementprojectmp.viewmodel.JobUiModel
+import com.example.placementprojectmp.viewmodel.StaffDriveUiState
+import com.example.placementprojectmp.viewmodel.StaffDriveViewModel
+import com.example.placementprojectmp.viewmodel.Status
+import com.example.placementprojectmp.viewmodel.WorkMode
+import org.koin.androidx.compose.koinViewModel
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun StaffDriveScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: StaffDriveViewModel = koinViewModel()
 ) {
-    val companies = remember { sampleCompanies() }
+    val state by viewModel.uiState
     val uriHandler = LocalUriHandler.current
+    val listState = rememberLazyListState()
+    BackHandler(enabled = state.isSearchExpanded) {
+        viewModel.collapseSearch()
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = viewModel::showFabSheet,
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add options"
+                )
+            }
+        }
     ) { paddingValues ->
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         text = "Manage",
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Normal
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "Companies and Drives",
+                        text = "Companies, Drives and Jobs",
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
@@ -115,139 +137,548 @@ fun StaffDriveScreen(
             }
 
             item {
-                val drivesCount = 5
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Text(
-                        text = "Companies",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = "(${companies.size})",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-                Divider(modifier = Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Text(
-                        text = "Drives",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = "($drivesCount)",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-                Divider(modifier = Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                ExpandableSearchBar(
+                    query = state.searchQuery,
+                    isExpanded = state.isSearchExpanded,
+                    onExpand = viewModel::expandSearch,
+                    onCollapse = viewModel::collapseSearch,
+                    onQueryChange = viewModel::onSearchQueryChanged,
+                    onFilterClick = viewModel::showFilterSheet
+                )
             }
 
-            items(companies) { company ->
-                CompanyDriveCarouselItem(
-                    company = company,
-                    onWebsiteClick = { url -> uriHandler.openUri(url) }
+            item {
+                ApplicationTabRow(
+                    selectedTab = state.selectedTab,
+                    onTabSelected = viewModel::onTabSelected
                 )
+            }
+
+            when (state.selectedTab) {
+                ApplicationTab.COMPANY -> {
+                    items(state.filteredCompanies, key = { it.name }) { company ->
+                        CompanyCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            company = company,
+                            onWebsiteClick = { url -> uriHandler.openUri(url) }
+                        )
+                    }
+                }
+
+                ApplicationTab.DRIVE -> {
+                    items(state.filteredDrives, key = { it.id }) { drive ->
+                        ApplicationDriveCard(
+                            drive = drive,
+                            onRegisterClick = {}
+                        )
+                    }
+                }
+
+                ApplicationTab.JOBS -> {
+                    items(state.filteredJobs, key = { it.id }) { job ->
+                        JobCard(
+                            job = job,
+                            onApplyClick = {}
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    if (state.showFabSheet) {
+        AddEntityBottomSheet(
+            onDismiss = viewModel::hideFabSheet,
+            onAddCompany = viewModel::hideFabSheet,
+            onAddDrive = viewModel::hideFabSheet,
+            onAddJob = viewModel::hideFabSheet
+        )
+    }
+
+    if (state.showFilterSheet) {
+        FilterBottomSheet(
+            filterState = state.filterState,
+            onDismiss = viewModel::hideFilterSheet,
+            onStatusToggle = viewModel::toggleStatus,
+            onIndustryToggle = viewModel::toggleIndustry,
+            onJobTypeToggle = viewModel::toggleJobType,
+            onWorkModeToggle = viewModel::toggleWorkMode,
+            onCompanyQueryChanged = viewModel::onCompanyFilterQueryChanged,
+            onLocationChanged = viewModel::onLocationFilterChanged,
+            onSalaryRangeChanged = viewModel::onSalaryRangeChanged,
+            onReset = viewModel::resetFilters,
+            onApply = viewModel::applyFilters
+        )
+    }
+}
+
+@Composable
+private fun ExpandableSearchBar(
+    query: String,
+    isExpanded: Boolean,
+    onExpand: () -> Unit,
+    onCollapse: () -> Unit,
+    onQueryChange: (String) -> Unit,
+    onFilterClick: () -> Unit
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
+    val animatedWidth by animateDpAsState(
+        targetValue = if (isExpanded) 360.dp else 182.dp,
+        animationSpec = tween(260),
+        label = "search_width_animation"
+    )
+
+    LaunchedEffect(isExpanded) {
+        if (isExpanded) {
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        }
+    }
+
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val targetWidth = if (animatedWidth > maxWidth) maxWidth else animatedWidth
+        Row(
+            modifier = Modifier
+                .width(targetWidth)
+                .height(52.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { onExpand() }
+                .padding(horizontal = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            AnimatedVisibility(visible = isExpanded) {
+                BasicTextField(
+                    value = query,
+                    onValueChange = onQueryChange,
+                    modifier = Modifier
+                        .weight(1f)
+                        .focusRequester(focusRequester),
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
+                    decorationBox = { inner ->
+                        if (query.isBlank()) {
+                            Text(
+                                text = "Search companies, drives, jobs...",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        inner()
+                    }
+                )
+            }
+            if (!isExpanded && query.isBlank()) {
+                Text(
+                    text = "Search companies, drives, jobs...",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Icon(
+                imageVector = Icons.Default.FilterList,
+                contentDescription = "Filters",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.clickable(onClick = onFilterClick)
+            )
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Clear search",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.clickable {
+                    if (query.isNotBlank()) onQueryChange("")
+                    else onCollapse()
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ApplicationTabRow(
+    selectedTab: ApplicationTab,
+    onTabSelected: (ApplicationTab) -> Unit
+) {
+    val tabs = listOf(ApplicationTab.COMPANY, ApplicationTab.DRIVE, ApplicationTab.JOBS)
+    val selectedIndex = tabs.indexOf(selectedTab).coerceAtLeast(0)
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f))
+            .padding(4.dp)
+    ) {
+        val tabWidth = maxWidth / tabs.size
+        val indicatorOffset by animateDpAsState(
+            targetValue = tabWidth * selectedIndex,
+            animationSpec = tween(220),
+            label = "tab_indicator_offset"
+        )
+        Box(
+            modifier = Modifier
+                .offset(x = indicatorOffset)
+                .width(tabWidth - 4.dp)
+                .height(40.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surface)
+        )
+        Row(modifier = Modifier.fillMaxWidth()) {
+            tabs.forEach { tab ->
+                val selected = tab == selectedTab
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(40.dp)
+                        .clickable { onTabSelected(tab) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = tab.name.lowercase().replaceFirstChar { it.uppercase() },
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
+                    )
+                }
             }
         }
     }
 }
 
-private fun sampleCompanies(): List<DriveCompanyUiModel> = listOf(
-    DriveCompanyUiModel(
-        name = "Nexora Systems",
-        location = "Bangalore, India",
-        status = CompanyStatus.ACTIVE,
-        industry = "Technology",
-        technology = "Kotlin, Cloud",
-        companyType = "Product",
-        website = "https://www.nexora.systems",
-        email = "hr@nexora.systems",
-        hrName = "Sarah Parker",
-        hrPhone = "+91 9876543210",
-        description = "Nexora Systems focuses on campus technology hiring, scalable backend systems, and product engineering.",
-        logoResId = R.drawable.comp_1,
-        driveName = "Nexora Hiring Drive",
-        driveDate = "22 Aug, 10:00 AM"
-    ),
-    DriveCompanyUiModel(
-        name = "Vertex Labs",
-        location = "Hyderabad, India",
-        status = CompanyStatus.VISITING_SOON,
-        industry = "AI Infrastructure",
-        technology = "Python, Data",
-        companyType = "Product",
-        website = "https://www.vertexlabs.ai",
-        email = "hr@vertexlabs.ai",
-        hrName = "Rahul Mehta",
-        hrPhone = "+91 9988776655",
-        description = "Vertex Labs runs internship and full-time drives for cloud engineering and data-focused roles.",
-        logoResId = R.drawable.comp_2,
-        driveName = "Vertex SDE Drive",
-        driveDate = "26 Aug, 02:00 PM"
-    ),
-    DriveCompanyUiModel(
-        name = "Asterion Tech",
-        location = "Noida, India",
-        status = CompanyStatus.PENDING_APPROVAL,
-        industry = "Platform Engineering",
-        technology = "Java, React",
-        companyType = "Product",
-        website = "https://www.asterion.tech",
-        email = "careers@asterion.tech",
-        hrName = "Ananya Rao",
-        hrPhone = "+91 9012345678",
-        description = "Asterion Tech hires for full-stack and AI roles with a strong focus on product ownership.",
-        logoResId = R.drawable.comp_3,
-        driveName = "Asterion Campus Drive",
-        driveDate = "01 Sep, 11:30 AM"
-    )
-)
+@Composable
+private fun ApplicationDriveCard(
+    drive: DriveUiModel,
+    onRegisterClick: () -> Unit
+) {
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                LogoImage(logoResId = drive.companyLogoResId)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = drive.companyName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = drive.driveName,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                DateText(label = "Start", date = drive.startDate)
+            }
+            BottomActionRow(
+                dateLabel = "Register closes at",
+                date = drive.lastDateToRegister,
+                buttonText = "Register",
+                onButtonClick = onRegisterClick
+            )
+        }
+    }
+}
 
 @Composable
-private fun CompanyDriveCarouselItem(
-    company: DriveCompanyUiModel,
-    onWebsiteClick: (String) -> Unit
+private fun JobCard(
+    job: JobUiModel,
+    onApplyClick: () -> Unit
 ) {
-    LazyRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        item {
-            BoxWithConstraints(modifier = Modifier.fillParentMaxWidth(1f)) {
-                val cardWidth = maxWidth * 0.9f
-                Row(
-                    modifier = Modifier
-                        .width(cardWidth * 2 + 12.dp)
-                        .height(IntrinsicSize.Min),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    CompanyCard(
-                        modifier = Modifier
-                            .width(cardWidth)
-                            .fillMaxHeight(),
-                        company = company,
-                        onWebsiteClick = onWebsiteClick
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                LogoImage(logoResId = job.companyLogoResId)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = job.companyName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Medium
                     )
-                    DriveCard(
-                        modifier = Modifier
-                            .width(cardWidth)
-                            .fillMaxHeight(),
-                        company = company
+                    Text(
+                        text = job.location,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            Text(
+                text = job.jobRole,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold
+            )
+            StatusChip(department = job.department)
+            BottomActionRow(
+                dateLabel = "Last date to apply",
+                date = job.lastDate,
+                buttonText = "Apply",
+                onButtonClick = onApplyClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun LogoImage(
+    logoResId: Int,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(42.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = logoResId),
+            contentDescription = "Company logo",
+            modifier = Modifier.size(28.dp),
+            contentScale = ContentScale.Fit
+        )
+    }
+}
+
+@Composable
+private fun BottomActionRow(
+    dateLabel: String,
+    date: LocalDate,
+    buttonText: String,
+    onButtonClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        DateText(label = dateLabel, date = date)
+        OutlinedButton(onClick = onButtonClick, shape = RoundedCornerShape(14.dp)) {
+            Text(text = buttonText)
+        }
+    }
+}
+
+@Composable
+private fun DateText(
+    label: String,
+    date: LocalDate
+) {
+    Text(
+        text = "$label: ${date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))}",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
+
+@Composable
+private fun StatusChip(
+    department: JobDepartment
+) {
+    val color = when (department) {
+        JobDepartment.TECH -> Color(0xFF1E88E5)
+        JobDepartment.MANAGEMENT -> Color(0xFF8E24AA)
+        JobDepartment.CORE -> Color(0xFFEF6C00)
+    }
+    AssistChip(
+        onClick = {},
+        label = {
+            Text(
+                text = department.name.lowercase().replaceFirstChar { it.uppercase() },
+                color = color
+            )
+        },
+        leadingIcon = {
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(color)
+            )
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AddEntityBottomSheet(
+    onDismiss: () -> Unit,
+    onAddCompany: () -> Unit,
+    onAddDrive: () -> Unit,
+    onAddJob: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text("Quick Add", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Button(onClick = onAddCompany, modifier = Modifier.fillMaxWidth()) { Text("Add Company") }
+            Button(onClick = onAddDrive, modifier = Modifier.fillMaxWidth()) { Text("Add Drive") }
+            Button(onClick = onAddJob, modifier = Modifier.fillMaxWidth()) { Text("Add Job") }
+            Spacer(modifier = Modifier.height(6.dp))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FilterBottomSheet(
+    filterState: FilterState,
+    onDismiss: () -> Unit,
+    onStatusToggle: (Status) -> Unit,
+    onIndustryToggle: (Industry) -> Unit,
+    onJobTypeToggle: (JobType) -> Unit,
+    onWorkModeToggle: (WorkMode) -> Unit,
+    onCompanyQueryChanged: (String) -> Unit,
+    onLocationChanged: (String) -> Unit,
+    onSalaryRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
+    onReset: () -> Unit,
+    onApply: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                text = "Filter Jobs, Drives, and Companies",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            FilterChipRow(
+                title = "Status",
+                values = Status.entries,
+                selected = filterState.status,
+                label = { it.name.lowercase().replaceFirstChar { c -> c.uppercase() } },
+                onToggle = onStatusToggle
+            )
+            FilterChipRow(
+                title = "Industry Type",
+                values = Industry.entries,
+                selected = filterState.industry,
+                label = { it.name.lowercase().replaceFirstChar { c -> c.uppercase() } },
+                onToggle = onIndustryToggle
+            )
+            FilterChipRow(
+                title = "Job Type",
+                values = JobType.entries,
+                selected = filterState.jobType,
+                label = { it.label },
+                onToggle = onJobTypeToggle
+            )
+            FilterChipRow(
+                title = "Work Mode",
+                values = WorkMode.entries,
+                selected = filterState.workMode,
+                label = { it.label },
+                onToggle = onWorkModeToggle
+            )
+            OutlinedTextField(
+                value = filterState.companyQuery,
+                onValueChange = onCompanyQueryChanged,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Company Name") }
+            )
+            OutlinedTextField(
+                value = filterState.location,
+                onValueChange = onLocationChanged,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Location") }
+            )
+            Text(
+                text = "Salary Range (LPA): ${filterState.salaryRange.start.toInt()} - ${filterState.salaryRange.endInclusive.toInt()}",
+                style = MaterialTheme.typography.labelMedium
+            )
+            RangeSlider(
+                value = filterState.salaryRange,
+                onValueChange = onSalaryRangeChanged,
+                valueRange = 2f..40f
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = onReset, modifier = Modifier.weight(1f)) { Text("Reset") }
+                Button(
+                    onClick = {
+                        onApply()
+                        onDismiss()
+                    },
+                    modifier = Modifier.weight(1f)
+                ) { Text("Apply Filters") }
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+        }
+    }
+}
+
+@Composable
+private fun <T> FilterChipRow(
+    title: String,
+    values: List<T>,
+    selected: Set<T>,
+    label: (T) -> String,
+    onToggle: (T) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(text = title, style = MaterialTheme.typography.labelLarge)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            values.take(3).forEach { item ->
+                FilterChip(
+                    selected = item in selected,
+                    onClick = { onToggle(item) },
+                    label = { Text(label(item)) }
+                )
+            }
+        }
+        if (values.size > 3) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                values.drop(3).forEach { item ->
+                    FilterChip(
+                        selected = item in selected,
+                        onClick = { onToggle(item) },
+                        label = { Text(label(item)) }
                     )
                 }
             }
@@ -258,288 +689,71 @@ private fun CompanyDriveCarouselItem(
 @Composable
 private fun CompanyCard(
     modifier: Modifier,
-    company: DriveCompanyUiModel,
+    company: com.example.placementprojectmp.viewmodel.CompanyUiModel,
     onWebsiteClick: (String) -> Unit
 ) {
-    var showOverlay by remember { mutableStateOf(false) }
-    val interactionSource = remember { MutableInteractionSource() }
-    val scale by animateFloatAsState(
-        targetValue = if (showOverlay) 1.0f else 0.98f,
-        animationSpec = tween(200, easing = FastOutSlowInEasing),
-        label = "company_card_scale"
-    )
     Card(
-        modifier = modifier
-            .fillMaxHeight()
-            .scale(scale),
+        modifier = modifier,
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
-        interactionSource = interactionSource,
-        onClick = {}
-    ) {
-        Box(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier.padding(14.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .clip(CircleShape)
-                        .background(ColorMapper.getColor(company.status))
-                )
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Box(
-                        modifier = Modifier
-                            .size(38.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            painter = painterResource(id = company.logoResId),
-                            contentDescription = "Company logo",
-                            modifier = Modifier.size(28.dp),
-                            contentScale = ContentScale.Fit
-                        )
-                    }
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = company.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = company.location,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    CompanyField(
-                        label = "Industry",
-                        value = company.industry,
-                        modifier = Modifier.weight(1f)
-                    )
-                    CompanyField(
-                        label = "Technology",
-                        value = company.technology,
-                        modifier = Modifier.weight(1f)
-                    )
-                    CompanyField(
-                        label = "Company",
-                        value = company.companyType,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.clickable { onWebsiteClick(company.website) }
-                    ) {
-                        Text(
-                            text = company.website.removePrefix("https://").removePrefix("http://"),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            textDecoration = TextDecoration.Underline
-                        )
-                        Icon(
-                            imageVector = Icons.Default.ArrowOutward,
-                            contentDescription = "Open website",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(12.dp)
-                        )
-                    }
-                    Text(
-                        text = company.email,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Text(
-                        text = "HR: ${company.hrName}",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = company.email,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = company.hrPhone,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 14.dp)
-                    .clip(CircleShape)
-                    .background(NeonBlue)
-                    .clickable { showOverlay = !showOverlay }
-                    .padding(8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowUp,
-                    contentDescription = "Show details",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-
-            androidx.compose.animation.AnimatedVisibility(
-                visible = showOverlay,
-                modifier = Modifier.matchParentSize(),
-                enter = fadeIn(animationSpec = tween(180)),
-                exit = fadeOut(animationSpec = tween(160))
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(18.dp))
-                        .background(NeonBlue)
-                        .clickable { showOverlay = false }
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(0.dp)
-                    ) {
-                        Text(
-                            text = "Company Detail",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = company.description + " The hiring team collaborates with placement cells for curated role-matching and timeline tracking.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            maxLines = 5,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun DriveCard(
-    modifier: Modifier,
-    company: DriveCompanyUiModel
-) {
-    val driveStatus = if (company.name.length % 2 == 0) DriveStatus.ONGOING else DriveStatus.COMPLETED
-    val registrationStatus = if (company.name.length % 3 == 0) DriveStatus.REGISTRATION_CLOSED else DriveStatus.REGISTRATION_OPEN
-    val roles = listOf("SDE Intern", "Backend Intern", "QA Engineer", "Web Developer")
-    Card(
-        modifier = modifier.fillMaxHeight(),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight()
                 .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(9.dp)
-                        .clip(CircleShape)
-                        .background(ColorMapper.getColor(driveStatus))
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                LogoImage(logoResId = company.logoResId)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = company.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = company.location,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                CompanyField(label = "Industry", value = company.industry.name.lowercase(), modifier = Modifier.weight(1f))
+                CompanyField(label = "Type", value = company.companyType, modifier = Modifier.weight(1f))
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.clickable { onWebsiteClick(company.website) }
+            ) {
+                Text(
+                    text = company.website.removePrefix("https://").removePrefix("http://"),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline
                 )
-                Box(
-                    modifier = Modifier
-                        .size(9.dp)
-                        .clip(CircleShape)
-                        .background(ColorMapper.getColor(registrationStatus))
+                Icon(
+                    imageVector = Icons.Default.ArrowOutward,
+                    contentDescription = "Open website",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(12.dp)
                 )
             }
             Text(
-                text = company.driveName,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                text = company.description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                DriveTag("Onsite")
-                DriveTag("8 LPA")
-                DriveTag("CGPA 7.0+")
-            }
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                roles.take(4).chunked(2).forEach { row ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        row.forEach { role ->
-                            Text(
-                                text = "• $role",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.End
-            ) {
-                Text(
-                    text = company.driveDate,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Registration closes: 18 Aug",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = ColorMapper.getColor(registrationStatus)
-                )
-            }
         }
-    }
-}
-
-@Composable
-private fun DriveTag(text: String) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(999.dp))
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
     }
 }
 
@@ -549,17 +763,14 @@ private fun CompanyField(
     value: String,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(2.dp)
-    ) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = value,
+            text = value.replaceFirstChar { it.uppercase() },
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )

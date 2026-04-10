@@ -1,11 +1,11 @@
 package com.example.placementprojectmp.ui.screens.staff.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +38,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.theme.NeonBlue
@@ -58,8 +57,7 @@ fun StaffStudentCardList(
     tags: List<Pair<String, androidx.compose.ui.graphics.Color>> = emptyList()
 ) {
     var tagsExpanded by remember { mutableStateOf(false) }
-    val collapseInteraction = remember { MutableInteractionSource() }
-    Column(
+    Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
@@ -97,37 +95,35 @@ fun StaffStudentCardList(
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable(
-                        interactionSource = collapseInteraction,
-                        indication = null
-                    ) { tagsExpanded = false }
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                HighlightedText(
-                    text = studentName,
-                    query = searchQuery,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                HighlightedText(
-                    text = studentEmail,
-                    query = searchQuery,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                HighlightedText(
-                    text = studentRollNumber,
-                    query = searchQuery,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Clip
-                )
+                Column {
+                    HighlightedText(
+                        text = studentName,
+                        query = searchQuery,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    HighlightedText(
+                        text = studentEmail,
+                        query = searchQuery,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    HighlightedText(
+                        text = studentRollNumber,
+                        query = searchQuery,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Clip
+                    )
+                }
             }
             IconButton(
                 onClick = onFavoriteToggle,
@@ -136,45 +132,34 @@ fun StaffStudentCardList(
                 Icon(
                     imageVector = if (isFavorite) Icons.Default.Star else Icons.Outlined.StarBorder,
                     contentDescription = "Favorite",
-                    modifier = Modifier.size(26.dp),
                     tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
         if (tags.isNotEmpty()) {
-            Column(
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .animateContentSize()
+                    .align(Alignment.BottomEnd)
+                    .clickable { tagsExpanded = !tagsExpanded }
+                    .animateContentSize(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { tagsExpanded = !tagsExpanded },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        tags.take(3).forEach { (_, c) ->
-                            Box(
-                                modifier = Modifier
-                                    .size(width = 16.dp, height = 6.dp)
-                                    .clip(RoundedCornerShape(999.dp))
-                                    .background(c.copy(alpha = 0.9f))
-                            )
-                        }
-                    }
+                tags.take(3).forEach { (_, c) ->
+                    Box(
+                        modifier = Modifier
+                            .size(width = 16.dp, height = 6.dp)
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(c.copy(alpha = 0.9f))
+                    )
                 }
-                if (tagsExpanded) {
+                AnimatedVisibility(visible = tagsExpanded) {
                     Text(
                         text = tags.take(3).joinToString(" | ") { it.first },
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 4.dp)
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -197,8 +182,7 @@ fun StaffStudentCardGrid(
     tags: List<Pair<String, androidx.compose.ui.graphics.Color>> = emptyList()
 ) {
     var tagsExpanded by remember { mutableStateOf(false) }
-    val collapseInteraction = remember { MutableInteractionSource() }
-    Column(
+    Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
@@ -206,112 +190,106 @@ fun StaffStudentCardGrid(
                 if (selected) Modifier.border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(16.dp))
                 else Modifier
             )
-            .padding(10.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(10.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
-                modifier = Modifier.padding(top = 0.dp)
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Checkbox(
-                    checked = selected,
-                    onCheckedChange = onSelectionChange,
-                    modifier = Modifier.size(20.dp),
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.colorScheme.primary,
-                        uncheckedColor = MaterialTheme.colorScheme.outline
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    modifier = Modifier.padding(top = 0.dp)
+                ) {
+                    Checkbox(
+                        checked = selected,
+                        onCheckedChange = onSelectionChange,
+                        modifier = Modifier.size(20.dp),
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = MaterialTheme.colorScheme.primary,
+                            uncheckedColor = MaterialTheme.colorScheme.outline
+                        )
                     )
-                )
+                    Box(
+                        modifier = Modifier
+                            .size(22.dp)
+                            .clickable { onFavoriteToggle() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Default.Star else Icons.Outlined.StarBorder,
+                            contentDescription = "Favorite",
+                            modifier = Modifier.size(20.dp),
+                            tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.size(22.dp))
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(68.dp),
+                contentAlignment = Alignment.Center
+            ) {
                 Box(
                     modifier = Modifier
-                        .size(24.dp)
-                        .clickable { onFavoriteToggle() },
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surface),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Default.Star else Icons.Outlined.StarBorder,
-                        contentDescription = "Favorite",
-                        modifier = Modifier.size(22.dp),
-                        tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    Image(
+                        painter = androidx.compose.ui.res.painterResource(profileImageResId),
+                        contentDescription = "Profile",
+                        modifier = Modifier.size(64.dp),
+                        contentScale = ContentScale.Crop
                     )
                 }
             }
-            Spacer(modifier = Modifier.size(22.dp))
-        }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(68.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surface),
-                contentAlignment = Alignment.Center
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = androidx.compose.ui.res.painterResource(profileImageResId),
-                    contentDescription = "Profile",
-                    modifier = Modifier.size(64.dp),
-                    contentScale = ContentScale.Crop
+                HighlightedText(
+                    text = studentName,
+                    query = searchQuery,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                HighlightedText(
+                    text = studentEmail,
+                    query = searchQuery,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                HighlightedText(
+                    text = studentRollNumber,
+                    query = searchQuery,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip
                 )
             }
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(
-                    interactionSource = collapseInteraction,
-                    indication = null
-                ) { tagsExpanded = false },
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            HighlightedText(
-                text = studentName,
-                query = searchQuery,
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            HighlightedText(
-                text = studentEmail,
-                query = searchQuery,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            HighlightedText(
-                text = studentRollNumber,
-                query = searchQuery,
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Clip
-            )
-        }
-        if (tags.isNotEmpty()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .animateContentSize()
-            ) {
+            if (tags.isNotEmpty()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { tagsExpanded = !tagsExpanded },
+                        .clickable { tagsExpanded = !tagsExpanded }
+                        .animateContentSize(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -325,19 +303,15 @@ fun StaffStudentCardGrid(
                             )
                         }
                     }
-                }
-                if (tagsExpanded) {
-                    Text(
-                        text = tags.take(3).joinToString(" | ") { it.first },
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 4.dp)
-                    )
+                    AnimatedVisibility(visible = tagsExpanded) {
+                        Text(
+                            text = "  " + tags.take(3).joinToString(" | ") { it.first },
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
         }
@@ -378,3 +352,4 @@ private fun rememberHighlightedText(text: String, query: String): AnnotatedStrin
         )
     }
 }
+

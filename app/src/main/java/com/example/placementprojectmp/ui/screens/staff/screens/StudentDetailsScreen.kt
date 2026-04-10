@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Star
@@ -37,8 +38,9 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -56,7 +58,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.screens.staff.StaffStudentPortraitIds
 import com.example.placementprojectmp.ui.components.NeonGlassToastHost
@@ -505,58 +506,48 @@ private fun AdvancedFiltersBottomSheet(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
-            FilterSheetSectionTitle(text = "Favorite Student")
+            Text(
+                text = "Favorite Student",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
             FilterChip(
                 selected = favoritesOnly,
                 onClick = { onFavoritesOnlyChange(!favoritesOnly) },
-                modifier = Modifier.height(32.dp),
-                label = { Text("Favorite Students", style = MaterialTheme.typography.labelSmall, maxLines = 1) },
+                label = { Text("Favorite Students", style = MaterialTheme.typography.labelMedium) },
                 leadingIcon = {
                     Icon(
                         imageVector = if (favoritesOnly) Icons.Default.Star else Icons.Outlined.StarBorder,
                         contentDescription = "Favorite",
-                        modifier = Modifier.size(18.dp),
                         tint = if (favoritesOnly) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = MaterialTheme.colorScheme.primaryContainer
-                ),
-                shape = RoundedCornerShape(100.dp)
+                )
             )
-            FilterSheetSectionTitle(text = "Sort By")
-            val sortOptions = listOf("Highest Package", "Name (A → Z)", "Package", "CGPA")
-            Column(
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
+            Text(
+                text = "Sort By",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    sortOptions.take(2).forEach { option ->
-                        SortOptionBox(
-                            modifier = Modifier.weight(1f),
-                            label = option,
-                            selected = selectedSortBy == option,
-                            onClick = { selectedSortBy = option }
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    sortOptions.drop(2).forEach { option ->
-                        SortOptionBox(
-                            modifier = Modifier.weight(1f),
-                            label = option,
-                            selected = selectedSortBy == option,
-                            onClick = { selectedSortBy = option }
-                        )
-                    }
+                listOf("Highest Package", "Name (A → Z)", "Package", "CGPA").forEach { option ->
+                    SortOptionBox(
+                        modifier = Modifier.weight(1f),
+                        label = option,
+                        selected = selectedSortBy == option,
+                        onClick = { selectedSortBy = option }
+                    )
                 }
             }
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
             AdvancedChipGroup(
                 label = "Status",
                 options = listOf("Applied", "Not Applied", "Shortlisted", "Rejected", "Selected", "Placed"),
@@ -584,15 +575,6 @@ private fun AdvancedFiltersBottomSheet(
                 value = cgpaRange.endInclusive,
                 onValueChange = { onCgpaRangeChange(cgpaRange.start..it) },
                 valueRange = 0f..10f,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(24.dp),
-                colors = SliderDefaults.colors(
-                    activeTrackColor = MaterialTheme.colorScheme.primary,
-                    inactiveTrackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.32f),
-                    activeTickColor = MaterialTheme.colorScheme.primary,
-                    inactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.32f)
-                ),
                 thumb = {
                     Box(
                         modifier = Modifier
@@ -614,29 +596,11 @@ private fun AdvancedFiltersBottomSheet(
                 Button(
                     onClick = onApply,
                     shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = NeonBlue,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
+                    modifier = Modifier.weight(1f)
                 ) { Text("Apply") }
             }
             Spacer(modifier = Modifier.height(10.dp))
         }
-    }
-}
-
-@Composable
-private fun FilterSheetSectionTitle(text: String) {
-    Column {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(2.dp))
-        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
-        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
@@ -649,27 +613,29 @@ private fun AdvancedChipGroup(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (label.isNotBlank()) {
-            FilterSheetSectionTitle(text = label)
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
         }
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             options.chunked(3).forEach { row ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     row.forEach { option ->
                         val active = option in selected
                         FilterChip(
                             selected = active,
                             onClick = { onChange(if (active) selected - option else selected + option) },
-                            modifier = Modifier.height(30.dp),
                             shape = RoundedCornerShape(100.dp),
                             label = {
                                 Text(
                                     text = option,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
+                                    style = MaterialTheme.typography.labelSmall
                                 )
                             },
                             colors = FilterChipDefaults.filterChipColors(
@@ -697,9 +663,7 @@ private fun AddTagDialog(
     androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
-            )
+            colors = CardDefaults.cardColors(containerColor = NeonBlue.copy(alpha = 0.18f))
         ) {
             Column(
                 modifier = Modifier
@@ -740,19 +704,18 @@ private fun AddTagDialog(
                 ) {
                     currentTags.take(6).forEach { tag ->
                         val selected = selectedTag?.first == tag.first
-                        val tagBg = tag.second.copy(alpha = if (selected) 0.18f else 0.12f)
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(100.dp))
-                                .background(tagBg)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (selected) tag.second.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surface)
+                                .border(1.dp, tag.second, RoundedCornerShape(12.dp))
                                 .clickable { onSelectTag(tag) }
-                                .padding(horizontal = 8.dp, vertical = 5.dp)
+                                .padding(horizontal = 8.dp, vertical = 6.dp)
                         ) {
                             Text(
                                 text = tag.first,
                                 style = MaterialTheme.typography.labelSmall,
-                                maxLines = 1,
-                                color = tag.second.copy(alpha = 1f)
+                                color = if (selected) tag.second else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -779,7 +742,7 @@ private fun SortOptionBox(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(100.dp))
+            .clip(RoundedCornerShape(10.dp))
             .background(
                 if (selected) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
@@ -787,17 +750,15 @@ private fun SortOptionBox(
             .border(
                 width = 1.dp,
                 color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
-                shape = RoundedCornerShape(100.dp)
+                shape = RoundedCornerShape(10.dp)
             )
             .clickable(onClick = onClick)
-            .padding(horizontal = 6.dp, vertical = 4.dp),
+            .padding(horizontal = 8.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
             color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }

@@ -15,6 +15,7 @@ import com.example.placementprojectmp.network.AuthApi
 import com.example.placementprojectmp.network.AuthInterceptor
 import com.example.placementprojectmp.viewmodel.AuthViewModel
 import com.example.placementprojectmp.viewmodel.EducationViewModel
+import com.example.placementprojectmp.viewmodel.StaffDriveViewModel
 import com.example.placementprojectmp.viewmodel.StudentViewModel
 import com.example.placementprojectmp.viewmodel.UserViewModel
 import com.example.placementprojectmp.data.remote.api.UserApi
@@ -78,4 +79,5 @@ val appModule = module{
     single<MetaApi> { MetaApiImpl(get()) }
     single<MetaRepository> { MetaRepositoryImpl(get()) }
     viewModel<EducationViewModel> { EducationViewModel(get(), get()) }
+    viewModel<StaffDriveViewModel> { StaffDriveViewModel() }
 }
