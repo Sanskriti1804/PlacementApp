@@ -1,9 +1,10 @@
-package com.example.placementprojectmp.ui.components
+package com.example.placementprojectmp.ui.screens.shared.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
@@ -14,7 +15,7 @@ import com.example.placementprojectmp.R
 fun AppLogo(
     modifier: Modifier = Modifier,
     size: Dp = 120.dp,
-    tint: androidx.compose.ui.graphics.Color? = null
+    tint: Color? = null
 ) {
     Image(
         painter = painterResource(R.drawable.app_logo),

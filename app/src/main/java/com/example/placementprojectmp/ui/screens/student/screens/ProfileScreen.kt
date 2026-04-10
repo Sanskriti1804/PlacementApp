@@ -33,7 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
 import com.example.placementprojectmp.viewmodel.UserViewModel
-import com.example.placementprojectmp.ui.components.AppTopBar
+import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 import com.example.placementprojectmp.ui.components.ProfileCompletionCard
 import com.example.placementprojectmp.ui.components.ProfileCompletionItem
 import com.example.placementprojectmp.ui.components.ProfileHeader
@@ -41,7 +41,6 @@ import com.example.placementprojectmp.ui.components.RecentWorkCard
 import com.example.placementprojectmp.ui.components.SkillsCard
 import com.example.placementprojectmp.ui.components.SocialPlatform
 import com.example.placementprojectmp.ui.components.SocialPlatformRow
-import com.example.placementprojectmp.ui.components.ApplicationStatusStage
 import com.example.placementprojectmp.viewmodel.StudentViewModel
 import org.koin.androidx.compose.koinViewModel
 import kotlin.collections.emptyList

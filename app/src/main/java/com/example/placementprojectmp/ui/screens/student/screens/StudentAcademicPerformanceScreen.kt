@@ -14,7 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.placementprojectmp.ui.components.AppTopBar
+import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 import com.example.placementprojectmp.ui.components.PerformanceMetricCard
 import com.example.placementprojectmp.ui.components.SemesterSection
 import com.example.placementprojectmp.ui.components.SemesterSelector

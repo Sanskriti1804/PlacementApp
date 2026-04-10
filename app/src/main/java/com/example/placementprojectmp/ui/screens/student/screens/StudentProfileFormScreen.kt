@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
-import com.example.placementprojectmp.ui.components.AppTopBar
+import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 import com.example.placementprojectmp.ui.components.FormSection
 import com.example.placementprojectmp.ui.components.ProfileFormHeader
 import com.example.placementprojectmp.ui.components.ProfileFormTab

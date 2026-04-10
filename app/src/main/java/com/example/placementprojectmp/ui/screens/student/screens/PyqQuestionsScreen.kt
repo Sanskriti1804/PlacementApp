@@ -37,7 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.placementprojectmp.ui.components.NeonGlassToastHost
+import com.example.placementprojectmp.ui.screens.shared.component.NeonGlassToastHost
 
 private data class PyqQuestionItem(
     val year: String,

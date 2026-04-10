@@ -1,4 +1,4 @@
-package com.example.placementprojectmp.ui.components
+package com.example.placementprojectmp.ui.screens.shared.component
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth

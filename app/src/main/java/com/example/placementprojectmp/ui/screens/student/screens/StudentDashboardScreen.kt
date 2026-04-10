@@ -2,7 +2,6 @@ package com.example.placementprojectmp.ui.screens.student.screens
 
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,8 +22,6 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,23 +31,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
-import com.example.placementprojectmp.ui.components.AppTopBar
+import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 import com.example.placementprojectmp.ui.components.ApplicationsSection
 import com.example.placementprojectmp.ui.components.ApplicationItem
-import com.example.placementprojectmp.ui.components.CourseCarousel
-import com.example.placementprojectmp.ui.components.DomainChipRow
 import com.example.placementprojectmp.ui.components.DriveItem
 import com.example.placementprojectmp.ui.components.DriveSection
 import com.example.placementprojectmp.ui.components.FeatureCard
 import com.example.placementprojectmp.ui.components.JobItem
 import com.example.placementprojectmp.ui.components.JobSection
-import com.example.placementprojectmp.ui.components.SearchBar
 import androidx.compose.material3.MaterialTheme
+import com.example.placementprojectmp.ui.screens.shared.component.AppSearchBar
+import com.example.placementprojectmp.ui.screens.student.component.AiChatButton
+import com.example.placementprojectmp.ui.screens.student.component.CourseDomainMappingFilter
+import com.example.placementprojectmp.ui.screens.student.component.DashboardUserProfile
 import com.example.placementprojectmp.viewmodel.EducationViewModel
 import com.example.placementprojectmp.viewmodel.StudentViewModel
 import com.example.placementprojectmp.viewmodel.UserViewModel
@@ -133,82 +130,36 @@ fun StudentDashboardScreen(
             )
         }
         item {
-            Row(
-                modifier = Modifier.padding(horizontal = 20.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.pfp_user),
-                    contentDescription = "Profile",
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentScale = ContentScale.Crop
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "Hi, $resolvedUserName",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+            DashboardUserProfile(userName = resolvedUserName)
         }
         item {
-            SearchBar(
+            AppSearchBar(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 query = searchQuery,
                 onQueryChange = { searchQuery = it }
             )
         }
-        item {
-            CourseCarousel(
-                modifier = Modifier.padding(horizontal = 20.dp),
-                courses = courses,
-                onCourseClick = { course ->
-                    runCatching {
-                        educationViewModel.fetchDomains(course)
-                        selectedDomains = emptySet()
-                    }.onFailure { e ->
-                        Log.e(tag, "Failed to fetch domains for course=$course", e)
-                        selectedDomains = emptySet()
-                    }
+        CourseDomainMappingFilter(
+            courses = courses,
+            courseDomains = courseDomains,
+            selectedDomains = selectedDomains,
+            isLoading = educationViewModel.isLoading,
+            onCourseClick = { course ->
+                runCatching {
+                    educationViewModel.fetchDomains(course)
+                    selectedDomains = emptySet()
+                }.onFailure { e ->
+                    Log.e(tag, "Failed to fetch domains for course=$course", e)
+                    selectedDomains = emptySet()
                 }
-            )
-        }
-        if (!educationViewModel.isLoading && courses.isEmpty()) {
-            item {
-                Text(
-                    text = "Course information is unavailable right now.",
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            },
+            onDomainToggle = { domain ->
+                selectedDomains = if (domain in selectedDomains)
+                    selectedDomains - domain
+                else
+                    selectedDomains + domain
             }
-        }
-        item {
-            DomainChipRow(
-                modifier = Modifier.padding(horizontal = 20.dp),
-                domains = courseDomains,
-                selectedDomains = selectedDomains,
-                onDomainToggle = { domain ->
-                    selectedDomains = if (domain in selectedDomains)
-                        selectedDomains - domain
-                    else
-                        selectedDomains + domain
-                }
-            )
-        }
-        if (!educationViewModel.isLoading && courseDomains.isEmpty()) {
-            item {
-                Text(
-                    text = "Select a course to view domains.",
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
+        )
         item {
             JobSection(
                 modifier = Modifier.padding(horizontal = 20.dp),
@@ -258,25 +209,9 @@ fun StudentDashboardScreen(
             )
         }
         }
-        FloatingActionButton(
+        AiChatButton(
             onClick = onNavigateToChatbot,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 20.dp, bottom = 24.dp),
-            containerColor = MaterialTheme.colorScheme.onPrimary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-            shape = CircleShape,
-            elevation = FloatingActionButtonDefaults.elevation(
-                defaultElevation = 6.dp,
-                pressedElevation = 8.dp
-            )
-        ) {
-            Image(
-                painter = painterResource(R.drawable.ic_aii),
-                contentDescription = "AIDA Chatbot",
-                modifier = Modifier.size(24.dp),
-                contentScale = ContentScale.Crop
-            )
-        }
+            modifier = Modifier.align(Alignment.BottomEnd)
+        )
     }
 }

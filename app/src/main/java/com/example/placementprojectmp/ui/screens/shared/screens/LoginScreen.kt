@@ -33,9 +33,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.placementprojectmp.auth.AuthRole
-import com.example.placementprojectmp.ui.components.AppLogo
+import com.example.placementprojectmp.ui.screens.shared.component.AppLogo
 import com.example.placementprojectmp.ui.components.ForgotPasswordDialog
-import com.example.placementprojectmp.ui.components.NeonGlassToastHost
+import com.example.placementprojectmp.ui.screens.shared.component.NeonGlassToastHost
 import com.example.placementprojectmp.ui.theme.NeonBlue
 import com.example.placementprojectmp.ui.theme.NeonBlueDim
 import com.example.placementprojectmp.viewmodel.AuthViewModel

@@ -1,4 +1,4 @@
-package com.example.placementprojectmp.ui.components
+package com.example.placementprojectmp.ui.screens.shared.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,7 +21,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.placementprojectmp.R
 
 /**
  * Reusable top bar: menu (left), app name (center), notification (right).

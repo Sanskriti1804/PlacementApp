@@ -25,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
-import com.example.placementprojectmp.ui.components.AppLogo
+import com.example.placementprojectmp.ui.screens.shared.component.AppLogo
 
 private data class RoleOption(
     val label: String,

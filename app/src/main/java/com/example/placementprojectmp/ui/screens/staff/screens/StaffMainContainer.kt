@@ -48,7 +48,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.placementprojectmp.navigation.Routes
-import com.example.placementprojectmp.ui.components.AppTopBar
+import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 
 /**
  * Staff shell: same bottom bar pattern as [com.example.placementprojectmp.ui.screens.student.screens.StudentMainContainer].

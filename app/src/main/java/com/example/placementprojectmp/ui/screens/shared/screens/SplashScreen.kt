@@ -10,7 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.placementprojectmp.ui.components.AppLogo
+import com.example.placementprojectmp.ui.screens.shared.component.AppLogo
 import androidx.compose.material3.MaterialTheme
 
 private const val SPLASH_DELAY_MS = 2000L

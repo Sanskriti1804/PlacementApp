@@ -20,7 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.placementprojectmp.ui.components.AppLogo
+import com.example.placementprojectmp.ui.screens.shared.component.AppLogo
 import com.example.placementprojectmp.ui.components.GlowingProgressBar
 
 @Composable

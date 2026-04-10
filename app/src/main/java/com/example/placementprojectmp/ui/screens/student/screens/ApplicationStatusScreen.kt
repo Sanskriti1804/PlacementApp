@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.components.ApplicationStatusScreenCard
 import com.example.placementprojectmp.ui.components.ApplicationStatusScreenItem
 import com.example.placementprojectmp.ui.components.ApplicationStatusStage
-import com.example.placementprojectmp.ui.components.AppTopBar
+import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 
 private val dummyApplications = listOf(
     ApplicationStatusScreenItem(
