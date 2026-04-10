@@ -2,7 +2,6 @@ package com.example.placementprojectmp.ui.screens.shared.cards
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,7 +19,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -121,7 +119,7 @@ fun DriveCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         driveDummyBranches.forEach { branch ->
-                            DriveBranchCapsule(label = branch)
+                            DriveStyleCapsuleChip(label = branch)
                         }
                     }
                 }
@@ -176,20 +174,4 @@ private fun driveCardStatusColor(status: Status): Color = when (status) {
     Status.OPEN -> Color(0xFF2E7D32)
     Status.UPCOMING -> Color(0xFFFFC107)
     Status.CLOSED -> Color(0xFF1976D2)
-}
-
-@Composable
-private fun DriveBranchCapsule(label: String) {
-    Surface(
-        shape = RoundedCornerShape(999.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.45f))
-    ) {
-        Text(
-            text = label,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
 }
