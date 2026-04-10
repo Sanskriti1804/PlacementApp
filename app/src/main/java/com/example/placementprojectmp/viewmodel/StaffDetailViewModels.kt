@@ -14,13 +14,6 @@ data class CompanyDetailUiState(
 )
 
 @Immutable
-data class DriveDetailUiState(
-    val isLoading: Boolean = false,
-    val data: List<String> = emptyList(),
-    val error: String? = null
-)
-
-@Immutable
 data class JobDetailUiState(
     val isLoading: Boolean = false,
     val data: List<String> = emptyList(),
@@ -46,20 +39,6 @@ class StaffCompanyDetailViewModel : ViewModel() {
         CompanyDetailUiState(data = listOf("Drives Conducted: 12", "Students Placed: 48"))
     )
     val uiState: State<CompanyDetailUiState> = _uiState
-}
-
-class StaffDriveDetailViewModel : ViewModel() {
-    private val _uiState = mutableStateOf(
-        DriveDetailUiState(
-            data = listOf(
-                "Roles Offered: 4",
-                "Drive Start Date: 12 May 2026",
-                "Registration Deadline: 09 May 2026",
-                "Result Date: 26 May 2026"
-            )
-        )
-    )
-    val uiState: State<DriveDetailUiState> = _uiState
 }
 
 class StaffJobDetailViewModel : ViewModel() {

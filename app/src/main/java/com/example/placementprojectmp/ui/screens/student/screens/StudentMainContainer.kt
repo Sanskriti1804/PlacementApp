@@ -49,6 +49,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.placementprojectmp.navigation.Routes
+import com.example.placementprojectmp.ui.screens.shared.screens.DriveDetailScreen
 import com.example.placementprojectmp.ui.screens.shared.screens.JobDetailScreen
 
 /**
@@ -91,6 +92,9 @@ fun StudentMainContainer(
                     modifier = modifier,
                     onJobClick = { jobId ->
                         innerNavController.navigate(Routes.StudentRoutes.jobDetailScreen(jobId))
+                    },
+                    onDriveClick = { driveId ->
+                        innerNavController.navigate(Routes.StudentRoutes.driveDetailScreen(driveId))
                     }
                 )
             }
@@ -100,6 +104,13 @@ fun StudentMainContainer(
             ) { backStackEntry ->
                 val jobId = backStackEntry.arguments?.getString("jobId").orEmpty()
                 JobDetailScreen(modifier = modifier, jobId = jobId)
+            }
+            composable(
+                route = Routes.StudentRoutes.DriveDetailWithDriveId,
+                arguments = listOf(navArgument("driveId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val driveId = backStackEntry.arguments?.getString("driveId").orEmpty()
+                DriveDetailScreen(modifier = modifier, driveId = driveId)
             }
             composable(Routes.StudentRoutes.Dashboard) {
                 StudentDashboardScreen(

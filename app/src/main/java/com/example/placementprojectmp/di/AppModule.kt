@@ -18,7 +18,6 @@ import com.example.placementprojectmp.viewmodel.EducationViewModel
 import com.example.placementprojectmp.viewmodel.StaffDriveViewModel
 import com.example.placementprojectmp.viewmodel.StaffCandidateDetailViewModel
 import com.example.placementprojectmp.viewmodel.StaffCompanyDetailViewModel
-import com.example.placementprojectmp.viewmodel.StaffDriveDetailViewModel
 import com.example.placementprojectmp.viewmodel.StaffJobDetailViewModel
 import com.example.placementprojectmp.viewmodel.PlacementWorkspaceViewModel
 import com.example.placementprojectmp.viewmodel.StudentViewModel
@@ -86,7 +85,6 @@ val appModule = module{
     viewModel<EducationViewModel> { EducationViewModel(get(), get()) }
     viewModel<StaffDriveViewModel> { StaffDriveViewModel() }
     viewModel<StaffCompanyDetailViewModel> { StaffCompanyDetailViewModel() }
-    viewModel<StaffDriveDetailViewModel> { StaffDriveDetailViewModel() }
     viewModel<StaffJobDetailViewModel> { StaffJobDetailViewModel() }
     viewModel<StaffCandidateDetailViewModel> { StaffCandidateDetailViewModel() }
     viewModel<PlacementWorkspaceViewModel> { PlacementWorkspaceViewModel() }

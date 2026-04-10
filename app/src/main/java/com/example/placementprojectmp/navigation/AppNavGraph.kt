@@ -35,6 +35,7 @@ import com.example.placementprojectmp.ui.screens.student.screens.PyqQuestionsScr
 import com.example.placementprojectmp.ui.screens.staff.screens.StudentDetailsScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentDashboardScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentMainContainer
+import com.example.placementprojectmp.ui.screens.shared.screens.DriveDetailScreen
 import com.example.placementprojectmp.ui.screens.shared.screens.JobDetailScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentProfileFormScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffDriveScreen
@@ -278,6 +279,9 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
                 modifier = modifier,
                 onJobClick = { jobId ->
                     navController.navigate(Routes.StudentRoutes.jobDetailScreen(jobId))
+                },
+                onDriveClick = { driveId ->
+                    navController.navigate(Routes.StudentRoutes.driveDetailScreen(driveId))
                 }
             )
         }
@@ -287,6 +291,13 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
         ) { backStackEntry ->
             val jobId = backStackEntry.arguments?.getString("jobId").orEmpty()
             JobDetailScreen(modifier = modifier, jobId = jobId)
+        }
+        composable(
+            route = Routes.StudentRoutes.DriveDetailWithDriveId,
+            arguments = listOf(navArgument("driveId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val driveId = backStackEntry.arguments?.getString("driveId").orEmpty()
+            DriveDetailScreen(modifier = modifier, driveId = driveId)
         }
         composable(Routes.StudentRoutes.StudentProfileForm) {
             StudentProfileFormScreen(modifier = modifier)

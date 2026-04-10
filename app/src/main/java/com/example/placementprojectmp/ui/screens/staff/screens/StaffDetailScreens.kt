@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -23,90 +20,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.placementprojectmp.ui.screens.staff.components.ExpandableCard
-import com.example.placementprojectmp.ui.screens.staff.components.InfoRow
 import com.example.placementprojectmp.ui.screens.staff.components.ProfileWithStatusRing
 import com.example.placementprojectmp.ui.screens.staff.components.SectionHeader
-import com.example.placementprojectmp.ui.screens.staff.components.StatCard
 import com.example.placementprojectmp.ui.screens.staff.components.StatusChip
 import com.example.placementprojectmp.ui.theme.colormap.ApplicationStatus
 import com.example.placementprojectmp.ui.theme.colormap.ColorMapper
 import com.example.placementprojectmp.viewmodel.StaffCandidateDetailViewModel
-import com.example.placementprojectmp.viewmodel.StaffDriveDetailViewModel
 import com.example.placementprojectmp.ui.screens.shared.screens.JobDetailScreen
 import org.koin.androidx.compose.koinViewModel
-
-@Composable
-fun StaffDriveDetailScreen(
-    modifier: Modifier = Modifier,
-    driveId: String,
-    viewModel: StaffDriveDetailViewModel = koinViewModel()
-) {
-    val state by viewModel.uiState
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(22.dp)
-    ) {
-        item { SectionHeader(title = "Drive Detail ($driveId)") }
-        item {
-            Card(shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Nexora Systems", style = MaterialTheme.typography.titleMedium)
-                    Text("Bengaluru", style = MaterialTheme.typography.bodySmall)
-                }
-            }
-        }
-        item { SectionHeader(title = "Key Info") }
-        item {
-            Card(shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    state.data.forEach {
-                        val pair = it.split(":")
-                        if (pair.size >= 2) InfoRow(pair[0], pair.drop(1).joinToString(":").trim())
-                    }
-                }
-            }
-        }
-        item {
-            ExpandableCard(title = "Selection Rounds") {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    InfoRow("Round 1", "Aptitude - 128 students")
-                    InfoRow("Round 2", "Technical - 48 students")
-                    InfoRow("Round 3", "HR - 16 students")
-                }
-            }
-        }
-        item {
-            Card(shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SectionHeader("Eligibility")
-                    StatusChip("CGPA 7.0+", ColorMapper.getColor(ApplicationStatus.APPLIED))
-                    StatusChip("No active backlogs", ColorMapper.getColor(ApplicationStatus.SHORTLISTED))
-                    StatusChip("CSE / IT / ECE", ColorMapper.getColor(ApplicationStatus.INTERVIEW_SCHEDULED))
-                }
-            }
-        }
-        item {
-            Card(shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SectionHeader("Assigned Faculty")
-                    InfoRow("Name", "Dr. R. Menon")
-                    InfoRow("Contact", "faculty.placement@college.edu")
-                }
-            }
-        }
-        item {
-            Card(shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SectionHeader("Candidate Stats")
-                    InfoRow("Applied", "128")
-                    InfoRow("Eligible but not applied", "43")
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun StaffJobDetailScreen(

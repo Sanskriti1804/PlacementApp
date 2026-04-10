@@ -235,7 +235,8 @@ fun OpportunitiesScreen(
     modifier: Modifier = Modifier,
     onMenuClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
-    onJobClick: (jobId: String) -> Unit = {}
+    onJobClick: (jobId: String) -> Unit = {},
+    onDriveClick: (driveId: String) -> Unit = {}
 ) {
     val allJobs = remember { studentOpportunitiesDummyJobs() }
     val allDrives = remember { studentOpportunitiesDummyDrives() }
@@ -344,7 +345,7 @@ fun OpportunitiesScreen(
                     DriveCard(
                         drive = drive,
                         onRegisterClick = { },
-                        onClick = { }
+                        onClick = { onDriveClick(drive.id) }
                     )
                 }
             }
