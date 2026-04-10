@@ -45,6 +45,7 @@ import com.example.placementprojectmp.ui.screens.staff.screens.StaffCompanyDetai
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffDriveDetailScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffJobDetailScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffMainContainer
+import com.example.placementprojectmp.ui.screens.staff.screens.PlacementWorkspaceScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.TeacherCompanyDetailsScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.TeacherProfileScreen
 
@@ -288,7 +289,7 @@ private fun androidx.navigation.NavGraphBuilder.staffGraph(
 ) {
     navigation(
         route = Routes.GraphRoutes.Staff,
-        startDestination = Routes.StaffRoutes.Main
+        startDestination = Routes.StaffRoutes.PlacementWorkspace
     ) {
         composable(Routes.StaffRoutes.Main) {
             StaffMainContainer(modifier = modifier)
@@ -319,6 +320,9 @@ private fun androidx.navigation.NavGraphBuilder.staffGraph(
             arguments = listOf(navArgument("sourceId") { type = NavType.StringType })
         ) { backStackEntry ->
             StaffCandidateDetailScreen(modifier = modifier, sourceId = backStackEntry.arguments?.getString("sourceId").orEmpty())
+        }
+        composable(Routes.StaffRoutes.PlacementWorkspace) {
+            PlacementWorkspaceScreen(modifier = modifier)
         }
         composable(Routes.StaffRoutes.TeacherCompanyDetails) {
             TeacherCompanyDetailsScreen(modifier = modifier)

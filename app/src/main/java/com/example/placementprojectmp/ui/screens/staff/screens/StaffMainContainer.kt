@@ -160,6 +160,9 @@ fun StaffMainContainer(
                         sourceId = backStackEntry.arguments?.getString("sourceId").orEmpty()
                     )
                 }
+                composable(Routes.StaffRoutes.PlacementWorkspace) {
+                    PlacementWorkspaceScreen(modifier = modifier)
+                }
             }
         }
     }

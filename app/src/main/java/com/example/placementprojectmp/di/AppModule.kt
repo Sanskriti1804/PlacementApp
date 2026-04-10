@@ -20,6 +20,7 @@ import com.example.placementprojectmp.viewmodel.StaffCandidateDetailViewModel
 import com.example.placementprojectmp.viewmodel.StaffCompanyDetailViewModel
 import com.example.placementprojectmp.viewmodel.StaffDriveDetailViewModel
 import com.example.placementprojectmp.viewmodel.StaffJobDetailViewModel
+import com.example.placementprojectmp.viewmodel.PlacementWorkspaceViewModel
 import com.example.placementprojectmp.viewmodel.StudentViewModel
 import com.example.placementprojectmp.viewmodel.UserViewModel
 import com.example.placementprojectmp.data.remote.api.UserApi
@@ -88,4 +89,5 @@ val appModule = module{
     viewModel<StaffDriveDetailViewModel> { StaffDriveDetailViewModel() }
     viewModel<StaffJobDetailViewModel> { StaffJobDetailViewModel() }
     viewModel<StaffCandidateDetailViewModel> { StaffCandidateDetailViewModel() }
+    viewModel<PlacementWorkspaceViewModel> { PlacementWorkspaceViewModel() }
 }

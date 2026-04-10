@@ -76,6 +76,7 @@ object Routes {
         const val DriveDetail = "staff_drive_detail/{driveId}"
         const val JobDetail = "staff_job_detail/{jobId}"
         const val CandidateDetail = "staff_candidate_detail/{sourceId}"
+        const val PlacementWorkspace = "staff_placement_workspace"
 
         fun companyDetail(companyId: String): String = "staff_company_detail/$companyId"
         fun driveDetail(driveId: String): String = "staff_drive_detail/$driveId"
