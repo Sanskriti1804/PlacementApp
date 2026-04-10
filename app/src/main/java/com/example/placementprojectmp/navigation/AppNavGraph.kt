@@ -41,7 +41,6 @@ import com.example.placementprojectmp.ui.screens.student.screens.StudentMainCont
 import com.example.placementprojectmp.ui.screens.student.screens.StudentProfileFormScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffDriveScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffCandidateDetailScreen
-import com.example.placementprojectmp.ui.screens.staff.screens.StaffCompanyDetailScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffDriveDetailScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffJobDetailScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffMainContainer
@@ -289,19 +288,13 @@ private fun androidx.navigation.NavGraphBuilder.staffGraph(
 ) {
     navigation(
         route = Routes.GraphRoutes.Staff,
-        startDestination = Routes.StaffRoutes.PlacementWorkspace
+        startDestination = Routes.StaffRoutes.Main
     ) {
         composable(Routes.StaffRoutes.Main) {
             StaffMainContainer(modifier = modifier)
         }
         composable(Routes.StaffRoutes.Drive) {
             StaffDriveScreen(modifier = modifier)
-        }
-        composable(
-            route = Routes.StaffRoutes.CompanyDetail,
-            arguments = listOf(navArgument("companyId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            StaffCompanyDetailScreen(modifier = modifier, companyId = backStackEntry.arguments?.getString("companyId").orEmpty())
         }
         composable(
             route = Routes.StaffRoutes.DriveDetail,

@@ -23,9 +23,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
-import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -98,8 +98,8 @@ fun StaffMainContainer(
                 composable(Routes.StaffRoutes.Drive) {
                     StaffDriveScreen(
                         modifier = modifier,
-                        onCompanyClick = { companyId ->
-                            innerNavController.navigate(Routes.StaffRoutes.companyDetail(companyId))
+                        onCompanyClick = {
+                            innerNavController.navigate(Routes.StaffRoutes.TeacherCompanyDetails)
                         },
                         onDriveClick = { driveId ->
                             innerNavController.navigate(Routes.StaffRoutes.driveDetail(driveId))
@@ -114,24 +114,6 @@ fun StaffMainContainer(
                 }
                 composable(Routes.StaffRoutes.TeacherProfile) {
                     TeacherProfileScreen(modifier = modifier)
-                }
-                composable(
-                    route = Routes.StaffRoutes.CompanyDetail,
-                    arguments = listOf(navArgument("companyId") {})
-                ) { backStackEntry ->
-                    StaffCompanyDetailScreen(
-                        modifier = modifier,
-                        companyId = backStackEntry.arguments?.getString("companyId").orEmpty(),
-                        onDriveClick = { driveId ->
-                            innerNavController.navigate(Routes.StaffRoutes.driveDetail(driveId))
-                        },
-                        onJobClick = { jobId ->
-                            innerNavController.navigate(Routes.StaffRoutes.jobDetail(jobId))
-                        },
-                        onCandidateDoubleClick = { sourceId ->
-                            innerNavController.navigate(Routes.StaffRoutes.candidateDetail(sourceId))
-                        }
-                    )
                 }
                 composable(
                     route = Routes.StaffRoutes.DriveDetail,
@@ -194,9 +176,9 @@ private fun StaffBottomNav(
             navigateOnClick = true
         ),
         StaffNavItem(
-            route = Routes.StaffRoutes.TeacherCompanyDetails,
-            label = "Work",
-            icon = Icons.Default.Work,
+            route = Routes.StaffRoutes.Drive,
+            label = "Opportunity",
+            icon = Icons.Default.Star,
             isCenter = false,
             navigateOnClick = true
         ),
@@ -205,12 +187,12 @@ private fun StaffBottomNav(
             label = "Dashboard",
             icon = Icons.Default.Dashboard,
             isCenter = true,
-            navigateOnClick = false
+            navigateOnClick = true
         ),
         StaffNavItem(
-            route = Routes.StaffRoutes.Drive,
-            label = "Applications",
-            icon = Icons.Default.Description,
+            route = Routes.StaffRoutes.PlacementWorkspace,
+            label = "Workspace",
+            icon = Icons.Default.Work,
             isCenter = false,
             navigateOnClick = true
         ),

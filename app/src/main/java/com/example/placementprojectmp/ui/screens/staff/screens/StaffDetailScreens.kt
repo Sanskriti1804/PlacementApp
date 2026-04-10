@@ -33,72 +33,9 @@ import com.example.placementprojectmp.ui.screens.staff.components.StatusChip
 import com.example.placementprojectmp.ui.theme.colormap.ApplicationStatus
 import com.example.placementprojectmp.ui.theme.colormap.ColorMapper
 import com.example.placementprojectmp.viewmodel.StaffCandidateDetailViewModel
-import com.example.placementprojectmp.viewmodel.StaffCompanyDetailViewModel
 import com.example.placementprojectmp.viewmodel.StaffDriveDetailViewModel
 import com.example.placementprojectmp.viewmodel.StaffJobDetailViewModel
 import org.koin.androidx.compose.koinViewModel
-
-@Composable
-fun StaffCompanyDetailScreen(
-    modifier: Modifier = Modifier,
-    companyId: String,
-    onDriveClick: (String) -> Unit = {},
-    onJobClick: (String) -> Unit = {},
-    onCandidateDoubleClick: (String) -> Unit = {},
-    viewModel: StaffCompanyDetailViewModel = koinViewModel()
-) {
-    val state by viewModel.uiState
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(22.dp)
-    ) {
-        item { SectionHeader(title = "Company Detail ($companyId)") }
-        item {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-                StatCard("Drives Conducted", "12", Icons.Default.BarChart)
-                StatCard("Students Placed", "48", Icons.Default.Group)
-            }
-        }
-        item { SectionHeader(title = "Drives") }
-        item {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                items(listOf("d_0", "d_1", "d_2", "d_3")) { driveId ->
-                    Card(
-                        modifier = Modifier.fillParentMaxWidth(0.8f),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
-                        onClick = { onDriveClick(driveId) }
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text("Drive $driveId", style = MaterialTheme.typography.titleMedium)
-                            Text("Register closes: 09 May 2026", style = MaterialTheme.typography.bodySmall)
-                            Button(onClick = { onCandidateDoubleClick(driveId) }) { Text("Candidates 24") }
-                        }
-                    }
-                }
-            }
-        }
-        item { SectionHeader(title = "Open Roles") }
-        items(listOf("j_0", "j_1", "j_2", "j_3")) { jobId ->
-            Card(
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                onClick = { onJobClick(jobId) }
-            ) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Associate Engineer", style = MaterialTheme.typography.titleMedium)
-                    Text("Tech Department", style = MaterialTheme.typography.bodySmall)
-                }
-            }
-        }
-        item {
-            if (state.error != null) {
-                Text(state.error ?: "", color = MaterialTheme.colorScheme.error)
-            }
-        }
-    }
-}
 
 @Composable
 fun StaffDriveDetailScreen(
