@@ -4,9 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -16,15 +15,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * @param title Primary value, shown bottom-end (bold, [MaterialTheme.typography.titleMedium]).
- * @param subtitle Secondary label, shown top-end ([MaterialTheme.typography.bodySmall]).
+ * @param title Value segment (e.g. duration, LPA).
+ * @param subtitle Key / label segment; combined for display as "subtitle – title" when both set.
  */
 data class InfoGridItem(
     val title: String,
@@ -34,10 +32,13 @@ data class InfoGridItem(
 private val defaultCellSpacing = 12.dp
 private val cardCornerRadius = 16.dp
 private val cardElevation = 2.dp
-private val cardInnerPadding = 12.dp
+private val cardPaddingHorizontal = 12.dp
+private val cardPaddingVertical = 14.dp
+private val cellMinHeight = 48.dp
+private val cellMaxHeight = 76.dp
 
 /**
- * A static 2×2 grid of cards for dashboards and overview sections.
+ * A static 2×2 grid of compact rectangular cards for dashboards and overview sections.
  * Pass up to four [InfoGridItem]s (extras are ignored; missing slots stay empty but spaced).
  */
 @Composable
@@ -82,15 +83,20 @@ private fun InfoGridRow(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    // Shared height within the row without a fixed dp width.
-                    .aspectRatio(1f)
+                    .heightIn(min = cellMinHeight, max = cellMaxHeight)
             ) {
                 if (item != null) {
-                    InfoGridCell(item = item, modifier = Modifier.fillMaxHeight())
+                    InfoGridCell(item = item, modifier = Modifier.fillMaxWidth())
                 }
             }
         }
     }
+}
+
+private fun InfoGridItem.combinedLabel(): String = when {
+    subtitle.isBlank() -> title
+    title.isBlank() -> subtitle
+    else -> "$subtitle – $title"
 }
 
 @Composable
@@ -107,26 +113,19 @@ private fun InfoGridCell(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(cardInnerPadding)
+                .padding(
+                    horizontal = cardPaddingHorizontal,
+                    vertical = cardPaddingVertical
+                ),
+            contentAlignment = Alignment.Center
         ) {
             Text(
-                text = item.subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.End,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.align(Alignment.TopEnd)
-            )
-            Text(
-                text = item.title,
-                style = MaterialTheme.typography.titleMedium,
+                text = item.combinedLabel(),
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.End,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.align(Alignment.BottomEnd)
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

@@ -9,17 +9,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowOutward
@@ -46,7 +44,7 @@ import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
 
 /**
- * Company identity block: overview row (logo, status, name, tagline), location, email, website link,
+ * Company identity block: overview row (logo, name, tagline, optional placement/role), location, email, website link,
  * and metadata rows — pixel-aligned with the former Company Details drawer sections.
  */
 @Composable
@@ -56,8 +54,8 @@ fun CompanyIdCard(
     betweenOverviewAndDetails: (@Composable () -> Unit)? = null,
     onAddNoteClick: () -> Unit,
     companyLogoResId: Int = R.drawable.comp_1,
-    statusColor: Color = Color(0xFF2E7D32),
-    statusLabel: String = "Active",
+    @Suppress("UNUSED_PARAMETER") statusColor: Color = Color(0xFF2E7D32),
+    @Suppress("UNUSED_PARAMETER") statusLabel: String = "Active",
     companyName: String = "NEXORA SYSTEMS",
     companyTagline: String = "Campus hiring and talent acceleration",
     primaryLocation: String = "Bangalore, India",
@@ -88,100 +86,62 @@ fun CompanyIdCard(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.Top
             ) {
-                Column(
+                val logoSide = 128.dp
+                Card(
                     modifier = Modifier
-                        .width(120.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                        .width(120.dp)
+                        .height(logoSide),
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.22f)
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    interactionSource = interactionSource,
+                    onClick = onAddNoteClick
                 ) {
-                    StatusPill(
-                        color = statusColor,
-                        label = statusLabel
+                    Image(
+                        painter = painterResource(id = companyLogoResId),
+                        contentDescription = "Company",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(128.dp),
-                        shape = RoundedCornerShape(18.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.22f)
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                        interactionSource = interactionSource,
-                        onClick = onAddNoteClick
-                    ) {
-                        Image(
-                            painter = painterResource(id = companyLogoResId),
-                            contentDescription = "Company",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
                 }
 
-                if (placementName.isNullOrBlank()) {
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(136.dp)
-                            .padding(bottom = 2.dp),
-                        verticalArrangement = Arrangement.Bottom
-                    ) {
+                val placementStyle = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Normal
+                )
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(logoSide)
+                        .padding(bottom = 2.dp),
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    Text(
+                        text = companyName,
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = Color.White,
+                        fontWeight = FontWeight.Black,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = companyTagline,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                    if (!placementName.isNullOrBlank()) {
                         Text(
-                            text = companyName,
-                            style = MaterialTheme.typography.headlineLarge,
+                            text = placementName,
+                            style = placementStyle,
                             color = Color.White,
-                            fontWeight = FontWeight.Black
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(top = 4.dp)
                         )
-                        Text(
-                            text = companyTagline,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(136.dp)
-                            .padding(bottom = 2.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight(0.2f),
-                            contentAlignment = Alignment.CenterStart
-                        ) {
-                            Text(
-                                text = placementName,
-                                style = MaterialTheme.typography.displaySmall,
-                                color = Color.White,
-                                fontWeight = FontWeight.Black,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight(0.8f),
-                            verticalArrangement = Arrangement.Bottom
-                        ) {
-                            Text(
-                                text = companyName,
-                                style = MaterialTheme.typography.headlineLarge,
-                                color = Color.White,
-                                fontWeight = FontWeight.Black
-                            )
-                            Text(
-                                text = companyTagline,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
                     }
                 }
             }
@@ -263,33 +223,6 @@ fun CompanyIdCard(
             MetadataRow(label = "Company Type", value = companyType)
             MetadataRow(label = "Global Ops", value = globalOps)
         }
-    }
-}
-
-@Composable
-private fun StatusPill(
-    color: Color,
-    label: String
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        modifier = Modifier
-            .clip(RoundedCornerShape(999.dp))
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))
-            .padding(horizontal = 10.dp, vertical = 6.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(10.dp)
-                .clip(CircleShape)
-                .background(color)
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurface
-        )
     }
 }
 
