@@ -1,7 +1,5 @@
 package com.example.placementprojectmp.ui.screens.staff.screens
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -25,12 +23,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -45,19 +39,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.placementprojectmp.ui.screens.shared.component.AppSearchBar
 import com.example.placementprojectmp.ui.screens.shared.cards.CompanyCard
 import com.example.placementprojectmp.ui.screens.shared.cards.DriveCard
 import com.example.placementprojectmp.ui.screens.shared.cards.JobCard
@@ -82,9 +72,6 @@ fun StaffDriveScreen(
     val state by viewModel.uiState
     val uriHandler = LocalUriHandler.current
     val listState = rememberLazyListState()
-    BackHandler(enabled = state.isSearchExpanded) {
-        viewModel.collapseSearch()
-    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -126,11 +113,10 @@ fun StaffDriveScreen(
             }
 
             item {
-                ExpandableSearchBar(
+                AppSearchBar(
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = "Search companies, drives, jobs...",
                     query = state.searchQuery,
-                    isExpanded = state.isSearchExpanded,
-                    onExpand = viewModel::expandSearch,
-                    onCollapse = viewModel::collapseSearch,
                     onQueryChange = viewModel::onSearchQueryChanged,
                     onFilterClick = viewModel::showFilterSheet
                 )
@@ -201,103 +187,6 @@ fun StaffDriveScreen(
             onReset = viewModel::resetFilters,
             onApply = viewModel::applyFilters
         )
-    }
-}
-
-@Composable
-private fun ExpandableSearchBar(
-    query: String,
-    isExpanded: Boolean,
-    onExpand: () -> Unit,
-    onCollapse: () -> Unit,
-    onQueryChange: (String) -> Unit,
-    onFilterClick: () -> Unit
-) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusRequester = remember { FocusRequester() }
-    val animatedWidth by animateDpAsState(
-        targetValue = if (isExpanded) 360.dp else 182.dp,
-        animationSpec = tween(260),
-        label = "search_width_animation"
-    )
-
-    LaunchedEffect(isExpanded) {
-        if (isExpanded) {
-            focusRequester.requestFocus()
-            keyboardController?.show()
-        }
-    }
-
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        val targetWidth = if (animatedWidth > maxWidth) maxWidth else animatedWidth
-        Row(
-            modifier = Modifier
-                .width(targetWidth)
-                .height(52.dp)
-                .clip(RoundedCornerShape(24.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) { onExpand() }
-                .padding(horizontal = 14.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            AnimatedVisibility(visible = isExpanded) {
-                BasicTextField(
-                    value = query,
-                    onValueChange = onQueryChange,
-                    modifier = Modifier
-                        .weight(1f)
-                        .focusRequester(focusRequester),
-                    singleLine = true,
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurface
-                    ),
-                    decorationBox = { inner ->
-                        if (query.isBlank()) {
-                            Text(
-                                text = "Search companies, drives, jobs...",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        inner()
-                    }
-                )
-            }
-            if (!isExpanded && query.isBlank()) {
-                Text(
-                    text = "Search companies, drives, jobs...",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            Icon(
-                imageVector = Icons.Default.FilterList,
-                contentDescription = "Filters",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.clickable(onClick = onFilterClick)
-            )
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "Clear search",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.clickable {
-                    if (query.isNotBlank()) onQueryChange("")
-                    else onCollapse()
-                }
-            )
-        }
     }
 }
 

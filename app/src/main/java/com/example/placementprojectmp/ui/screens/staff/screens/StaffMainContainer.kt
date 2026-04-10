@@ -34,7 +34,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +50,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.placementprojectmp.navigation.Routes
+import com.example.placementprojectmp.ui.screens.shared.component.AppSearchBar
 import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 import com.example.placementprojectmp.ui.screens.shared.screens.TeacherCompanyDetailsScreen
 
@@ -150,11 +153,27 @@ fun StaffMainContainer(
 
 @Composable
 private fun StaffDashboardPlaceholderScreen(modifier: Modifier = Modifier) {
+    var dashboardSearchQuery by remember { mutableStateOf("") }
     Box(
         modifier = modifier
             .fillMaxSize()
             .padding(24.dp)
-    )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.TopStart),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            AppSearchBar(
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = "Search dashboard, tasks, alerts...",
+                query = dashboardSearchQuery,
+                onQueryChange = { dashboardSearchQuery = it },
+                onFilterClick = {}
+            )
+        }
+    }
 }
 
 @Composable

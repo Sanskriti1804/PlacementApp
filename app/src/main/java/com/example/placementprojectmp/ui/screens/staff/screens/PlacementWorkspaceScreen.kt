@@ -1,6 +1,5 @@
 package com.example.placementprojectmp.ui.screens.staff.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.SizeTransform
@@ -34,7 +33,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
@@ -45,7 +43,6 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PictureAsPdf
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
@@ -73,11 +70,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.placementprojectmp.ui.screens.shared.component.AppSearchBar
 import com.example.placementprojectmp.viewmodel.Note
 import com.example.placementprojectmp.viewmodel.PlacementTab
 import com.example.placementprojectmp.viewmodel.PlacementWorkspaceViewModel
@@ -96,8 +93,6 @@ fun PlacementWorkspaceScreen(
 ) {
     val state by viewModel.state
     val listState = rememberLazyListState()
-
-    BackHandler(enabled = state.isSearchExpanded) { viewModel.collapseSearch() }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -138,17 +133,17 @@ fun PlacementWorkspaceScreen(
             }
 
             item {
-                ExpandableSearchBar(
+                val placeholder = when (state.selectedTab) {
+                    PlacementTab.RESOURCES -> "Search resources, files..."
+                    PlacementTab.STUDENTS -> "Search students, roll number..."
+                    PlacementTab.NOTES -> "Search notes and materials..."
+                }
+                AppSearchBar(
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = placeholder,
                     query = state.searchQuery,
-                    expanded = state.isSearchExpanded,
-                    placeholder = when (state.selectedTab) {
-                        PlacementTab.RESOURCES -> "Search resources, files..."
-                        PlacementTab.STUDENTS -> "Search students, roll number..."
-                        PlacementTab.NOTES -> "Search notes and materials..."
-                    },
-                    onExpand = viewModel::expandSearch,
-                    onCollapse = viewModel::collapseSearch,
-                    onQueryChange = viewModel::onSearchQueryChanged
+                    onQueryChange = viewModel::onSearchQueryChanged,
+                    onFilterClick = {}
                 )
             }
 
@@ -176,7 +171,7 @@ fun PlacementWorkspaceScreen(
                         )
                         PlacementTab.STUDENTS -> StudentsTab(
                             students = state.students,
-                            expanded = state.isSearchExpanded,
+                            expanded = true,
                             selectedIds = state.bulkSelectedStudentIds,
                             isBulkMode = state.isBulkMode,
                             eligibleFilter = state.studentFilterEligible,
@@ -262,80 +257,6 @@ private fun PlacementTab.label(): String = when (this) {
     PlacementTab.RESOURCES -> "Resources"
     PlacementTab.STUDENTS -> "Students"
     PlacementTab.NOTES -> "Materials"
-}
-
-@Composable
-private fun ExpandableSearchBar(
-    query: String,
-    expanded: Boolean,
-    placeholder: String,
-    onExpand: () -> Unit,
-    onCollapse: () -> Unit,
-    onQueryChange: (String) -> Unit
-) {
-    val keyboard = LocalSoftwareKeyboardController.current
-    val animatedWidth by animateDpAsState(
-        targetValue = if (expanded) 360.dp else 182.dp,
-        animationSpec = tween(260, easing = FastOutSlowInEasing),
-        label = "workspace_search_width"
-    )
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        val targetWidth = if (animatedWidth > maxWidth) maxWidth else animatedWidth
-        Row(
-            modifier = Modifier
-                .width(targetWidth)
-                .height(52.dp)
-                .clip(RoundedCornerShape(24.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .clickable { onExpand() }
-                .padding(horizontal = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            if (expanded) {
-                BasicTextField(
-                    value = query,
-                    onValueChange = onQueryChange,
-                    modifier = Modifier.weight(1f),
-                    singleLine = true,
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
-                    decorationBox = { inner ->
-                        if (query.isBlank()) {
-                            Text(
-                                text = placeholder,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        inner()
-                    }
-                )
-            } else {
-                Text(
-                    text = placeholder,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            Text(
-                text = "Clear",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable {
-                    if (query.isNotBlank()) onQueryChange("") else onCollapse()
-                    keyboard?.show()
-                }
-            )
-        }
-    }
 }
 
 @Composable
