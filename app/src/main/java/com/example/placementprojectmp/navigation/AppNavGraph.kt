@@ -40,6 +40,10 @@ import com.example.placementprojectmp.ui.screens.student.screens.StudentDashboar
 import com.example.placementprojectmp.ui.screens.student.screens.StudentMainContainer
 import com.example.placementprojectmp.ui.screens.student.screens.StudentProfileFormScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffDriveScreen
+import com.example.placementprojectmp.ui.screens.staff.screens.StaffCandidateDetailScreen
+import com.example.placementprojectmp.ui.screens.staff.screens.StaffCompanyDetailScreen
+import com.example.placementprojectmp.ui.screens.staff.screens.StaffDriveDetailScreen
+import com.example.placementprojectmp.ui.screens.staff.screens.StaffJobDetailScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffMainContainer
 import com.example.placementprojectmp.ui.screens.staff.screens.TeacherCompanyDetailsScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.TeacherProfileScreen
@@ -291,6 +295,30 @@ private fun androidx.navigation.NavGraphBuilder.staffGraph(
         }
         composable(Routes.StaffRoutes.Drive) {
             StaffDriveScreen(modifier = modifier)
+        }
+        composable(
+            route = Routes.StaffRoutes.CompanyDetail,
+            arguments = listOf(navArgument("companyId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            StaffCompanyDetailScreen(modifier = modifier, companyId = backStackEntry.arguments?.getString("companyId").orEmpty())
+        }
+        composable(
+            route = Routes.StaffRoutes.DriveDetail,
+            arguments = listOf(navArgument("driveId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            StaffDriveDetailScreen(modifier = modifier, driveId = backStackEntry.arguments?.getString("driveId").orEmpty())
+        }
+        composable(
+            route = Routes.StaffRoutes.JobDetail,
+            arguments = listOf(navArgument("jobId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            StaffJobDetailScreen(modifier = modifier, jobId = backStackEntry.arguments?.getString("jobId").orEmpty())
+        }
+        composable(
+            route = Routes.StaffRoutes.CandidateDetail,
+            arguments = listOf(navArgument("sourceId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            StaffCandidateDetailScreen(modifier = modifier, sourceId = backStackEntry.arguments?.getString("sourceId").orEmpty())
         }
         composable(Routes.StaffRoutes.TeacherCompanyDetails) {
             TeacherCompanyDetailsScreen(modifier = modifier)

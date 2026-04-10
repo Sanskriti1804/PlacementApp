@@ -35,7 +35,8 @@ data class CompanyUiModel(
     val companyType: String,
     val website: String,
     val description: String,
-    val logoResId: Int
+    val logoResId: Int,
+    val candidateCount: Int
 )
 
 @Immutable
@@ -46,7 +47,8 @@ data class DriveUiModel(
     val driveName: String,
     val startDate: LocalDate,
     val lastDateToRegister: LocalDate,
-    val status: Status
+    val status: Status,
+    val candidateCount: Int
 )
 
 @Immutable
@@ -62,7 +64,8 @@ data class JobUiModel(
     val workMode: WorkMode,
     val salaryLpa: Float,
     val status: Status,
-    val lastDate: LocalDate
+    val lastDate: LocalDate,
+    val appliedCount: Int
 )
 
 @Immutable
@@ -230,7 +233,8 @@ private fun mockCompanies(): List<CompanyUiModel> {
             companyType = if (index % 2 == 0) "Product" else "Service",
             website = "https://www.${name.lowercase().replace(" ", "")}.com",
             description = "$name builds campus-focused hiring pipelines and industry-ready technical roles.",
-            logoResId = logos[index]
+            logoResId = logos[index],
+            candidateCount = 34 + index * 9
         )
     }
 }
@@ -247,7 +251,8 @@ private fun mockDrives(companies: List<CompanyUiModel>): List<DriveUiModel> {
             driveName = listOf("Campus Accelerator Drive", "Graduate Talent Drive", "Early Career Sprint", "Future Engineers Drive", "Role Fit Drive")[index],
             startDate = start,
             lastDateToRegister = start.minusDays((random.nextInt(2, 6)).toLong()),
-            status = if (index % 3 == 0) Status.UPCOMING else Status.OPEN
+            status = if (index % 3 == 0) Status.UPCOMING else Status.OPEN,
+            candidateCount = 18 + index * 6
         )
     }
 }
@@ -280,7 +285,8 @@ private fun mockJobs(companies: List<CompanyUiModel>): List<JobUiModel> {
             },
             salaryLpa = (5 + index * 2).toFloat(),
             status = if (index % 4 == 0) Status.CLOSED else Status.OPEN,
-            lastDate = LocalDate.now().plusDays((index + 3) * 2L)
+            lastDate = LocalDate.now().plusDays((index + 3) * 2L),
+            appliedCount = 12 + index * 5
         )
     }
 }

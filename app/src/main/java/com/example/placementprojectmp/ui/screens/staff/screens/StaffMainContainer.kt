@@ -46,6 +46,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.placementprojectmp.navigation.Routes
 import com.example.placementprojectmp.ui.components.AppTopBar
 
@@ -95,10 +96,69 @@ fun StaffMainContainer(
                     StaffDashboardPlaceholderScreen(modifier = modifier)
                 }
                 composable(Routes.StaffRoutes.Drive) {
-                    StaffDriveScreen(modifier = modifier)
+                    StaffDriveScreen(
+                        modifier = modifier,
+                        onCompanyClick = { companyId ->
+                            innerNavController.navigate(Routes.StaffRoutes.companyDetail(companyId))
+                        },
+                        onDriveClick = { driveId ->
+                            innerNavController.navigate(Routes.StaffRoutes.driveDetail(driveId))
+                        },
+                        onJobClick = { jobId ->
+                            innerNavController.navigate(Routes.StaffRoutes.jobDetail(jobId))
+                        },
+                        onCandidateDoubleClick = { sourceId ->
+                            innerNavController.navigate(Routes.StaffRoutes.candidateDetail(sourceId))
+                        }
+                    )
                 }
                 composable(Routes.StaffRoutes.TeacherProfile) {
                     TeacherProfileScreen(modifier = modifier)
+                }
+                composable(
+                    route = Routes.StaffRoutes.CompanyDetail,
+                    arguments = listOf(navArgument("companyId") {})
+                ) { backStackEntry ->
+                    StaffCompanyDetailScreen(
+                        modifier = modifier,
+                        companyId = backStackEntry.arguments?.getString("companyId").orEmpty(),
+                        onDriveClick = { driveId ->
+                            innerNavController.navigate(Routes.StaffRoutes.driveDetail(driveId))
+                        },
+                        onJobClick = { jobId ->
+                            innerNavController.navigate(Routes.StaffRoutes.jobDetail(jobId))
+                        },
+                        onCandidateDoubleClick = { sourceId ->
+                            innerNavController.navigate(Routes.StaffRoutes.candidateDetail(sourceId))
+                        }
+                    )
+                }
+                composable(
+                    route = Routes.StaffRoutes.DriveDetail,
+                    arguments = listOf(navArgument("driveId") {})
+                ) { backStackEntry ->
+                    StaffDriveDetailScreen(
+                        modifier = modifier,
+                        driveId = backStackEntry.arguments?.getString("driveId").orEmpty()
+                    )
+                }
+                composable(
+                    route = Routes.StaffRoutes.JobDetail,
+                    arguments = listOf(navArgument("jobId") {})
+                ) { backStackEntry ->
+                    StaffJobDetailScreen(
+                        modifier = modifier,
+                        jobId = backStackEntry.arguments?.getString("jobId").orEmpty()
+                    )
+                }
+                composable(
+                    route = Routes.StaffRoutes.CandidateDetail,
+                    arguments = listOf(navArgument("sourceId") {})
+                ) { backStackEntry ->
+                    StaffCandidateDetailScreen(
+                        modifier = modifier,
+                        sourceId = backStackEntry.arguments?.getString("sourceId").orEmpty()
+                    )
                 }
             }
         }

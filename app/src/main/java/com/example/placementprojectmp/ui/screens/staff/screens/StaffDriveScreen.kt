@@ -4,10 +4,12 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -88,6 +90,10 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun StaffDriveScreen(
     modifier: Modifier = Modifier,
+    onCompanyClick: (String) -> Unit = {},
+    onDriveClick: (String) -> Unit = {},
+    onJobClick: (String) -> Unit = {},
+    onCandidateDoubleClick: (String) -> Unit = {},
     viewModel: StaffDriveViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState
@@ -160,7 +166,9 @@ fun StaffDriveScreen(
                         CompanyCard(
                             modifier = Modifier.fillMaxWidth(),
                             company = company,
-                            onWebsiteClick = { url -> uriHandler.openUri(url) }
+                            onWebsiteClick = { url -> uriHandler.openUri(url) },
+                            onClick = { onCompanyClick(company.id) },
+                            onCandidateDoubleClick = { onCandidateDoubleClick(company.id) }
                         )
                     }
                 }
@@ -169,7 +177,9 @@ fun StaffDriveScreen(
                     items(state.filteredDrives, key = { it.id }) { drive ->
                         ApplicationDriveCard(
                             drive = drive,
-                            onRegisterClick = {}
+                            onRegisterClick = {},
+                            onClick = { onDriveClick(drive.id) },
+                            onCandidateDoubleClick = { onCandidateDoubleClick(drive.id) }
                         )
                     }
                 }
@@ -178,7 +188,9 @@ fun StaffDriveScreen(
                     items(state.filteredJobs, key = { it.id }) { job ->
                         JobCard(
                             job = job,
-                            onApplyClick = {}
+                            onApplyClick = {},
+                            onClick = { onJobClick(job.id) },
+                            onCandidateDoubleClick = { onCandidateDoubleClick(job.id) }
                         )
                     }
                 }
@@ -362,12 +374,16 @@ private fun ApplicationTabRow(
 @Composable
 private fun ApplicationDriveCard(
     drive: DriveUiModel,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    onClick: () -> Unit,
+    onCandidateDoubleClick: () -> Unit
 ) {
     Card(
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier
@@ -393,11 +409,17 @@ private fun ApplicationDriveCard(
                 }
                 DateText(label = "Start", date = drive.startDate)
             }
-            BottomActionRow(
-                dateLabel = "Register closes at",
-                date = drive.lastDateToRegister,
-                buttonText = "Register",
-                onButtonClick = onRegisterClick
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                BottomActionRow(
+                    dateLabel = "Register closes at",
+                    date = drive.lastDateToRegister,
+                    buttonText = "Register",
+                    onButtonClick = onRegisterClick
+                )
+            }
+            CandidateBadge(
+                count = drive.candidateCount,
+                onDoubleClick = onCandidateDoubleClick
             )
         }
     }
@@ -406,12 +428,16 @@ private fun ApplicationDriveCard(
 @Composable
 private fun JobCard(
     job: JobUiModel,
-    onApplyClick: () -> Unit
+    onApplyClick: () -> Unit,
+    onClick: () -> Unit,
+    onCandidateDoubleClick: () -> Unit
 ) {
     Card(
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier
@@ -447,6 +473,10 @@ private fun JobCard(
                 date = job.lastDate,
                 buttonText = "Apply",
                 onButtonClick = onApplyClick
+            )
+            CandidateBadge(
+                count = job.appliedCount,
+                onDoubleClick = onCandidateDoubleClick
             )
         }
     }
@@ -690,13 +720,16 @@ private fun <T> FilterChipRow(
 private fun CompanyCard(
     modifier: Modifier,
     company: com.example.placementprojectmp.viewmodel.CompanyUiModel,
-    onWebsiteClick: (String) -> Unit
+    onWebsiteClick: (String) -> Unit,
+    onClick: () -> Unit,
+    onCandidateDoubleClick: () -> Unit
 ) {
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier
@@ -753,7 +786,43 @@ private fun CompanyCard(
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
+            CandidateBadge(
+                count = company.candidateCount,
+                onDoubleClick = onCandidateDoubleClick
+            )
         }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun CandidateBadge(
+    count: Int,
+    onDoubleClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(999.dp))
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
+            .combinedClickable(
+                onClick = {},
+                onDoubleClick = onDoubleClick
+            )
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .clip(CircleShape)
+                .background(NeonBlue)
+        )
+        Text(
+            text = "$count candidates",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
