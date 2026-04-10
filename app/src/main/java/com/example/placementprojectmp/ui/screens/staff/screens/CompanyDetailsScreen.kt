@@ -40,8 +40,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowOutward
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -72,6 +70,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
 import com.example.placementprojectmp.ui.screens.shared.component.AppTabSection
+import com.example.placementprojectmp.ui.screens.shared.component.CompanyIdCard
+import com.example.placementprojectmp.ui.screens.shared.component.ContactSupportCard
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlinx.coroutines.delay
@@ -324,25 +324,14 @@ private fun ExpandedDrawerContent(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                CompanyOverviewSection(onAddNoteClick = onAddNoteClick)
-            }
-
-            if (stickyNotes.isNotEmpty()) {
-                item {
-                    StickyNotesRow(stickyNotes = stickyNotes)
-                }
-            }
-
-            item {
-                CompanyBasicInfoSection()
-            }
-
-            item {
-                WebsiteLinkSection()
-            }
-
-            item {
-                CompanyMetadataSection()
+                CompanyIdCard(
+                    onAddNoteClick = onAddNoteClick,
+                    betweenOverviewAndDetails = if (stickyNotes.isNotEmpty()) {
+                        { StickyNotesRow(stickyNotes = stickyNotes) }
+                    } else {
+                        null
+                    }
+                )
             }
 
             item {
@@ -357,7 +346,7 @@ private fun ExpandedDrawerContent(
             }
 
             item {
-                HrContactSection()
+                ContactSupportCard()
             }
 
             item {
@@ -380,108 +369,6 @@ private fun ExpandedDrawerContent(
                 DocumentsSection()
             }
         }
-    }
-}
-
-@Composable
-private fun CompanyOverviewSection(
-    onAddNoteClick: () -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        val interactionSource = remember { MutableInteractionSource() }
-        val pressed by interactionSource.collectIsPressedAsState()
-        val scale by animateFloatAsState(
-            targetValue = if (pressed) 0.98f else 1f,
-            animationSpec = tween(durationMillis = 160, easing = FastOutSlowInEasing),
-            label = "overview_scale"
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .scale(scale),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            Column(
-                modifier = Modifier
-                    .width(120.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                StatusPill(
-                    color = Color(0xFF2E7D32),
-                    label = "Active"
-                )
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(128.dp),
-                    shape = RoundedCornerShape(18.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.22f)
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    interactionSource = interactionSource,
-                    onClick = onAddNoteClick
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.comp_1),
-                        contentDescription = "Company",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-            }
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(136.dp)
-                    .padding(bottom = 2.dp),
-                verticalArrangement = Arrangement.Bottom
-            ) {
-                Text(
-                    text = "NEXORA SYSTEMS",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = Color.White,
-                    fontWeight = FontWeight.Black
-                )
-                Text(
-                    text = "Campus hiring and talent acceleration",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun StatusPill(
-    color: Color,
-    label: String
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        modifier = Modifier
-            .clip(RoundedCornerShape(999.dp))
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))
-            .padding(horizontal = 10.dp, vertical = 6.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(10.dp)
-                .clip(CircleShape)
-                .background(color)
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurface
-        )
     }
 }
 
@@ -545,124 +432,6 @@ private fun StickyNoteCard(
 }
 
 @Composable
-private fun CompanyBasicInfoSection() {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            Icon(
-                imageVector = Icons.Default.LocationOn,
-                contentDescription = "Location",
-                tint = Color.White,
-                modifier = Modifier.size(16.dp)
-            )
-            Text(
-                text = "Bangalore, India",
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.White
-            )
-        }
-        Text(
-            text = "Mountain View, USA",
-            style = MaterialTheme.typography.bodyLarge,
-            color = Color.White
-        )
-        Text(
-            text = "careers@nexora.systems",
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
-private fun WebsiteLinkSection() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp, bottom = 2.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(0.78f)
-                .clickable { }
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                Text(
-                    text = "www.nexora.systems",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
-                )
-                Icon(
-                    imageVector = Icons.Default.ArrowOutward,
-                    contentDescription = "Open website",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-            Divider(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .width(210.dp)
-                    .padding(top = 2.dp),
-                color = MaterialTheme.colorScheme.primary,
-                thickness = 2.dp
-            )
-        }
-    }
-}
-
-@Composable
-private fun CompanyMetadataSection() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        MetadataRow(label = "Industry Type", value = "Technology")
-        MetadataRow(label = "Company Type", value = "Product Based")
-        MetadataRow(label = "Global Ops", value = "APAC + North America")
-    }
-}
-
-@Composable
-private fun MetadataRow(
-    label: String,
-    value: String
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Box(
-            modifier = Modifier
-                .width(6.dp)
-                .height(28.dp)
-                .background(Color(0xFF00D4FF), RoundedCornerShape(99.dp))
-        )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "$label:",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.White
-            )
-        }
-    }
-}
-
-@Composable
 private fun DescriptionBlock(
     title: String,
     content: String
@@ -678,93 +447,6 @@ private fun DescriptionBlock(
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
-}
-
-@Composable
-private fun HrContactSection() {
-    val preferredMode = "Email"
-    val preferredColor = when (preferredMode) {
-        "Email" -> Color(0xFF2E7D32)
-        "Call" -> Color(0xFFFFC107)
-        else -> Color(0xFF1976D2)
-    }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(128.dp),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(32.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Text(
-                    text = "HR: Sarah Parker",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {5
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("Email:", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
-                        Text("hr@google.com", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("InMail:", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
-                        Text("linkedin.com/in/sarah-parker", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("Phone no.:", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
-                        Text("9998108999", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
-                }
-
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Text(
-                        text = "Preferred Mode",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(999.dp))
-                            .background(preferredColor.copy(alpha = 0.2f))
-                            .border(1.dp, preferredColor.copy(alpha = 0.45f), RoundedCornerShape(999.dp))
-                            .padding(horizontal = 10.dp, vertical = 5.dp)
-                    ) {
-                        Text(
-                            text = preferredMode,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = preferredColor,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
-            }
-        }
-    }
 }
 
 @Composable
