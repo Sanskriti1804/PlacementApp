@@ -21,8 +21,7 @@ import com.example.placementprojectmp.viewmodel.DriveUiModel
 fun DriveCard(
     drive: DriveUiModel,
     onRegisterClick: () -> Unit,
-    onClick: () -> Unit,
-    onCandidateDoubleClick: () -> Unit
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -63,10 +62,6 @@ fun DriveCard(
                     onButtonClick = onRegisterClick
                 )
             }
-            CandidateBadge(
-                count = drive.candidateCount,
-                onDoubleClick = onCandidateDoubleClick
-            )
         }
     }
 }

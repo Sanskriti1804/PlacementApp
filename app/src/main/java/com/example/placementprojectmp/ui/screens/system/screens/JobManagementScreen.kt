@@ -13,7 +13,6 @@ fun JobManagementScreen(
         modifier = modifier,
         onCompanyClick = { sourceId -> onNavigateToDriveDetail(sourceId) },
         onDriveClick = { driveId -> onNavigateToDriveDetail(driveId) },
-        onJobClick = { jobId -> onNavigateToDriveDetail(jobId) },
-        onCandidateDoubleClick = {}
+        onJobClick = { jobId -> onNavigateToDriveDetail(jobId) }
     )
 }

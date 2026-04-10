@@ -21,8 +21,7 @@ import com.example.placementprojectmp.viewmodel.JobUiModel
 fun JobCard(
     job: JobUiModel,
     onApplyClick: () -> Unit,
-    onClick: () -> Unit,
-    onCandidateDoubleClick: () -> Unit
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -65,10 +64,6 @@ fun JobCard(
                 date = job.lastDate,
                 buttonText = "Apply",
                 onButtonClick = onApplyClick
-            )
-            CandidateBadge(
-                count = job.appliedCount,
-                onDoubleClick = onCandidateDoubleClick
             )
         }
     }

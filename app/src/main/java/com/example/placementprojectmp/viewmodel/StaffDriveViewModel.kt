@@ -36,7 +36,12 @@ data class CompanyUiModel(
     val website: String,
     val description: String,
     val logoResId: Int,
-    val candidateCount: Int
+    val candidateCount: Int,
+    val status: Status = Status.OPEN,
+    val companyEmail: String = "",
+    val hrName: String = "",
+    val hrEmail: String = "",
+    val hrPhone: String = ""
 )
 
 @Immutable
@@ -224,17 +229,28 @@ private fun mockCompanies(): List<CompanyUiModel> {
     val locations = listOf("Bengaluru", "Pune", "Hyderabad", "Chennai", "Noida")
     val industries = listOf(Industry.TECH, Industry.FINANCE, Industry.HEALTHCARE, Industry.EDUCATION, Industry.TECH)
     val logos = listOf(R.drawable.comp_1, R.drawable.comp_2, R.drawable.comp_3, R.drawable.comp_1, R.drawable.comp_2)
+    val hrNames = listOf("Sarah Parker", "Alex Kumar", "Priya Nair", "Rohan Mehta", "Neha Singh")
     return names.mapIndexed { index, name ->
+        val slug = name.lowercase().replace(" ", "")
         CompanyUiModel(
             id = "c_$index",
             name = name,
             location = "${locations[index]}, India",
             industry = industries[index],
             companyType = if (index % 2 == 0) "Product" else "Service",
-            website = "https://www.${name.lowercase().replace(" ", "")}.com",
+            website = "https://www.$slug.com",
             description = "$name builds campus-focused hiring pipelines and industry-ready technical roles.",
             logoResId = logos[index],
-            candidateCount = 34 + index * 9
+            candidateCount = 34 + index * 9,
+            status = when (index % 3) {
+                0 -> Status.OPEN
+                1 -> Status.UPCOMING
+                else -> Status.CLOSED
+            },
+            companyEmail = "careers@$slug.com",
+            hrName = hrNames[index],
+            hrEmail = "hr@$slug.com",
+            hrPhone = "+91 98765 ${43210 + index}"
         )
     }
 }

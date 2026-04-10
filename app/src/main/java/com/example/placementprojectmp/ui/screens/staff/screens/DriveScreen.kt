@@ -77,7 +77,6 @@ fun StaffDriveScreen(
     onCompanyClick: (String) -> Unit = {},
     onDriveClick: (String) -> Unit = {},
     onJobClick: (String) -> Unit = {},
-    onCandidateDoubleClick: (String) -> Unit = {},
     viewModel: StaffDriveViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState
@@ -151,8 +150,7 @@ fun StaffDriveScreen(
                             modifier = Modifier.fillMaxWidth(),
                             company = company,
                             onWebsiteClick = { url -> uriHandler.openUri(url) },
-                            onClick = { onCompanyClick(company.id) },
-                            onCandidateDoubleClick = { onCandidateDoubleClick(company.id) }
+                            onClick = { onCompanyClick(company.id) }
                         )
                     }
                 }
@@ -162,8 +160,7 @@ fun StaffDriveScreen(
                         DriveCard(
                             drive = drive,
                             onRegisterClick = {},
-                            onClick = { onDriveClick(drive.id) },
-                            onCandidateDoubleClick = { onCandidateDoubleClick(drive.id) }
+                            onClick = { onDriveClick(drive.id) }
                         )
                     }
                 }
@@ -173,8 +170,7 @@ fun StaffDriveScreen(
                         JobCard(
                             job = job,
                             onApplyClick = {},
-                            onClick = { onJobClick(job.id) },
-                            onCandidateDoubleClick = { onCandidateDoubleClick(job.id) }
+                            onClick = { onJobClick(job.id) }
                         )
                     }
                 }

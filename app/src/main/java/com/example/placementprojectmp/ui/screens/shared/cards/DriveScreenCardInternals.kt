@@ -1,12 +1,11 @@
 package com.example.placementprojectmp.ui.screens.shared.cards
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,9 +22,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.placementprojectmp.ui.theme.NeonBlue
 import com.example.placementprojectmp.viewmodel.JobDepartment
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -33,11 +31,12 @@ import java.time.format.DateTimeFormatter
 @Composable
 internal fun LogoImage(
     logoResId: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    containerSize: Dp = 42.dp
 ) {
     Box(
         modifier = modifier
-            .size(42.dp)
+            .size(containerSize)
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center
@@ -45,8 +44,10 @@ internal fun LogoImage(
         Image(
             painter = painterResource(id = logoResId),
             contentDescription = "Company logo",
-            modifier = Modifier.size(28.dp),
-            contentScale = ContentScale.Fit
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
         )
     }
 }
@@ -108,36 +109,4 @@ internal fun StatusChip(
             )
         }
     )
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-internal fun CandidateBadge(
-    count: Int,
-    onDoubleClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(999.dp))
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
-            .combinedClickable(
-                onClick = {},
-                onDoubleClick = onDoubleClick
-            )
-            .padding(horizontal = 10.dp, vertical = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(8.dp)
-                .clip(CircleShape)
-                .background(NeonBlue)
-        )
-        Text(
-            text = "$count candidates",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
 }

@@ -106,9 +106,6 @@ fun StaffMainContainer(
                         },
                         onJobClick = { jobId ->
                             innerNavController.navigate(Routes.StaffRoutes.jobDetail(jobId))
-                        },
-                        onCandidateDoubleClick = { sourceId ->
-                            innerNavController.navigate(Routes.StaffRoutes.candidateDetail(sourceId))
                         }
                     )
                 }
