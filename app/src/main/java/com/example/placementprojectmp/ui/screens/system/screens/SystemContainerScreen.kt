@@ -42,12 +42,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.placementprojectmp.navigation.Routes
 import com.example.placementprojectmp.ui.components.AppTopBar
+import com.example.placementprojectmp.ui.screens.staff.screens.StaffDriveDetailScreen
 
 @Composable
 fun SystemContainerScreen(
@@ -90,7 +92,21 @@ fun SystemContainerScreen(
                     )
                 }
                 composable(Routes.SystemRoutes.JobManagement) {
-                    JobManagementScreen(modifier = modifier)
+                    JobManagementScreen(
+                        modifier = modifier,
+                        onNavigateToDriveDetail = { driveId ->
+                            innerNavController.navigate(Routes.StaffRoutes.driveDetail(driveId))
+                        }
+                    )
+                }
+                composable(
+                    route = Routes.StaffRoutes.DriveDetail,
+                    arguments = listOf(navArgument("driveId") {})
+                ) { backStackEntry ->
+                    StaffDriveDetailScreen(
+                        modifier = modifier,
+                        driveId = backStackEntry.arguments?.getString("driveId").orEmpty()
+                    )
                 }
                 composable(Routes.SystemRoutes.SystemDashboard) {
                     SystemDashboardScreen(modifier = modifier)
