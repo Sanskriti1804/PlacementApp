@@ -1,5 +1,8 @@
 package com.example.placementprojectmp.ui.screens.shared.component
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,16 +16,21 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * @param title Value segment (e.g. duration, LPA).
- * @param subtitle Key / label segment; combined for display as "subtitle – title" when both set.
+ * @param title Value line (second row, more prominent).
+ * @param subtitle Key line (first row, less prominent).
  */
 data class InfoGridItem(
     val title: String,
@@ -83,7 +91,13 @@ private fun InfoGridRow(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .heightIn(min = cellMinHeight, max = cellMaxHeight)
+                    .then(
+                        if (item == null) {
+                            Modifier.heightIn(min = cellMinHeight, max = cellMaxHeight)
+                        } else {
+                            Modifier
+                        }
+                    )
             ) {
                 if (item != null) {
                     InfoGridCell(item = item, modifier = Modifier.fillMaxWidth())
@@ -93,19 +107,29 @@ private fun InfoGridRow(
     }
 }
 
-private fun InfoGridItem.combinedLabel(): String = when {
-    subtitle.isBlank() -> title
-    title.isBlank() -> subtitle
-    else -> "$subtitle – $title"
-}
-
 @Composable
 private fun InfoGridCell(
     item: InfoGridItem,
     modifier: Modifier = Modifier
 ) {
+    var expanded by remember(item.title, item.subtitle) { mutableStateOf(false) }
+    var subtitleOverflow by remember(item.title, item.subtitle) { mutableStateOf(false) }
+    var titleOverflow by remember(item.title, item.subtitle) { mutableStateOf(false) }
+    var singleLineOverflow by remember(item.title, item.subtitle) { mutableStateOf(false) }
+    val hasOverflow = subtitleOverflow || titleOverflow || singleLineOverflow
+
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .then(
+                if (expanded) {
+                    Modifier.heightIn(min = cellMinHeight)
+                } else {
+                    Modifier.heightIn(min = cellMinHeight, max = cellMaxHeight)
+                }
+            )
+            .animateContentSize(animationSpec = tween(durationMillis = 280))
+            .clickable(enabled = hasOverflow) { expanded = !expanded },
         shape = RoundedCornerShape(cardCornerRadius),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = cardElevation)
@@ -119,14 +143,77 @@ private fun InfoGridCell(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = item.combinedLabel(),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                when {
+                    item.subtitle.isNotBlank() && item.title.isNotBlank() -> {
+                        Text(
+                            text = item.subtitle,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            maxLines = if (expanded) Int.MAX_VALUE else 1,
+                            overflow = if (expanded) TextOverflow.Visible else TextOverflow.Ellipsis,
+                            modifier = Modifier.fillMaxWidth(),
+                            onTextLayout = { layoutResult ->
+                                if (!expanded && layoutResult.hasVisualOverflow != subtitleOverflow) {
+                                    subtitleOverflow = layoutResult.hasVisualOverflow
+                                }
+                            }
+                        )
+                        Text(
+                            text = item.title,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center,
+                            maxLines = if (expanded) Int.MAX_VALUE else 2,
+                            overflow = if (expanded) TextOverflow.Visible else TextOverflow.Ellipsis,
+                            modifier = Modifier.fillMaxWidth(),
+                            onTextLayout = { layoutResult ->
+                                if (!expanded && layoutResult.hasVisualOverflow != titleOverflow) {
+                                    titleOverflow = layoutResult.hasVisualOverflow
+                                }
+                            }
+                        )
+                    }
+                    item.title.isNotBlank() -> {
+                        Text(
+                            text = item.title,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center,
+                            maxLines = if (expanded) Int.MAX_VALUE else 2,
+                            overflow = if (expanded) TextOverflow.Visible else TextOverflow.Ellipsis,
+                            modifier = Modifier.fillMaxWidth(),
+                            onTextLayout = { layoutResult ->
+                                if (!expanded && layoutResult.hasVisualOverflow != singleLineOverflow) {
+                                    singleLineOverflow = layoutResult.hasVisualOverflow
+                                }
+                            }
+                        )
+                    }
+                    else -> {
+                        Text(
+                            text = item.subtitle,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            maxLines = if (expanded) Int.MAX_VALUE else 2,
+                            overflow = if (expanded) TextOverflow.Visible else TextOverflow.Ellipsis,
+                            modifier = Modifier.fillMaxWidth(),
+                            onTextLayout = { layoutResult ->
+                                if (!expanded && layoutResult.hasVisualOverflow != singleLineOverflow) {
+                                    singleLineOverflow = layoutResult.hasVisualOverflow
+                                }
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }

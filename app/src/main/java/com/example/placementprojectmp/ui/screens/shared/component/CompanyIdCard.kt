@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
+import java.util.Locale
 
 /**
  * Company identity block: overview row (logo, name, tagline, optional placement/role), location, email, website link,
@@ -108,7 +109,7 @@ fun CompanyIdCard(
                 }
 
                 val placementStyle = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Normal
+                    fontWeight = FontWeight.Bold
                 )
                 Column(
                     modifier = Modifier
@@ -135,12 +136,12 @@ fun CompanyIdCard(
                     )
                     if (!placementName.isNullOrBlank()) {
                         Text(
-                            text = placementName,
+                            text = placementName.uppercase(Locale.getDefault()),
                             style = placementStyle,
                             color = Color.White,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(top = 4.dp)
+                            modifier = Modifier.padding(top = 10.dp)
                         )
                     }
                 }
