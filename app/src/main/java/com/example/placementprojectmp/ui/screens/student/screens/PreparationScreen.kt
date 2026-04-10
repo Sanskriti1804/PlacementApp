@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 import com.example.placementprojectmp.ui.components.ResourceBottomSheet
-import com.example.placementprojectmp.ui.components.ResourceFolderRow
-import com.example.placementprojectmp.ui.components.SubjectHeader
+import com.example.placementprojectmp.ui.screens.student.component.ResourceFolderRow
+import com.example.placementprojectmp.ui.screens.student.component.SubjectInforSelector
 
 /** Dummy PDF resources per folder: (fileName, approvedByEmail). */
 private fun dummyResourcesForFolder(folder: String): List<Pair<String, String>> = when (folder) {
@@ -90,7 +90,7 @@ fun PreparationScreen(
             )
         }
         item {
-            SubjectHeader(
+            SubjectInforSelector(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 subjectName = selectedSubject.name,
                 teacher = selectedSubject.teacher,

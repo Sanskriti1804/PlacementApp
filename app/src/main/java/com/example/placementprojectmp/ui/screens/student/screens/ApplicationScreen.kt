@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
 import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 import com.example.placementprojectmp.ui.components.ApplicationStatusStage
+import com.example.placementprojectmp.ui.screens.student.component.UserInfoTabs
 
 /**
  * Application screen: company header, profile preview, contact, platform links,
@@ -163,34 +164,11 @@ fun ApplicationScreen(
             )
         }
         item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                listOf("Rahul Sharma", "12 Sep 2002", "rahul@email.com").forEach { value ->
-                    Card(
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(100.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp, vertical = 10.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = value,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-                }
-            }
+            UserInfoTabs(
+                name = "Rahul Sharma",
+                date = "12 Sep 2002",
+                email = "rahul@email.com"
+            )
         }
         item {
             Row(

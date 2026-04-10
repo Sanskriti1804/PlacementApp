@@ -1,6 +1,5 @@
 package com.example.placementprojectmp.ui.screens.student.screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +20,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
 import com.example.placementprojectmp.viewmodel.UserViewModel
 import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
+import com.example.placementprojectmp.ui.screens.shared.component.PerformanceButton
 import com.example.placementprojectmp.ui.components.ProfileCompletionCard
 import com.example.placementprojectmp.ui.components.ProfileCompletionItem
 import com.example.placementprojectmp.ui.components.ProfileHeader
@@ -194,17 +193,7 @@ fun ProfileScreen(
                             Text("PROFILE")
                         }
                     }
-                    OutlinedButton(
-                        onClick = onNavigateToAcademic,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.primary
-                        ),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                    ) {
-                        Text("ACADEMIC PERFORMANCE")
-                    }
+                    PerformanceButton(onClick = onNavigateToAcademic)
                 }
             }
         }
