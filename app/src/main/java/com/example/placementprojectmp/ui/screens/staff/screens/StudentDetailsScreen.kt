@@ -57,13 +57,10 @@ import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.screens.staff.StaffStudentPortraitIds
 import com.example.placementprojectmp.ui.screens.shared.component.NeonGlassToastHost
 import com.example.placementprojectmp.ui.components.SearchBar
-import com.example.placementprojectmp.ui.components.StudentViewMode
 import com.example.placementprojectmp.ui.theme.NeonBlue
 import com.example.placementprojectmp.ui.screens.shared.component.FilterCapsuleRow
 import com.example.placementprojectmp.ui.screens.staff.components.StaffPaginationControls
-import com.example.placementprojectmp.ui.screens.staff.components.StaffStudentCardGrid
-import com.example.placementprojectmp.ui.screens.staff.components.StaffStudentCardList
-import com.example.placementprojectmp.ui.screens.staff.components.StaffViewModeSelector
+import com.example.placementprojectmp.ui.screens.shared.component.cards.UserIdCard
 import kotlinx.coroutines.launch
 
 private data class StudentItem(
@@ -92,7 +89,6 @@ fun StudentDetailsScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    var viewMode by remember { mutableStateOf(StudentViewMode.List) }
     var searchQuery by remember { mutableStateOf("") }
     var selectedBranch by remember { mutableStateOf<String?>(null) }
     var selectedCourse by remember { mutableStateOf<String?>(null) }
@@ -141,6 +137,15 @@ fun StudentDetailsScreen(
                 courseOptions.random(),
                 domainOptions.random()
             )
+        }
+    }
+    val hiredDisplayByStudentId = remember(students) {
+        val hiredCompanyPool = listOf("Google", "Microsoft", "Amazon", "TCS", "Infosys", "Wipro", "Accenture", "Cisco")
+        students.associate { s ->
+            val key = s.id.toIntOrNull() ?: 0
+            val useNa = key % 5 == 0
+            val company = hiredCompanyPool[key % hiredCompanyPool.size]
+            s.id to if (useNa) "NA" else company
         }
     }
     val filteredStudents = remember(students, selectedBranch, selectedCourse, selectedDomain, metaByStudentId) {
@@ -218,31 +223,22 @@ fun StudentDetailsScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 item {
-                    Row(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 20.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(horizontal = 20.dp)
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            androidx.compose.material3.Text(
-                                text = "Student Details",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                            )
-                            androidx.compose.material3.Text(
-                                text = "Manage student profile and actions",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.Normal
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        StaffViewModeSelector(
-                            currentMode = viewMode,
-                            onModeSelected = { viewMode = it }
+                        androidx.compose.material3.Text(
+                            text = "Student Details",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        )
+                        androidx.compose.material3.Text(
+                            text = "Manage student profile and actions",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Normal
                         )
                     }
                 }
@@ -282,59 +278,29 @@ fun StudentDetailsScreen(
                         onDomainSelect = { selectedDomain = it; currentPage = 1 }
                     )
                 }
-                when (viewMode) {
-                    StudentViewMode.List, StudentViewMode.Expanded -> {
-                        itemsIndexed(paginatedStudents) { _, student ->
-                            StaffStudentCardList(
-                                modifier = Modifier.padding(horizontal = 20.dp),
-                                studentName = student.name,
-                                studentEmail = student.email,
-                                studentRollNumber = student.rollNumber,
-                                searchQuery = queryTrimmed,
-                                profileImageResId = portraitByStudentId.getValue(student.id),
-                                tags = tagsByStudent[student.id].orEmpty(),
-                                selected = student.id in selectedIds,
-                                isFavorite = student.id in favoriteIds,
-                                onSelectionChange = { checked ->
-                                    if (checked) selectedIds.add(student.id) else selectedIds.remove(student.id)
-                                },
-                                onFavoriteToggle = {
-                                    if (student.id in favoriteIds) favoriteIds.remove(student.id) else favoriteIds.add(student.id)
-                                },
-                            )
-                        }
-                    }
-                    StudentViewMode.Grid -> {
-                        itemsIndexed(paginatedStudents.chunked(2)) { _, rowStudents ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 20.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                rowStudents.forEach { student ->
-                                    StaffStudentCardGrid(
-                                        modifier = Modifier.weight(1f),
-                                        studentName = student.name,
-                                        studentEmail = student.email,
-                                        studentRollNumber = student.rollNumber,
-                                        searchQuery = queryTrimmed,
-                                        profileImageResId = portraitByStudentId.getValue(student.id),
-                                        tags = tagsByStudent[student.id].orEmpty(),
-                                        selected = student.id in selectedIds,
-                                        isFavorite = student.id in favoriteIds,
-                                        onSelectionChange = { checked ->
-                                            if (checked) selectedIds.add(student.id) else selectedIds.remove(student.id)
-                                        },
-                                        onFavoriteToggle = {
-                                            if (student.id in favoriteIds) favoriteIds.remove(student.id) else favoriteIds.add(student.id)
-                                        },
-                                    )
-                                }
-                                repeat(2 - rowStudents.size) { Box(modifier = Modifier.weight(1f)) }
-                            }
-                        }
-                    }
+                itemsIndexed(paginatedStudents) { _, student ->
+                    val (dept, _, _) = metaByStudentId.getValue(student.id)
+                    UserIdCard(
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        name = student.name,
+                        email = student.email,
+                        idText = student.rollNumber,
+                        searchQuery = queryTrimmed,
+                        profileImageResId = portraitByStudentId.getValue(student.id),
+                        departmentValue = dept,
+                        secondaryAttributeLabel = "Hired",
+                        secondaryAttributeValue = hiredDisplayByStudentId.getValue(student.id),
+                        optionalEndTag = "Faculty",
+                        tags = tagsByStudent[student.id].orEmpty(),
+                        selected = student.id in selectedIds,
+                        onSelectionChange = { checked ->
+                            if (checked) selectedIds.add(student.id) else selectedIds.remove(student.id)
+                        },
+                        isFavorite = student.id in favoriteIds,
+                        onFavoriteToggle = {
+                            if (student.id in favoriteIds) favoriteIds.remove(student.id) else favoriteIds.add(student.id)
+                        },
+                    )
                 }
                 item {
                     StaffPaginationControls(
