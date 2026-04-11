@@ -44,20 +44,19 @@ import com.example.placementprojectmp.ui.screens.shared.component.ApplicationIte
 import com.example.placementprojectmp.ui.screens.shared.component.DashboardUserProfile
 import com.example.placementprojectmp.ui.screens.shared.component.JobItem
 import com.example.placementprojectmp.ui.screens.shared.component.JobSection
-import com.example.placementprojectmp.ui.screens.shared.component.TopPerformerCard
 import com.example.placementprojectmp.ui.screens.student.component.CourseDomainMappingFilter
 import com.example.placementprojectmp.viewmodel.EducationViewModel
 import com.example.placementprojectmp.viewmodel.UserViewModel
 import org.koin.androidx.compose.koinViewModel
+import kotlin.random.Random
 
 private const val TAG = "StaffDashboard"
 private const val educationProfileId = 3L
 
-private data class TopPerformerCardData(
+private data class StaffTopPerformerSectionCardData(
     val stateKey: Int,
-    val topTitle: String,
-    val bottomTitle: String,
-    val roleLines: List<String>,
+    val header: String,
+    val subheader: String,
     val imageResIds: List<Int>,
     val performerNames: List<String>,
     val performerSubtitles: List<String>
@@ -173,29 +172,53 @@ private fun StaffDashboardDeadlineStatusCard(
     }
 }
 
-private fun staffTopPerformerCards(): List<TopPerformerCardData> {
-    val pool = listOf(R.drawable.std_1, R.drawable.std_2, R.drawable.std_3, R.drawable.std_4)
-    val names = listOf("Aarav", "Meera", "Riya", "Kabir", "Dev", "Sana")
-    val subs = listOf("2025", "2025", "2025", "2025", "2025", "2025")
-    val six = List(6) { pool[it % pool.size] }
+private fun staffTopPerformerSectionCards(): List<StaffTopPerformerSectionCardData> {
+    val stdPool = listOf(R.drawable.std_1, R.drawable.std_2, R.drawable.std_3)
+    val compPool = listOf(R.drawable.comp_1, R.drawable.comp_2, R.drawable.comp_3)
+    fun sixFromPool(pool: List<Int>, seed: Int): List<Int> {
+        val r = Random(seed)
+        return List(6) { pool[r.nextInt(pool.size)] }
+    }
+    val studentNames = listOf("Aarav", "Meera", "Riya", "Kabir", "Dev", "Sana")
+    val studentSubs = listOf("12 apps", "10 apps", "9 apps", "8 apps", "8 apps", "7 apps")
+    val companyNames = listOf("Nexora", "FinEdge", "CloudBay", "ByteForge", "DataWorks", "ScaleUp")
+    val companySubs = listOf("42 hires", "38 hires", "31 hires", "29 hires", "24 hires", "22 hires")
+    val roleNames = listOf("SDE I", "Data Analyst", "QA", "DevOps", "ML Intern", "PM")
+    val roleSubs = listOf("210 apps", "198 apps", "176 apps", "154 apps", "141 apps", "128 apps")
+    val driveNames = listOf("Mega Drive Q1", "FinTech Week", "Product Blitz", "Analytics Day", "Core Eng", "Winter Sprint")
+    val driveSubs = listOf("220 joined", "205 joined", "198 joined", "190 joined", "182 joined", "175 joined")
     return listOf(
-        TopPerformerCardData(
+        StaffTopPerformerSectionCardData(
             stateKey = 0,
-            topTitle = "Engineering",
-            bottomTitle = "2025",
-            roleLines = listOf("• SDE", "• QA", "• DevOps"),
-            imageResIds = six,
-            performerNames = names,
-            performerSubtitles = subs
+            header = "Top Students",
+            subheader = "Students with highest application, selection and activity in drives",
+            imageResIds = sixFromPool(stdPool, seed = 701),
+            performerNames = studentNames,
+            performerSubtitles = studentSubs
         ),
-        TopPerformerCardData(
+        StaffTopPerformerSectionCardData(
             stateKey = 1,
-            topTitle = "Analytics",
-            bottomTitle = "2025",
-            roleLines = listOf("• Data Analyst", "• BI Intern"),
-            imageResIds = six,
-            performerNames = listOf("Dev", "Sana", "Kabir", "Meera", "Aarav", "Riya"),
-            performerSubtitles = subs
+            header = "Top Companies",
+            subheader = "Companies with highest student hiring and engagement",
+            imageResIds = sixFromPool(compPool, seed = 802),
+            performerNames = companyNames,
+            performerSubtitles = companySubs
+        ),
+        StaffTopPerformerSectionCardData(
+            stateKey = 2,
+            header = "Top Job Roles",
+            subheader = "Jobs with highest number of student applications",
+            imageResIds = sixFromPool(compPool, seed = 903),
+            performerNames = roleNames,
+            performerSubtitles = roleSubs
+        ),
+        StaffTopPerformerSectionCardData(
+            stateKey = 3,
+            header = "Top Drives",
+            subheader = "Placement drives with maximum participation and successful outcomes",
+            imageResIds = sixFromPool(compPool, seed = 604),
+            performerNames = driveNames,
+            performerSubtitles = driveSubs
         )
     )
 }
@@ -226,7 +249,7 @@ fun StaffDashboardScreen(
     var selectedDomains by remember { mutableStateOf(setOf<String>()) }
     var recentActivities by remember { mutableStateOf(staffRecentActivityJobItems()) }
     val deadlineItems = remember { staffDeadlineApplicationItems() }
-    val topPerformerCards = remember { staffTopPerformerCards() }
+    val topPerformerCards = remember { staffTopPerformerSectionCards() }
 
     var showFabMenu by remember { mutableStateOf(false) }
     val fabSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -300,12 +323,11 @@ fun StaffDashboardScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         itemsIndexed(topPerformerCards, key = { _, c -> c.stateKey }) { _, card ->
-                            TopPerformerCard(
+                            StaffDashboardTopPerformerCard(
                                 modifier = Modifier.width(280.dp),
                                 stateKey = card.stateKey,
-                                topTitle = card.topTitle,
-                                bottomTitle = card.bottomTitle,
-                                roleLines = card.roleLines,
+                                header = card.header,
+                                subheader = card.subheader,
                                 imageResIds = card.imageResIds,
                                 performerNames = card.performerNames,
                                 performerSubtitles = card.performerSubtitles
