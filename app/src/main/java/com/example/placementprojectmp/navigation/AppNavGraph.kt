@@ -38,6 +38,7 @@ import com.example.placementprojectmp.ui.screens.student.screens.StudentMainCont
 import com.example.placementprojectmp.ui.screens.shared.screens.DriveDetailScreen
 import com.example.placementprojectmp.ui.screens.shared.screens.JobDetailScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentProfileFormScreen
+import com.example.placementprojectmp.ui.screens.staff.screens.StaffDashboardScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffDriveScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffCandidateDetailScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffDriveDetailScreen
@@ -323,6 +324,9 @@ private fun androidx.navigation.NavGraphBuilder.staffGraph(
     ) {
         composable(Routes.StaffRoutes.Main) {
             StaffMainContainer(modifier = modifier)
+        }
+        composable(Routes.StaffRoutes.StaffDashboard) {
+            StaffDashboardScreen(modifier = modifier)
         }
         composable(Routes.StaffRoutes.Drive) {
             StaffDriveScreen(modifier = modifier)

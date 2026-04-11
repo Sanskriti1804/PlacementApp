@@ -34,9 +34,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,13 +48,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.placementprojectmp.navigation.Routes
-import com.example.placementprojectmp.ui.screens.shared.component.AppSearchBar
 import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 import com.example.placementprojectmp.ui.screens.shared.screens.TeacherCompanyDetailsScreen
 
 /**
  * Staff shell: same bottom bar pattern as [com.example.placementprojectmp.ui.screens.student.screens.StudentMainContainer].
- * Tabs: Students | Work | Dashboard (center, no navigation) | Applications | Profile.
+ * Tabs: Students | Opportunity | Dashboard (center) | Workspace | Profile.
  */
 @Composable
 fun StaffMainContainer(
@@ -97,7 +94,7 @@ fun StaffMainContainer(
                     TeacherCompanyDetailsScreen(modifier = modifier)
                 }
                 composable(Routes.StaffRoutes.StaffDashboard) {
-                    StaffDashboardPlaceholderScreen(modifier = modifier)
+                    StaffDashboardScreen(modifier = modifier)
                 }
                 composable(Routes.StaffRoutes.Drive) {
                     StaffDriveScreen(
@@ -147,31 +144,6 @@ fun StaffMainContainer(
                     PlacementWorkspaceScreen(modifier = modifier)
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun StaffDashboardPlaceholderScreen(modifier: Modifier = Modifier) {
-    var dashboardSearchQuery by remember { mutableStateOf("") }
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(24.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.TopStart),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            AppSearchBar(
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = "Search dashboard, tasks, alerts...",
-                query = dashboardSearchQuery,
-                onQueryChange = { dashboardSearchQuery = it },
-                onFilterClick = {}
-            )
         }
     }
 }
@@ -272,7 +244,16 @@ private fun StaffBottomNavItem(
     modifier: Modifier = Modifier
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val clickableModifier = if (item.navigateOnClick) {
+    val edgeTabClickable = if (!item.isCenter && item.navigateOnClick) {
+        Modifier.clickable(
+            interactionSource = interactionSource,
+            indication = null,
+            onClick = onClick
+        )
+    } else {
+        Modifier
+    }
+    val centerSurfaceClickable = if (item.isCenter && item.navigateOnClick) {
         Modifier.clickable(
             interactionSource = interactionSource,
             indication = null,
@@ -286,7 +267,7 @@ private fun StaffBottomNavItem(
         modifier = modifier
             .padding(4.dp)
             .clip(CircleShape)
-            .then(clickableModifier),
+            .then(edgeTabClickable),
         contentAlignment = Alignment.Center
     ) {
         AnimatedContent(
@@ -299,7 +280,9 @@ private fun StaffBottomNavItem(
         ) { selected ->
             if (item.isCenter) {
                 Surface(
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .then(centerSurfaceClickable),
                     shape = CircleShape,
                     color = if (selected) {
                         MaterialTheme.colorScheme.primaryContainer

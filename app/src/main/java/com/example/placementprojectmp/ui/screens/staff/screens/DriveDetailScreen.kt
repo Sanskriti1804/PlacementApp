@@ -35,7 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.screens.shared.component.AppTabSection
-import com.example.placementprojectmp.ui.screens.shared.component.CompanyIdCard
+import com.example.placementprojectmp.ui.screens.shared.cards.CompanyIdCard
 import com.example.placementprojectmp.ui.screens.shared.component.InfoGrid
 import com.example.placementprojectmp.ui.screens.shared.component.InfoGridItem
 import com.example.placementprojectmp.ui.screens.shared.component.SelectionRoundItem

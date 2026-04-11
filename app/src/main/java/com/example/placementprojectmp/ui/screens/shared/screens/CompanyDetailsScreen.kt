@@ -71,7 +71,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
 import com.example.placementprojectmp.ui.screens.shared.component.AppTabSection
-import com.example.placementprojectmp.ui.screens.shared.component.CompanyIdCard
+import com.example.placementprojectmp.ui.screens.shared.cards.CompanyIdCard
 import com.example.placementprojectmp.ui.screens.shared.component.ContactSupportCard
 import kotlin.math.roundToInt
 import kotlin.random.Random

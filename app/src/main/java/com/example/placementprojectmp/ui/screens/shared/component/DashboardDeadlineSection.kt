@@ -1,6 +1,7 @@
-package com.example.placementprojectmp.ui.components
+package com.example.placementprojectmp.ui.screens.shared.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.example.placementprojectmp.ui.components.ApplicationStatusCard
 
 /**
  * Highlighted container with title and list of ApplicationStatusCards.
@@ -36,7 +38,7 @@ fun ApplicationsSection(
             color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(10.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             applications.forEach { app ->
                 ApplicationStatusCard(
                     companyName = app.companyName,

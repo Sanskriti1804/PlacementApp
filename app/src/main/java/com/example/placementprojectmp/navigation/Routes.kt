@@ -78,7 +78,7 @@ object Routes {
         const val TeacherCompanyDetails = "teacher_company_details_screen"
         const val TeacherProfile = "teacher_profile_screen"
         const val StudentDetails = "student_details"
-        /** Center tab placeholder (no navigation on tap). */
+        /** Staff home dashboard (center bottom tab; also registered on inner [StaffMainContainer] NavHost). */
         const val StaffDashboard = "staff_dashboard_screen"
         const val DriveDetail = "staff_drive_detail/{driveId}"
         const val JobDetail = "staff_job_detail/{jobId}"

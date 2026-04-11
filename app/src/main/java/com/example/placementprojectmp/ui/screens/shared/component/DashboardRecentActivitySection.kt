@@ -1,4 +1,4 @@
-package com.example.placementprojectmp.ui.components
+package com.example.placementprojectmp.ui.screens.shared.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.placementprojectmp.ui.components.JobCard
 
 /**
  * Section with title "Jobs Based on Your Preference" and a list of JobCards.

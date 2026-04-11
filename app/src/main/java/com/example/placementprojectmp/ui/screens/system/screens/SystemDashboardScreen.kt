@@ -23,7 +23,6 @@ import androidx.compose.material.icons.filled.Domain
 import androidx.compose.material.icons.filled.Engineering
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.PostAdd
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.School
@@ -50,8 +49,8 @@ import com.example.placementprojectmp.ui.components.DomainChipRow
 import com.example.placementprojectmp.ui.components.DriveItem
 import com.example.placementprojectmp.ui.components.DriveSection
 import com.example.placementprojectmp.ui.components.FeatureCard
-import com.example.placementprojectmp.ui.components.JobItem
-import com.example.placementprojectmp.ui.components.JobSection
+import com.example.placementprojectmp.ui.screens.shared.component.JobItem
+import com.example.placementprojectmp.ui.screens.shared.component.JobSection
 import com.example.placementprojectmp.ui.components.SearchBar
 import com.example.placementprojectmp.ui.screens.staff.components.SectionHeader
 import com.example.placementprojectmp.ui.screens.staff.components.StatCard
