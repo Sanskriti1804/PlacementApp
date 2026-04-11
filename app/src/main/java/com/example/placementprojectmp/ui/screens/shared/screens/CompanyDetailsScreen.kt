@@ -80,7 +80,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun TeacherCompanyDetailsScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** When non-null (e.g. System role), rendered immediately after [CompanyIdCard] in the expanded drawer. */
+    contentBelowCompanyIdCard: (@Composable () -> Unit)? = null
 ) {
     val accent = Color.Black
 
@@ -139,7 +141,8 @@ fun TeacherCompanyDetailsScreen(
             } else {
                 ExpandedDrawerContent(
                     stickyNotes = stickyNotes,
-                    onAddNoteClick = { showNotePrompt = true }
+                    onAddNoteClick = { showNotePrompt = true },
+                    contentBelowCompanyIdCard = contentBelowCompanyIdCard
                 )
             }
         }
@@ -303,7 +306,8 @@ private fun StatusDot(color: Color) {
 @Composable
 private fun ExpandedDrawerContent(
     stickyNotes: List<String>,
-    onAddNoteClick: () -> Unit
+    onAddNoteClick: () -> Unit,
+    contentBelowCompanyIdCard: (@Composable () -> Unit)? = null
 ) {
     Surface(
         modifier = Modifier
@@ -333,6 +337,14 @@ private fun ExpandedDrawerContent(
                         null
                     }
                 )
+            }
+
+            if (contentBelowCompanyIdCard != null) {
+                item {
+                    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                        contentBelowCompanyIdCard()
+                    }
+                }
             }
 
             item {

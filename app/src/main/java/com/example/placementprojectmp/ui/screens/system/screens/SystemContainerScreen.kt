@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -49,6 +50,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.placementprojectmp.navigation.Routes
 import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
+import com.example.placementprojectmp.ui.screens.shared.screens.TeacherCompanyDetailsScreen
 import com.example.placementprojectmp.ui.screens.staff.screens.StaffDriveDetailScreen
 
 @Composable
@@ -94,18 +96,28 @@ fun SystemContainerScreen(
                 composable(Routes.SystemRoutes.JobManagement) {
                     JobManagementScreen(
                         modifier = modifier,
+                        onNavigateToCompanyDetail = { _ ->
+                            innerNavController.navigate(Routes.SystemRoutes.SystemCompanyDetails)
+                        },
                         onNavigateToDriveDetail = { driveId ->
-                            innerNavController.navigate(Routes.StaffRoutes.driveDetail(driveId))
+                            innerNavController.navigate(Routes.SystemRoutes.systemDriveDetail(driveId))
                         }
                     )
                 }
+                composable(Routes.SystemRoutes.SystemCompanyDetails) {
+                    TeacherCompanyDetailsScreen(
+                        modifier = modifier,
+                        contentBelowCompanyIdCard = { SystemPlacementAnalyticsReportCard() }
+                    )
+                }
                 composable(
-                    route = Routes.StaffRoutes.DriveDetail,
-                    arguments = listOf(navArgument("driveId") {})
+                    route = Routes.SystemRoutes.SystemDriveDetail,
+                    arguments = listOf(navArgument("driveId") { type = NavType.StringType })
                 ) { backStackEntry ->
                     StaffDriveDetailScreen(
                         modifier = modifier,
-                        driveId = backStackEntry.arguments?.getString("driveId").orEmpty()
+                        driveId = backStackEntry.arguments?.getString("driveId").orEmpty(),
+                        contentBelowDriveIdCard = { SystemPlacementAnalyticsReportCard() }
                     )
                 }
                 composable(Routes.SystemRoutes.SystemDashboard) {

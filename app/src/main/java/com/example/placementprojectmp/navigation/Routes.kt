@@ -98,6 +98,13 @@ object Routes {
         const val SystemDashboard = "system_dashboard_screen"
         const val SystemManagement = "system_management_screen"
         const val JobManagement = "system_job_management_screen"
+        /** System-only company detail (wraps shared company UI + analytics). */
+        const val SystemCompanyDetails = "system_company_details_screen"
+        /** System-only drive detail (wraps staff drive detail + analytics). */
+        const val SystemDriveDetail = "system_staff_drive_detail/{driveId}"
+
+        fun systemDriveDetail(driveId: String): String = "system_staff_drive_detail/$driveId"
+
         const val SystemProfile = "system_profile_screen"
         const val SystemSettings = "system_settings_screen"
     }

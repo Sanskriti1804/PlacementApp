@@ -157,7 +157,9 @@ private fun presentationForDriveId(driveId: String): DriveDetailPresentation {
 fun StaffDriveDetailScreen(
     modifier: Modifier = Modifier,
     driveId: String,
-    onRegisterClick: () -> Unit = {}
+    onRegisterClick: () -> Unit = {},
+    /** When non-null (e.g. System role), rendered immediately after [CompanyIdCard]. */
+    contentBelowDriveIdCard: (@Composable () -> Unit)? = null
 ) {
     val p = remember(driveId) { presentationForDriveId(driveId) }
     val roleItems = p.roleTitles.map { title -> InfoGridItem(title = title, subtitle = "") }
@@ -181,6 +183,13 @@ fun StaffDriveDetailScreen(
                 placementName = p.driveTitleLine,
                 onAddNoteClick = { }
             )
+        }
+        if (contentBelowDriveIdCard != null) {
+            item {
+                Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                    contentBelowDriveIdCard()
+                }
+            }
         }
         item {
             VenueRegDetailsCapsule(
