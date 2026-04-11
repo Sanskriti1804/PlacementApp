@@ -3,7 +3,6 @@ package com.example.placementprojectmp.ui.screens.staff.screens
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -15,26 +14,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -44,6 +32,7 @@ import com.example.placementprojectmp.ui.screens.shared.component.ApplicationIte
 import com.example.placementprojectmp.ui.screens.shared.component.DashboardUserProfile
 import com.example.placementprojectmp.ui.screens.shared.component.JobItem
 import com.example.placementprojectmp.ui.screens.shared.component.JobSection
+import com.example.placementprojectmp.ui.screens.shared.component.SystemCTA
 import com.example.placementprojectmp.ui.screens.student.component.CourseDomainMappingFilter
 import com.example.placementprojectmp.viewmodel.EducationViewModel
 import com.example.placementprojectmp.viewmodel.UserViewModel
@@ -226,9 +215,8 @@ private fun staffTopPerformerSectionCards(): List<StaffTopPerformerSectionCardDa
 /**
  * Staff home dashboard: mirrors [com.example.placementprojectmp.ui.screens.student.screens.StudentDashboardScreen]
  * composition (profile, search, course/domain filter spacing) using the same shared building blocks; staff-only data
- * and FAB quick-add sheet live in this file only.
+ * lives in this file; quick-add FAB + sheet are provided by `SystemCTA` (shared component).
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StaffDashboardScreen(
     modifier: Modifier = Modifier
@@ -251,15 +239,12 @@ fun StaffDashboardScreen(
     val deadlineItems = remember { staffDeadlineApplicationItems() }
     val topPerformerCards = remember { staffTopPerformerSectionCards() }
 
-    var showFabMenu by remember { mutableStateOf(false) }
-    val fabSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
     val currentUser = userViewModel.students.firstOrNull()
     val resolvedUserName = currentUser?.name?.takeIf { it.isNotBlank() } ?: "Staff"
     val courses = educationViewModel.courses
     val courseDomains = educationViewModel.domains
 
-    Box(modifier = modifier.fillMaxSize()) {
+    SystemCTA(modifier = modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -342,66 +327,6 @@ fun StaffDashboardScreen(
                     title = "Deadlines & alerts",
                     applications = deadlineItems
                 )
-            }
-        }
-
-        FloatingActionButton(
-            onClick = { showFabMenu = true },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 20.dp, bottom = 24.dp),
-            shape = CircleShape,
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            elevation = FloatingActionButtonDefaults.elevation(
-                defaultElevation = 6.dp,
-                pressedElevation = 8.dp
-            )
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Quick add"
-            )
-        }
-    }
-
-    if (showFabMenu) {
-        ModalBottomSheet(
-            onDismissRequest = { showFabMenu = false },
-            sheetState = fabSheetState
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                Text(
-                    text = "Quick add",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                val options = listOf(
-                    "Add Drive",
-                    "Add Company",
-                    "Add Job",
-                    "Add Student",
-                    "Add Tutorial Class",
-                    "Add Workshop"
-                )
-                options.forEach { label ->
-                    TextButton(
-                        onClick = { showFabMenu = false },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }

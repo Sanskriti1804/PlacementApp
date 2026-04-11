@@ -71,7 +71,7 @@ fun AppNavGraph(
     val token by tokenStore.tokenFlow.collectAsState(initial = null)
     val role by tokenStore.roleFlow.collectAsState(initial = null)
     // TESTING: staff graph as root start — delete next line and uncomment block below when done.
-    val safeRootStartDestination = Routes.GraphRoutes.Staff
+    val safeRootStartDestination = Routes.GraphRoutes.Student
 
 
 
