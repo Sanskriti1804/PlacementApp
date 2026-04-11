@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
 
-enum class PlacementTab { RESOURCES, STUDENTS, NOTES }
+enum class PlacementTab { RESOURCES, NOTES }
 
 enum class PlacementResourceViewLayout { LIST, GRID }
 
