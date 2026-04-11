@@ -16,7 +16,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -26,19 +25,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
@@ -46,6 +48,7 @@ import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -61,21 +64,32 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import com.example.placementprojectmp.ui.components.StudentViewMode
 import com.example.placementprojectmp.ui.screens.shared.component.AppSearchBar
+import com.example.placementprojectmp.ui.screens.staff.components.ResourceFolderRow
+import com.example.placementprojectmp.ui.screens.staff.components.StaffViewModeSelector
 import com.example.placementprojectmp.viewmodel.Note
+import com.example.placementprojectmp.viewmodel.PlacementResourceViewLayout
 import com.example.placementprojectmp.viewmodel.PlacementTab
 import com.example.placementprojectmp.viewmodel.PlacementWorkspaceViewModel
 import com.example.placementprojectmp.viewmodel.Resource
@@ -93,17 +107,38 @@ fun PlacementWorkspaceScreen(
 ) {
     val state by viewModel.state
     val listState = rememberLazyListState()
+    var fabMenuExpanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(state.selectedTab) {
+        fabMenuExpanded = false
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
-            if (state.selectedTab == PlacementTab.RESOURCES) {
-                FloatingActionButton(
-                    onClick = {},
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Icon(imageVector = Icons.Default.Folder, contentDescription = "Upload resource")
+            if (state.selectedTab == PlacementTab.RESOURCES || state.selectedTab == PlacementTab.NOTES) {
+                Box {
+                    FloatingActionButton(
+                        onClick = { fabMenuExpanded = true },
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+                    }
+                    DropdownMenu(
+                        expanded = fabMenuExpanded,
+                        onDismissRequest = { fabMenuExpanded = false },
+                        offset = DpOffset(0.dp, (-8).dp)
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Add Document") },
+                            onClick = { fabMenuExpanded = false }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Add Folder") },
+                            onClick = { fabMenuExpanded = false }
+                        )
+                    }
                 }
             }
         }
@@ -148,54 +183,54 @@ fun PlacementWorkspaceScreen(
             }
 
             item {
-                PlacementTabRow(
+                PlacementWorkspaceAppTabSection(
                     selectedTab = state.selectedTab,
                     onTabSelected = viewModel::selectTab
-                )
-            }
-
-            item {
-                AnimatedContent(
-                    targetState = state.selectedTab,
-                    transitionSpec = {
-                        (fadeIn(tween(160)) togetherWith fadeOut(tween(120))).using(SizeTransform(clip = false))
-                    },
-                    label = "workspace_tab_content"
-                ) { tab ->
-                    when (tab) {
-                        PlacementTab.RESOURCES -> ResourcesTab(
-                            resources = state.resources,
-                            showActionsForId = state.showResourceActionsForId,
-                            onMenuClick = viewModel::showResourceActions,
-                            onDismissMenu = viewModel::hideResourceActions
-                        )
-                        PlacementTab.STUDENTS -> StudentsTab(
-                            students = state.students,
-                            expanded = true,
-                            selectedIds = state.bulkSelectedStudentIds,
-                            isBulkMode = state.isBulkMode,
-                            eligibleFilter = state.studentFilterEligible,
-                            appliedFilter = state.studentFilterApplied,
-                            taggedOnly = state.studentFilterTaggedOnly,
-                            onEligibleFilter = viewModel::setStudentEligibleFilter,
-                            onAppliedFilter = viewModel::setStudentAppliedFilter,
-                            onToggleTaggedOnly = viewModel::toggleTaggedOnly,
-                            onLongPressStudent = viewModel::enterBulkMode,
-                            onToggleStudent = viewModel::toggleStudentSelected,
-                            onExitBulk = viewModel::exitBulkMode,
-                            onAddTag = { tag -> viewModel.addTagToSelected(tag) },
-                            onRemoveTag = { tag -> viewModel.removeTagFromSelected(tag) },
-                            favoriteTag = viewModel.favoriteTag(),
-                            priorityTag = viewModel.priorityTag(),
-                            taggedTag = viewModel.taggedTag(),
-                            onUpdateStudentNote = viewModel::updateStudentNote
-                        )
-                        PlacementTab.NOTES -> NotesTab(
-                            notes = state.notes,
-                            showActionsForId = state.showNoteActionsForId,
-                            onMenuClick = viewModel::showNoteActions,
-                            onDismissMenu = viewModel::hideNoteActions
-                        )
+                ) {
+                    AnimatedContent(
+                        targetState = state.selectedTab,
+                        transitionSpec = {
+                            (fadeIn(tween(160)) togetherWith fadeOut(tween(120))).using(SizeTransform(clip = false))
+                        },
+                        label = "workspace_tab_content"
+                    ) { tab ->
+                        when (tab) {
+                            PlacementTab.RESOURCES -> ResourcesTab(
+                                resources = state.resources,
+                                resourceViewLayout = state.resourceViewLayout,
+                                onResourceViewLayoutChange = viewModel::setResourceViewLayout,
+                                showActionsForId = state.showResourceActionsForId,
+                                onMenuClick = viewModel::showResourceActions,
+                                onDismissMenu = viewModel::hideResourceActions
+                            )
+                            PlacementTab.STUDENTS -> StudentsTab(
+                                students = state.students,
+                                expanded = true,
+                                selectedIds = state.bulkSelectedStudentIds,
+                                isBulkMode = state.isBulkMode,
+                                eligibleFilter = state.studentFilterEligible,
+                                appliedFilter = state.studentFilterApplied,
+                                taggedOnly = state.studentFilterTaggedOnly,
+                                onEligibleFilter = viewModel::setStudentEligibleFilter,
+                                onAppliedFilter = viewModel::setStudentAppliedFilter,
+                                onToggleTaggedOnly = viewModel::toggleTaggedOnly,
+                                onLongPressStudent = viewModel::enterBulkMode,
+                                onToggleStudent = viewModel::toggleStudentSelected,
+                                onExitBulk = viewModel::exitBulkMode,
+                                onAddTag = { tag -> viewModel.addTagToSelected(tag) },
+                                onRemoveTag = { tag -> viewModel.removeTagFromSelected(tag) },
+                                favoriteTag = viewModel.favoriteTag(),
+                                priorityTag = viewModel.priorityTag(),
+                                taggedTag = viewModel.taggedTag(),
+                                onUpdateStudentNote = viewModel::updateStudentNote
+                            )
+                            PlacementTab.NOTES -> NotesTab(
+                                notes = state.notes,
+                                showActionsForId = state.showNoteActionsForId,
+                                onMenuClick = viewModel::showNoteActions,
+                                onDismissMenu = viewModel::hideNoteActions
+                            )
+                        }
                     }
                 }
             }
@@ -203,65 +238,130 @@ fun PlacementWorkspaceScreen(
     }
 }
 
+/**
+ * Visual parity with [com.example.placementprojectmp.ui.screens.shared.component.AppTabSection]
+ * (underline indicator + divider); drives [PlacementTab] selection for workspace content.
+ */
 @Composable
-private fun PlacementTabRow(
+private fun PlacementWorkspaceAppTabSection(
     selectedTab: PlacementTab,
-    onTabSelected: (PlacementTab) -> Unit
+    onTabSelected: (PlacementTab) -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
 ) {
-    val tabs = listOf(PlacementTab.RESOURCES, PlacementTab.STUDENTS, PlacementTab.NOTES)
-    val selectedIndex = tabs.indexOf(selectedTab).coerceAtLeast(0)
-    BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f))
-            .padding(4.dp)
+    val tabTitles = listOf("Resources", "Students", "Materials")
+    val tabKeys = listOf(PlacementTab.RESOURCES, PlacementTab.STUDENTS, PlacementTab.NOTES)
+    val selectedIndex = tabKeys.indexOf(selectedTab).coerceIn(0, tabKeys.lastIndex)
+    var rowRootX by remember { mutableFloatStateOf(0f) }
+    val tabSegments = remember(tabTitles) { mutableStateMapOf<Int, Pair<Float, Float>>() }
+    val density = LocalDensity.current
+
+    val targetSeg = tabSegments[selectedIndex]
+    val targetOffsetDp = with(density) { (targetSeg?.first ?: 0f).toDp() }
+    val targetWidthDp = with(density) { (targetSeg?.second ?: 0f).toDp() }
+    val animatedOffset by animateDpAsState(
+        targetValue = targetOffsetDp,
+        animationSpec = tween(durationMillis = 280, easing = FastOutSlowInEasing),
+        label = "workspace_tab_indicator_offset"
+    )
+    val animatedWidth by animateDpAsState(
+        targetValue = targetWidthDp,
+        animationSpec = tween(durationMillis = 280, easing = FastOutSlowInEasing),
+        label = "workspace_tab_indicator_width"
+    )
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        val tabWidth = maxWidth / tabs.size
-        val indicatorOffset by animateDpAsState(
-            targetValue = tabWidth * selectedIndex,
-            animationSpec = tween(220, easing = FastOutSlowInEasing),
-            label = "workspace_tab_indicator"
-        )
-        Box(
-            modifier = Modifier
-                .padding(start = indicatorOffset)
-                .width(tabWidth - 4.dp)
-                .height(40.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.surface)
-        )
-        Row(modifier = Modifier.fillMaxWidth()) {
-            tabs.forEach { tab ->
-                val selected = tab == selectedTab
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(40.dp)
-                        .clickable { onTabSelected(tab) },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = tab.label(),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
-                    )
+        Column(modifier = Modifier.fillMaxWidth()) {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onGloballyPositioned { coordinates ->
+                        rowRootX = coordinates.positionInRoot().x
+                    },
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                itemsIndexed(tabTitles) { index, title ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .onGloballyPositioned { coordinates ->
+                                val x = coordinates.positionInRoot().x - rowRootX
+                                val w = coordinates.size.width.toFloat()
+                                val next = x to w
+                                if (tabSegments[index] != next) {
+                                    tabSegments[index] = next
+                                }
+                            }
+                            .clickable { onTabSelected(tabKeys[index]) }
+                            .padding(horizontal = 12.dp, vertical = 10.dp)
+                    ) {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (selectedIndex == index) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
             }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(2.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .offset(x = animatedOffset)
+                        .width(animatedWidth)
+                        .fillMaxHeight()
+                        .background(MaterialTheme.colorScheme.primary)
+                )
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth(),
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
+            )
         }
+
+        content()
     }
 }
 
-private fun PlacementTab.label(): String = when (this) {
-    PlacementTab.RESOURCES -> "Resources"
-    PlacementTab.STUDENTS -> "Students"
-    PlacementTab.NOTES -> "Materials"
-}
+private val workspaceResourceFolders = listOf(
+    "Student Consent Forms",
+    "Drive Data",
+    "Company Documents (Google Docs)",
+    "Nexus Company Documents",
+    "Verified Documents",
+    "Documents to be Verified"
+)
+
+private val workspaceMaterialFolders = listOf(
+    "Resume Checklist",
+    "Notes for Interview Prep",
+    "Cheat Sheets",
+    "PY2 Uploads",
+    "Placement Materials",
+    "General Resources"
+)
 
 @Composable
 private fun ResourcesTab(
     resources: List<Resource>,
+    resourceViewLayout: PlacementResourceViewLayout,
+    onResourceViewLayoutChange: (PlacementResourceViewLayout) -> Unit,
     showActionsForId: String?,
     onMenuClick: (String) -> Unit,
     onDismissMenu: () -> Unit
@@ -269,6 +369,15 @@ private fun ResourcesTab(
     val recents = remember(resources) { resources.filter { it.lastOpenedAt != null }.sortedByDescending { it.lastOpenedAt } }
     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(28.dp)
+            )
+            ResourceFolderRow(
+                folders = workspaceResourceFolders,
+                onFolderClick = {}
+            )
             SectionHeader(title = "Recent Resources")
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(recents.take(8), key = { it.id }) { res ->
@@ -277,16 +386,67 @@ private fun ResourcesTab(
             }
         }
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            SectionHeader(title = "All Resources")
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                resources.forEach { res ->
-                    ResourceCard(
-                        resource = res,
-                        menuExpanded = showActionsForId == res.id,
-                        onClick = {},
-                        onMenuClick = { onMenuClick(res.id) },
-                        onDismissMenu = onDismissMenu
-                    )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "All Resources",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                StaffViewModeSelector(
+                    currentMode = when (resourceViewLayout) {
+                        PlacementResourceViewLayout.LIST -> StudentViewMode.List
+                        PlacementResourceViewLayout.GRID -> StudentViewMode.Grid
+                    },
+                    onModeSelected = { mode ->
+                        when (mode) {
+                            StudentViewMode.List, StudentViewMode.Expanded -> onResourceViewLayoutChange(PlacementResourceViewLayout.LIST)
+                            StudentViewMode.Grid -> onResourceViewLayoutChange(PlacementResourceViewLayout.GRID)
+                        }
+                    }
+                )
+            }
+            when (resourceViewLayout) {
+                PlacementResourceViewLayout.LIST -> {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        resources.forEach { res ->
+                            ResourceCard(
+                                resource = res,
+                                menuExpanded = showActionsForId == res.id,
+                                onClick = {},
+                                onMenuClick = { onMenuClick(res.id) },
+                                onDismissMenu = onDismissMenu
+                            )
+                        }
+                    }
+                }
+                PlacementResourceViewLayout.GRID -> {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        resources.chunked(2).forEach { rowItems ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                rowItems.forEach { res ->
+                                    ResourceCard(
+                                        modifier = Modifier.weight(1f),
+                                        resource = res,
+                                        menuExpanded = showActionsForId == res.id,
+                                        onClick = {},
+                                        onMenuClick = { onMenuClick(res.id) },
+                                        onDismissMenu = onDismissMenu
+                                    )
+                                }
+                                if (rowItems.size == 1) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -390,9 +550,12 @@ private fun NotesTab(
     onDismissMenu: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             SectionHeader(title = "Shared Materials")
-            OutlinedButton(onClick = {}) { Text("Upload") }
+            ResourceFolderRow(
+                folders = workspaceMaterialFolders,
+                onFolderClick = {}
+            )
         }
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             notes.forEach { note ->
@@ -448,7 +611,7 @@ private fun RecentItemCard(
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                 FileIcon(type = resource.fileType)
                 ActionMenuAnchor(onClick = onMenuClick)
             }
@@ -463,12 +626,38 @@ private fun RecentItemCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            resource.driveSheetLabel?.let { line ->
+                Text(
+                    text = line,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            resource.roundInfo?.let { r ->
+                Text(
+                    text = "Round: $r",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Text(
+                text = "Last updated: ${resource.uploadedAt.format(DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm"))}",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
 
 @Composable
 private fun ResourceCard(
+    modifier: Modifier = Modifier,
     resource: Resource,
     menuExpanded: Boolean,
     onClick: () -> Unit,
@@ -476,39 +665,73 @@ private fun ResourceCard(
     onDismissMenu: () -> Unit
 ) {
     Card(
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
                 .padding(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            FileIcon(type = resource.fileType)
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(resource.fileName, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                FileIcon(type = resource.fileType)
+                ActionMenu(
+                    expanded = menuExpanded,
+                    onOpen = onMenuClick,
+                    onDismiss = onDismissMenu,
+                    actions = listOf(
+                        ActionItem("Download", Icons.Default.Download),
+                        ActionItem("Share", Icons.Default.Share),
+                        ActionItem("Rename", Icons.Default.Edit),
+                        ActionItem("Delete", Icons.Default.Delete),
+                        ActionItem("Notify Students", Icons.Default.Notifications)
+                    )
+                )
+            }
+            Text(
+                resource.fileName,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = "Uploaded by ${resource.uploadedBy} • ${resource.uploadedAt.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            resource.driveSheetLabel?.let { line ->
                 Text(
-                    text = "Uploaded by ${resource.uploadedBy} • ${resource.uploadedAt.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = line,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            ActionMenu(
-                expanded = menuExpanded,
-                onOpen = onMenuClick,
-                onDismiss = onDismissMenu,
-                actions = listOf(
-                    ActionItem("Download", Icons.Default.Download),
-                    ActionItem("Share", Icons.Default.Share),
-                    ActionItem("Rename", Icons.Default.Edit),
-                    ActionItem("Delete", Icons.Default.Delete),
-                    ActionItem("Notify Students", Icons.Default.Notifications)
+            resource.roundInfo?.let { r ->
+                Text(
+                    text = "Round information: $r",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
+            }
+            Text(
+                text = "Last updated: ${resource.uploadedAt.format(DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm"))}",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

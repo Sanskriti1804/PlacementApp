@@ -1,4 +1,4 @@
-package com.example.placementprojectmp.ui.components
+package com.example.placementprojectmp.ui.screens.staff.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues

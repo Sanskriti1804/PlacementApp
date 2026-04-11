@@ -1,4 +1,4 @@
-package com.example.placementprojectmp.ui.components
+package com.example.placementprojectmp.ui.screens.staff.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,7 +57,7 @@ fun ResourceFolderCard(
                 contentAlignment = Alignment.Center
             ) {
                 if (iconResId != 0) {
-                    androidx.compose.material3.Icon(
+                    Icon(
                         painter = painterResource(iconResId),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,

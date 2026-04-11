@@ -11,6 +11,8 @@ import kotlin.random.Random
 
 enum class PlacementTab { RESOURCES, STUDENTS, NOTES }
 
+enum class PlacementResourceViewLayout { LIST, GRID }
+
 enum class ResourceType { EXCEL, PDF, DOC }
 
 @Immutable
@@ -21,6 +23,9 @@ data class Resource(
     val uploadedBy: String,
     val uploadedAt: LocalDateTime,
     val lastOpenedAt: LocalDateTime?,
+    /** Optional workspace metadata (drive sheet / round) for staff UI. */
+    val driveSheetLabel: String? = null,
+    val roundInfo: String? = null,
 )
 
 @Immutable
@@ -53,6 +58,7 @@ data class PlacementWorkspaceState(
     val selectedTab: PlacementTab = PlacementTab.RESOURCES,
     val searchQuery: String = "",
     val isSearchExpanded: Boolean = false,
+    val resourceViewLayout: PlacementResourceViewLayout = PlacementResourceViewLayout.LIST,
     val resources: List<Resource> = emptyList(),
     val students: List<WorkspaceStudent> = emptyList(),
     val notes: List<Note> = emptyList(),
@@ -85,6 +91,10 @@ class PlacementWorkspaceViewModel : ViewModel() {
 
     fun selectTab(tab: PlacementTab) {
         _state.value = _state.value.copy(selectedTab = tab, showResourceActionsForId = null, showNoteActionsForId = null)
+    }
+
+    fun setResourceViewLayout(layout: PlacementResourceViewLayout) {
+        _state.value = _state.value.copy(resourceViewLayout = layout)
     }
 
     fun expandSearch() {
@@ -228,15 +238,16 @@ private fun seededResources(): List<Resource> {
     val now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
     val uploads = listOf("Placement Cell", "TPO Office", "Faculty Mentor")
     val names = listOf(
-        "Drive Results Sheet – Round 1.xlsx" to ResourceType.EXCEL,
-        "Recruiter Guidelines.pdf" to ResourceType.PDF,
-        "Student Consent Form.doc" to ResourceType.DOC,
-        "Eligibility Matrix.xlsx" to ResourceType.EXCEL,
-        "Offer Acceptance Process.pdf" to ResourceType.PDF,
-        "Campus Drive Checklist.doc" to ResourceType.DOC
+        Triple("Drive Results Sheet – Round 1.xlsx", ResourceType.EXCEL, "Drive Result Sheet" to "Round 1"),
+        Triple("Recruiter Guidelines.pdf", ResourceType.PDF, "Drive Result Sheet" to "Round 2"),
+        Triple("Student Consent Form.doc", ResourceType.DOC, "Student Consent Forms" to "—"),
+        Triple("Eligibility Matrix.xlsx", ResourceType.EXCEL, "Drive Data" to "Round 1"),
+        Triple("Offer Acceptance Process.pdf", ResourceType.PDF, "Company Documents (Google Docs)" to "Round 2"),
+        Triple("Campus Drive Checklist.doc", ResourceType.DOC, "Verified Documents" to "—")
     )
     val random = Random(2026)
-    return names.mapIndexed { idx, (name, type) ->
+    return names.mapIndexed { idx, (name, type, meta) ->
+        val (sheet, round) = meta
         val uploadedAt = now.minusDays((idx + 3).toLong()).minusHours((idx * 2).toLong())
         val lastOpenedAt = if (idx < 4) now.minusHours((idx + 1).toLong()) else null
         Resource(
@@ -245,7 +256,9 @@ private fun seededResources(): List<Resource> {
             fileType = type,
             uploadedBy = uploads[random.nextInt(uploads.size)],
             uploadedAt = uploadedAt,
-            lastOpenedAt = lastOpenedAt
+            lastOpenedAt = lastOpenedAt,
+            driveSheetLabel = sheet,
+            roundInfo = round.takeIf { it != "—" }
         )
     }
 }
