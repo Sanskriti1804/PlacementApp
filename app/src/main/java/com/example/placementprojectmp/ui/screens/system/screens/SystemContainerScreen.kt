@@ -218,7 +218,16 @@ private fun SystemBottomNavItem(
     modifier: Modifier = Modifier
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val clickableModifier = if (item.navigateOnClick) {
+    val edgeTabClickable = if (!item.isCenter && item.navigateOnClick) {
+        Modifier.clickable(
+            interactionSource = interactionSource,
+            indication = null,
+            onClick = onClick
+        )
+    } else {
+        Modifier
+    }
+    val centerSurfaceClickable = if (item.isCenter && item.navigateOnClick) {
         Modifier.clickable(
             interactionSource = interactionSource,
             indication = null,
@@ -232,7 +241,7 @@ private fun SystemBottomNavItem(
         modifier = modifier
             .padding(4.dp)
             .clip(CircleShape)
-            .then(clickableModifier),
+            .then(edgeTabClickable),
         contentAlignment = Alignment.Center
     ) {
         AnimatedContent(
@@ -245,7 +254,9 @@ private fun SystemBottomNavItem(
         ) { selected ->
             if (item.isCenter) {
                 Surface(
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .then(centerSurfaceClickable),
                     shape = CircleShape,
                     color = if (selected) {
                         MaterialTheme.colorScheme.primaryContainer
