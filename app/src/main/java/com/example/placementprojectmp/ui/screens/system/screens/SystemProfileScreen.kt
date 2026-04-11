@@ -46,11 +46,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
-import com.example.placementprojectmp.ui.theme.NeonBlue
 import com.example.placementprojectmp.ui.theme.colormap.ColorMapper
-import com.example.placementprojectmp.ui.theme.colormap.Department
 import com.example.placementprojectmp.ui.theme.colormap.FacultyPosition
-import com.example.placementprojectmp.ui.theme.colormap.PlacementRole
 import com.example.placementprojectmp.ui.theme.colormap.TeacherAccountState
 import com.example.placementprojectmp.ui.theme.colormap.UserRole
 import kotlin.random.Random
@@ -157,7 +154,7 @@ private fun TeacherIdCardsSection() {
                 ) {
                     AssistChip(
                         onClick = {},
-                        label = { Text(text = "Placement In-Charge", style = MaterialTheme.typography.labelSmall) },
+                        label = { Text(text = "System Administrator", style = MaterialTheme.typography.labelSmall) },
                         colors = AssistChipDefaults.assistChipColors(
                             containerColor = Color.Transparent,
                             labelColor = statusColor
@@ -184,9 +181,9 @@ private fun TeacherIdCardsSection() {
 @Composable
 private fun FacultyInfoStatusCard() {
     val dotColors = listOf(
-        ColorMapper.getColor(FacultyPosition.PROFESSOR),
-        ColorMapper.getColor(PlacementRole.PLACEMENT_COORDINATOR),
-        ColorMapper.getColor(Department.CSE)
+        ColorMapper.getColor(UserRole.MANAGEMENT),
+        ColorMapper.getColor(FacultyPosition.HEAD_OF_DEPARTMENT),
+        ColorMapper.getColor(UserRole.SYSTEM)
     )
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -225,18 +222,18 @@ private fun FacultyInfoStatusCard() {
             ) {
                 StatusItem(
                     dotColor = dotColors[0],
-                    label = "Faculty Position",
-                    value = "Professor"
+                    label = "Institutional Leadership",
+                    value = "Principal"
                 )
                 StatusItem(
                     dotColor = dotColors[1],
-                    label = "Placement Responsibility",
-                    value = "Placement Incharge"
+                    label = "Academic Oversight",
+                    value = "Head of Department (HOD)"
                 )
                 StatusItem(
                     dotColor = dotColors[2],
-                    label = "Department",
-                    value = "Computer Science"
+                    label = "System Authority",
+                    value = "System Administrator"
                 )
             }
         }
@@ -386,8 +383,11 @@ private fun ProfessionalDetailsSection() {
             label = "Subjects Taught",
             value = "Machine Learning\nData Structures\nArtificial Intelligence"
         )
-        DetailField(label = "Current Role", value = "Placement Faculty Coordinator")
-        DetailField(label = "Placement Responsibility", value = "Placement Incharge")
+        DetailField(label = "Current Role", value = "Principal · Institutional Oversight")
+        DetailField(
+            label = "System Responsibilities",
+            value = "Institution-wide administration, policy control, and governance of the placement ecosystem across all departments and user roles."
+        )
     }
 }
 
@@ -443,35 +443,23 @@ private fun StatsGridSection() {
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = "Assigned Departments",
-            style = MaterialTheme.typography.titleLarge,
-            color = NeonBlue,
-            fontWeight = FontWeight.SemiBold
-        )
-        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             ExpandableCounterCard(
                 modifier = Modifier.weight(1f),
-                title = "Assigned Departments",
-                countText = "+4",
-                colorDots = listOf(
-                    ColorMapper.getColor(Department.CSE),
-                    ColorMapper.getColor(Department.IT),
-                    ColorMapper.getColor(Department.ECE),
-                    ColorMapper.getColor(Department.MCA)
-                ),
-                items = listOf("Computer Science", "Information Technology", "AI & Data Science")
-            )
-            ExpandableCounterCard(
-                modifier = Modifier.weight(1f),
                 title = "Drives Coordinated",
                 countText = "+23",
                 imageDots = drivesImages,
                 items = listOf("Google Hiring Drive", "Amazon SDE Drive", "Infosys Campus Drive")
+            )
+            ExpandableCounterCard(
+                modifier = Modifier.weight(1f),
+                title = "Assigned Companies",
+                countText = "+15",
+                imageDots = companiesImages,
+                items = listOf("Google", "Microsoft", "TCS")
             )
         }
         Row(
@@ -480,18 +468,12 @@ private fun StatsGridSection() {
         ) {
             ExpandableCounterCard(
                 modifier = Modifier.weight(1f),
-                title = "Assigned Companies",
-                countText = "+15",
-                imageDots = companiesImages,
-                items = listOf("Google", "Microsoft", "TCS")
-            )
-            ExpandableCounterCard(
-                modifier = Modifier.weight(1f),
                 title = "Assigned Students",
                 countText = "+320",
                 imageDots = studentsImages,
                 items = listOf("Aditi Sharma", "Rahul Verma", "Sneha Gupta")
             )
+            Box(modifier = Modifier.weight(1f))
         }
     }
 }

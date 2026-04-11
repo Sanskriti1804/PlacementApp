@@ -40,7 +40,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.placementprojectmp.R
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -74,7 +76,7 @@ fun SystemContainerScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            AppTopBar(title = "System")
+            AppTopBar(title = stringResource(R.string.app_name))
             NavHost(
                 navController = innerNavController,
                 startDestination = Routes.SystemRoutes.SystemManagement,
