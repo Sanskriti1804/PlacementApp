@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.CastForEducation
@@ -30,19 +31,79 @@ import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
 import com.example.placementprojectmp.ui.screens.shared.component.AppSearchBar
 import com.example.placementprojectmp.ui.screens.shared.component.ApplicationItem
-import com.example.placementprojectmp.ui.screens.shared.component.ApplicationsSection
 import com.example.placementprojectmp.ui.screens.shared.component.DashboardUserProfile
 import com.example.placementprojectmp.ui.screens.shared.component.JobItem
 import com.example.placementprojectmp.ui.screens.shared.component.JobSection
 import com.example.placementprojectmp.ui.screens.shared.component.SystemCTA
-import com.example.placementprojectmp.ui.screens.shared.component.TopPerformerCard
+import com.example.placementprojectmp.ui.screens.staff.screens.StaffDashboardTopPerformerCard
 import com.example.placementprojectmp.ui.screens.student.component.FeatureTool
 import com.example.placementprojectmp.ui.screens.student.component.FeatureTools
-import com.example.placementprojectmp.ui.screens.system.component.CountGrid
+import com.example.placementprojectmp.ui.screens.system.component.SystemDashboardCountGrid
 import com.example.placementprojectmp.viewmodel.UserViewModel
 import org.koin.androidx.compose.koinViewModel
+import kotlin.random.Random
 
 private const val TAG = "SystemDashboard"
+
+private data class SystemTopPerformerSectionCardData(
+    val stateKey: Int,
+    val header: String,
+    val subheader: String,
+    val imageResIds: List<Int>,
+    val performerNames: List<String>,
+    val performerSubtitles: List<String>
+)
+
+private fun systemTopPerformerSectionCards(): List<SystemTopPerformerSectionCardData> {
+    val stdPool = listOf(R.drawable.std_1, R.drawable.std_2, R.drawable.std_3)
+    val compPool = listOf(R.drawable.comp_1, R.drawable.comp_2, R.drawable.comp_3)
+    fun sixFromPool(pool: List<Int>, seed: Int): List<Int> {
+        val r = Random(seed)
+        return List(6) { pool[r.nextInt(pool.size)] }
+    }
+    val studentNames = listOf("Aarav", "Meera", "Riya", "Kabir", "Dev", "Sana")
+    val studentSubs = listOf("12 apps", "10 apps", "9 apps", "8 apps", "8 apps", "7 apps")
+    val companyNames = listOf("Nexora", "FinEdge", "CloudBay", "ByteForge", "DataWorks", "ScaleUp")
+    val companySubs = listOf("42 hires", "38 hires", "31 hires", "29 hires", "24 hires", "22 hires")
+    val roleNames = listOf("SDE I", "Data Analyst", "QA", "DevOps", "ML Intern", "PM")
+    val roleSubs = listOf("210 apps", "198 apps", "176 apps", "154 apps", "141 apps", "128 apps")
+    val driveNames = listOf("Mega Drive Q1", "FinTech Week", "Product Blitz", "Analytics Day", "Core Eng", "Winter Sprint")
+    val driveSubs = listOf("220 joined", "205 joined", "198 joined", "190 joined", "182 joined", "175 joined")
+    return listOf(
+        SystemTopPerformerSectionCardData(
+            stateKey = 0,
+            header = "Top Students",
+            subheader = "Students with highest application, selection and activity in drives",
+            imageResIds = sixFromPool(stdPool, seed = 701),
+            performerNames = studentNames,
+            performerSubtitles = studentSubs
+        ),
+        SystemTopPerformerSectionCardData(
+            stateKey = 1,
+            header = "Top Companies",
+            subheader = "Companies with highest student hiring and engagement",
+            imageResIds = sixFromPool(compPool, seed = 802),
+            performerNames = companyNames,
+            performerSubtitles = companySubs
+        ),
+        SystemTopPerformerSectionCardData(
+            stateKey = 2,
+            header = "Top Job Roles",
+            subheader = "Jobs with highest number of student applications",
+            imageResIds = sixFromPool(compPool, seed = 903),
+            performerNames = roleNames,
+            performerSubtitles = roleSubs
+        ),
+        SystemTopPerformerSectionCardData(
+            stateKey = 3,
+            header = "Top Drives",
+            subheader = "Placement drives with maximum participation and successful outcomes",
+            imageResIds = sixFromPool(compPool, seed = 604),
+            performerNames = driveNames,
+            performerSubtitles = driveSubs
+        )
+    )
+}
 
 private val systemFeatureToolsItems = listOf(
     FeatureTool(label = "Student Management", imageVector = Icons.Default.School),
@@ -118,7 +179,7 @@ private fun systemDeadlineApplicationItems(): List<ApplicationItem> = listOf(
 )
 
 /**
- * System home dashboard: profile, search, KPI [CountGrid], recent activity ([JobSection]), [FeatureTools]
+ * System home dashboard: profile, search, KPI [SystemDashboardCountGrid], recent activity ([JobSection]), [FeatureTools]
  * (system-only labels/icons), top performers, alerts, and [SystemCTA] FAB + sheet (system menu labels).
  */
 @Composable
@@ -139,10 +200,7 @@ fun SystemDashboardScreen(
     val currentUser = userViewModel.students.firstOrNull()
     val resolvedUserName = currentUser?.name?.takeIf { it.isNotBlank() } ?: "Administrator"
 
-    val performerPool = listOf(R.drawable.std_1, R.drawable.std_2, R.drawable.std_3, R.drawable.std_4)
-    val sixImages = remember(performerPool) { List(6) { performerPool[it % performerPool.size] } }
-    val performerNames = remember { listOf("Aarav", "Meera", "Riya", "Kabir", "Dev", "Sana") }
-    val performerSubs = remember { List(6) { "2025" } }
+    val topPerformerCards = remember { systemTopPerformerSectionCards() }
 
     SystemCTA(
         modifier = modifier.fillMaxSize(),
@@ -166,7 +224,7 @@ fun SystemDashboardScreen(
                 )
             }
             item {
-                CountGrid(modifier = Modifier.padding(horizontal = 20.dp))
+                SystemDashboardCountGrid(modifier = Modifier.padding(horizontal = 20.dp))
             }
             item {
                 JobSection(
@@ -194,35 +252,22 @@ fun SystemDashboardScreen(
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        item {
-                            TopPerformerCard(
+                        itemsIndexed(topPerformerCards, key = { _, c -> c.stateKey }) { _, card ->
+                            StaffDashboardTopPerformerCard(
                                 modifier = Modifier.width(280.dp),
-                                stateKey = 0,
-                                topTitle = "Engineering",
-                                bottomTitle = "2025",
-                                roleLines = listOf("• SDE", "• QA", "• DevOps"),
-                                imageResIds = sixImages,
-                                performerNames = performerNames,
-                                performerSubtitles = performerSubs
-                            )
-                        }
-                        item {
-                            TopPerformerCard(
-                                modifier = Modifier.width(280.dp),
-                                stateKey = 1,
-                                topTitle = "Analytics",
-                                bottomTitle = "2025",
-                                roleLines = listOf("• Data Analyst", "• BI Intern"),
-                                imageResIds = sixImages,
-                                performerNames = listOf("Dev", "Sana", "Kabir", "Meera", "Aarav", "Riya"),
-                                performerSubtitles = performerSubs
+                                stateKey = card.stateKey,
+                                header = card.header,
+                                subheader = card.subheader,
+                                imageResIds = card.imageResIds,
+                                performerNames = card.performerNames,
+                                performerSubtitles = card.performerSubtitles
                             )
                         }
                     }
                 }
             }
             item {
-                ApplicationsSection(
+                SystemDashboardDeadlinesSection(
                     modifier = Modifier.padding(horizontal = 20.dp),
                     title = "Deadlines & alerts",
                     applications = deadlineItems
