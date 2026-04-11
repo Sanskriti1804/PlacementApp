@@ -1,11 +1,10 @@
 package com.example.placementprojectmp.ui.screens.system.screens
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
+import android.util.Log
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,713 +12,390 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PersonAdd
-import androidx.compose.material.icons.filled.ToggleOff
-import androidx.compose.material.icons.filled.ToggleOn
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.placementprojectmp.ui.components.SearchBar
-import com.example.placementprojectmp.ui.components.StudentViewMode
-import com.example.placementprojectmp.ui.screens.staff.components.InfoRow
-import com.example.placementprojectmp.ui.screens.staff.components.SectionHeader
-import com.example.placementprojectmp.ui.screens.staff.components.StaffViewModeSelector
+import com.example.placementprojectmp.ui.screens.shared.component.AppSearchBar
+import com.example.placementprojectmp.ui.screens.shared.component.cards.UserIdCard
+import com.example.placementprojectmp.ui.screens.staff.StaffStudentPortraitIds
+import com.example.placementprojectmp.ui.screens.student.component.CourseDomainMappingFilter
+import com.example.placementprojectmp.viewmodel.EducationViewModel
+import org.koin.androidx.compose.koinViewModel
+
+private const val TAG = "SystemManagement"
+
+private enum class UserManagementTab {
+    STUDENTS,
+    FACULTY
+}
+
+private data class ManagedIdentity(
+    val id: String,
+    val name: String,
+    val email: String,
+    val idCode: String,
+    val department: String,
+    val course: String,
+    val domain: String,
+    val secondaryRowLabel: String,
+    val secondaryRowValue: String,
+    val capsuleTag: String?,
+    val portraitResId: Int
+)
 
 @Composable
 fun SystemManagementScreen(
     modifier: Modifier = Modifier,
     onJobManagementClick: () -> Unit = {}
 ) {
+    val educationViewModel: EducationViewModel = koinViewModel()
     var searchQuery by remember { mutableStateOf("") }
-    var viewMode by remember { mutableStateOf(StudentViewMode.List) }
-    var sortBy by remember { mutableStateOf("Name (A-Z)") }
-    var selectedRoles by remember { mutableStateOf(setOf<String>()) }
-    var selectedDepartments by remember { mutableStateOf(setOf<String>()) }
-    var selectedCompanies by remember { mutableStateOf(setOf<String>()) }
-    var selectedStatus by remember { mutableStateOf(setOf<String>()) }
-    var selectedAssignment by remember { mutableStateOf(setOf<String>()) }
-    var showAddSheet by remember { mutableStateOf(false) }
-    var selectedIds by remember { mutableStateOf(setOf<String>()) }
-    var showTagDialogFor by remember { mutableStateOf<String?>(null) }
-    var showRoleDialogFor by remember { mutableStateOf<String?>(null) }
-    var newTagText by remember { mutableStateOf("") }
+    var selectedDomains by remember { mutableStateOf(setOf<String>()) }
+    var selectedTab by remember { mutableStateOf(UserManagementTab.STUDENTS) }
+    var activeCourseFilter by remember { mutableStateOf<String?>(null) }
 
-    val users = remember {
-        mutableStateOf(
-            listOf(
-                ManagedUser("u1", "Aarav Sharma", "Student", "CSE", "N/A", "Active", listOf("Priority"), listOf("Candidate"), assigned = true),
-                ManagedUser("u2", "Priya Menon", "Staff", "Placement Cell", "N/A", "Active", listOf("Verified"), listOf("Drive Manager"), assigned = true),
-                ManagedUser("u3", "Rohit Verma", "Recruiter", "Talent", "Nexora Systems", "Inactive", listOf("Top Recruiter"), listOf("Recruiter"), assigned = false),
-                ManagedUser("u4", "Sneha Iyer", "HR", "Human Resources", "OrbitX", "Active", emptyList(), listOf("HR"), assigned = true),
-                ManagedUser("u5", "Karthik Das", "Teacher", "ECE", "N/A", "Active", listOf("Needs Follow-up"), listOf("Placement Coordinator"), assigned = true)
+    val selectedIds = remember { mutableStateListOf<String>() }
+    val favoriteIds = remember { mutableStateListOf<String>() }
+
+    LaunchedEffect(Unit) {
+        educationViewModel.fetchCourses()
+    }
+
+    LaunchedEffect(selectedTab) {
+        selectedIds.clear()
+    }
+
+    val students = remember {
+        listOf(
+            ManagedIdentity(
+                id = "s1",
+                name = "Rahul Sharma",
+                email = "rahul.sharma@institute.edu",
+                idCode = "CSE-BT-2101",
+                department = "Computer Science",
+                course = "BTECH",
+                domain = "SOFTWARE DEVELOPMENT",
+                secondaryRowLabel = "Hired",
+                secondaryRowValue = "Google",
+                capsuleTag = null,
+                portraitResId = StaffStudentPortraitIds.all[0]
+            ),
+            ManagedIdentity(
+                id = "s2",
+                name = "Priya Mehta",
+                email = "priya.mehta@institute.edu",
+                idCode = "ECE-BT-2104",
+                department = "Electronics",
+                course = "BTECH",
+                domain = "EMBEDDED SYSTEMS",
+                secondaryRowLabel = "Hired",
+                secondaryRowValue = "NA",
+                capsuleTag = null,
+                portraitResId = StaffStudentPortraitIds.all[1]
+            ),
+            ManagedIdentity(
+                id = "s3",
+                name = "Amit Kumar",
+                email = "amit.kumar@institute.edu",
+                idCode = "MCA-PG-2302",
+                department = "Applications",
+                course = "MCA",
+                domain = "WEB DEVELOPMENT",
+                secondaryRowLabel = "Hired",
+                secondaryRowValue = "Infosys",
+                capsuleTag = null,
+                portraitResId = StaffStudentPortraitIds.all[2]
             )
         )
     }
-    val allRoleOptions = listOf("Student", "Staff", "Recruiter", "HR", "Teacher")
-    val allDepartmentOptions = listOf("CSE", "ECE", "IT", "Placement Cell", "Talent", "Human Resources")
-    val allCompanyOptions = listOf("Nexora Systems", "OrbitX", "Veltrix Labs")
-
-    val filteredUsers = users.value
-        .filter { user ->
-            val q = searchQuery.trim()
-            val queryMatch = q.isBlank() ||
-                user.name.contains(q, true) ||
-                user.role.contains(q, true) ||
-                user.department.contains(q, true) ||
-                user.company.contains(q, true)
-            val roleMatch = selectedRoles.isEmpty() || user.role in selectedRoles
-            val deptMatch = selectedDepartments.isEmpty() || user.department in selectedDepartments
-            val companyMatch = selectedCompanies.isEmpty() || user.company in selectedCompanies
-            val statusMatch = selectedStatus.isEmpty() || user.status in selectedStatus
-            val assignmentMatch = selectedAssignment.isEmpty() ||
-                (("Assigned" in selectedAssignment && user.assigned) || ("Not Assigned" in selectedAssignment && !user.assigned))
-            queryMatch && roleMatch && deptMatch && companyMatch && statusMatch && assignmentMatch
-        }
-        .let { list ->
-            when (sortBy) {
-                "Recently Added" -> list.reversed()
-                "Active First" -> list.sortedByDescending { it.status == "Active" }
-                else -> list.sortedBy { it.name }
-            }
-        }
-
-    Box(modifier = modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                contentPadding = PaddingValues(bottom = 88.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            SectionHeader("User Management")
-                            Text(
-                                text = "Manage students, staff, recruiters, HRs, and teachers",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        StaffViewModeSelector(
-                            currentMode = viewMode,
-                            onModeSelected = { viewMode = it }
-                        )
-                    }
-                }
-                item {
-                    SearchBar(
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        placeholder = "Search by name, role, department, company...",
-                        query = searchQuery,
-                        onQueryChange = { searchQuery = it }
-                    )
-                }
-                item {
-                    FilterRow(
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        label = "Roles",
-                        options = allRoleOptions,
-                        selected = selectedRoles,
-                        onToggle = { option ->
-                            selectedRoles = if (option in selectedRoles) selectedRoles - option else selectedRoles + option
-                        }
-                    )
-                }
-                item {
-                    FilterRow(
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        label = "Departments",
-                        options = allDepartmentOptions,
-                        selected = selectedDepartments,
-                        onToggle = { option ->
-                            selectedDepartments = if (option in selectedDepartments) selectedDepartments - option else selectedDepartments + option
-                        }
-                    )
-                }
-                item {
-                    FilterRow(
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        label = "Company / Status / Assignment",
-                        options = allCompanyOptions + listOf("Active", "Inactive", "Assigned", "Not Assigned"),
-                        selected = selectedCompanies + selectedStatus + selectedAssignment,
-                        onToggle = { option ->
-                            when {
-                                option in allCompanyOptions -> {
-                                    selectedCompanies = if (option in selectedCompanies) selectedCompanies - option else selectedCompanies + option
-                                }
-                                option in listOf("Active", "Inactive") -> {
-                                    selectedStatus = if (option in selectedStatus) selectedStatus - option else selectedStatus + option
-                                }
-                                else -> {
-                                    selectedAssignment = if (option in selectedAssignment) selectedAssignment - option else selectedAssignment + option
-                                }
-                            }
-                        }
-                    )
-                }
-                item {
-                    SortRow(
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        selectedSort = sortBy,
-                        onSortSelected = { sortBy = it }
-                    )
-                }
-
-                item {
-                    AnimatedContent(targetState = viewMode, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "system_user_mode") { mode ->
-                        when (mode) {
-                            StudentViewMode.Grid -> {
-                                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    filteredUsers.chunked(2).forEach { row ->
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(horizontal = 20.dp),
-                                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                        ) {
-                                            row.forEach { user ->
-                                                UserManagementCard(
-                                                    modifier = Modifier.weight(1f),
-                                                    user = user,
-                                                    compact = true,
-                                                    selected = user.id in selectedIds,
-                                                    onToggleSelected = {
-                                                        selectedIds = if (user.id in selectedIds) selectedIds - user.id else selectedIds + user.id
-                                                    },
-                                                    onToggleStatus = {
-                                                        users.value = users.value.map {
-                                                            if (it.id == user.id) it.copy(status = if (it.status == "Active") "Inactive" else "Active") else it
-                                                        }
-                                                    },
-                                                    onAssignRole = { showRoleDialogFor = user.id },
-                                                    onAssignDepartment = {
-                                                        users.value = users.value.map { if (it.id == user.id) it.copy(department = "Placement Cell") else it }
-                                                    },
-                                                    onAssignCompany = {
-                                                        users.value = users.value.map { if (it.id == user.id) it.copy(company = "Nexora Systems") else it }
-                                                    },
-                                                    onAddTag = { showTagDialogFor = user.id }
-                                                )
-                                            }
-                                            repeat(2 - row.size) { Box(modifier = Modifier.weight(1f)) }
-                                        }
-                                    }
-                                }
-                            }
-                            else -> {
-                                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    filteredUsers.forEach { user ->
-                                        UserManagementCard(
-                                            modifier = Modifier.padding(horizontal = 20.dp),
-                                            user = user,
-                                            compact = false,
-                                            selected = user.id in selectedIds,
-                                            onToggleSelected = {
-                                                selectedIds = if (user.id in selectedIds) selectedIds - user.id else selectedIds + user.id
-                                            },
-                                            onToggleStatus = {
-                                                users.value = users.value.map {
-                                                    if (it.id == user.id) it.copy(status = if (it.status == "Active") "Inactive" else "Active") else it
-                                                }
-                                            },
-                                            onAssignRole = { showRoleDialogFor = user.id },
-                                            onAssignDepartment = {
-                                                users.value = users.value.map { if (it.id == user.id) it.copy(department = "Placement Cell") else it }
-                                            },
-                                            onAssignCompany = {
-                                                users.value = users.value.map { if (it.id == user.id) it.copy(company = "Nexora Systems") else it }
-                                            },
-                                            onAddTag = { showTagDialogFor = user.id }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                item {
-                    OutlinedButton(
-                        onClick = onJobManagementClick,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp)
-                    ) {
-                        Text("Open Job Management")
-                    }
-                }
-            }
-            if (selectedIds.isNotEmpty()) {
-                BulkActionBar(
-                    selectedCount = selectedIds.size,
-                    onActivateAll = {
-                        users.value = users.value.map { if (it.id in selectedIds) it.copy(status = "Active") else it }
-                        selectedIds = emptySet()
-                    },
-                    onDeactivateAll = {
-                        users.value = users.value.map { if (it.id in selectedIds) it.copy(status = "Inactive") else it }
-                        selectedIds = emptySet()
-                    },
-                    onAssignRoleAll = {
-                        users.value = users.value.map { if (it.id in selectedIds) it.copy(assignedRoles = (it.assignedRoles + "Drive Manager").distinct()) else it }
-                        selectedIds = emptySet()
-                    }
-                )
-            }
-        }
-
-        FloatingActionButton(
-            onClick = { showAddSheet = true },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 20.dp, bottom = 24.dp),
-            containerColor = MaterialTheme.colorScheme.onPrimary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-            shape = CircleShape,
-            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp, pressedElevation = 8.dp)
-        ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Add user")
-        }
-    }
-
-    if (showAddSheet) {
-        ManagementFabSheet(
-            onDismiss = { showAddSheet = false },
-            onAddUser = {
-                users.value = users.value + ManagedUser(
-                    id = "u${users.value.size + 1}",
-                    name = "New User ${users.value.size + 1}",
-                    role = "Student",
-                    department = "CSE",
-                    company = "N/A",
-                    status = "Active",
-                    tags = emptyList(),
-                    assignedRoles = listOf("Candidate"),
-                    assigned = false
-                )
-                showAddSheet = false
-            },
-            onAssignRole = { showAddSheet = false },
-            onBulkAction = { showAddSheet = false }
+    val faculty = remember {
+        listOf(
+            ManagedIdentity(
+                id = "f1",
+                name = "Dr. Neha Kapoor",
+                email = "neha.kapoor@institute.edu",
+                idCode = "FAC-PLAC-01",
+                department = "Placement Cell",
+                course = "MBA",
+                domain = "HUMAN RESOURCES",
+                secondaryRowLabel = "Roles",
+                secondaryRowValue = "Placement Head",
+                capsuleTag = "Faculty",
+                portraitResId = StaffStudentPortraitIds.all[3]
+            ),
+            ManagedIdentity(
+                id = "f2",
+                name = "Prof. Vikram Desai",
+                email = "vikram.desai@institute.edu",
+                idCode = "FAC-CSE-12",
+                department = "Computer Science",
+                course = "BTECH",
+                domain = "DATA SCIENCE",
+                secondaryRowLabel = "Roles",
+                secondaryRowValue = "Coordinator",
+                capsuleTag = "Faculty",
+                portraitResId = StaffStudentPortraitIds.all[0]
+            ),
+            ManagedIdentity(
+                id = "f3",
+                name = "Ananya Iyer",
+                email = "ananya.iyer@institute.edu",
+                idCode = "FAC-ECE-08",
+                department = "Electronics",
+                course = "BTECH",
+                domain = "NETWORK ENGINEERING",
+                secondaryRowLabel = "Roles",
+                secondaryRowValue = "Mentor",
+                capsuleTag = "Faculty",
+                portraitResId = StaffStudentPortraitIds.all[1]
+            )
         )
     }
 
-    showRoleDialogFor?.let { userId ->
-        SelectionDialog(
-            title = "Assign Role",
-            options = listOf("Placement Coordinator", "Drive Manager", "Reviewer"),
-            onDismiss = { showRoleDialogFor = null },
-            onSelect = { role ->
-                users.value = users.value.map {
-                    if (it.id == userId) it.copy(assignedRoles = (it.assignedRoles + role).distinct(), assigned = true) else it
-                }
-                showRoleDialogFor = null
-            }
-        )
+    val q = searchQuery.trim()
+    val baseList = when (selectedTab) {
+        UserManagementTab.STUDENTS -> students
+        UserManagementTab.FACULTY -> faculty
     }
 
-    showTagDialogFor?.let { userId ->
-        TagDialog(
-            tagText = newTagText,
-            onTagTextChange = { newTagText = it },
-            onDismiss = {
-                showTagDialogFor = null
-                newTagText = ""
-            },
-            onApply = {
-                if (newTagText.isNotBlank()) {
-                    users.value = users.value.map {
-                        if (it.id == userId) it.copy(tags = (it.tags + newTagText.trim()).distinct().take(3)) else it
-                    }
-                }
-                showTagDialogFor = null
-                newTagText = ""
-            }
-        )
+    val filtered = remember(q, baseList, selectedDomains, activeCourseFilter) {
+        baseList.filter { user ->
+            val searchOk = q.isBlank() ||
+                user.name.contains(q, ignoreCase = true) ||
+                user.email.contains(q, ignoreCase = true) ||
+                user.idCode.contains(q, ignoreCase = true)
+            val courseOk = activeCourseFilter == null || user.course == activeCourseFilter
+            val domainOk = selectedDomains.isEmpty() || user.domain in selectedDomains
+            searchOk && courseOk && domainOk
+        }
     }
-}
 
-@Composable
-private fun UserManagementCard(
-    modifier: Modifier = Modifier,
-    user: ManagedUser,
-    compact: Boolean,
-    selected: Boolean,
-    onToggleSelected: () -> Unit,
-    onToggleStatus: () -> Unit,
-    onAssignRole: () -> Unit,
-    onAssignDepartment: () -> Unit,
-    onAssignCompany: () -> Unit,
-    onAddTag: () -> Unit
-) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
-            else MaterialTheme.colorScheme.surface
-        )
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 88.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(if (compact) 38.dp else 44.dp)
-                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "User",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Column {
-                        Text(user.name, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-                        Text(user.role, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-                Box(
+            item {
+                Column(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(999.dp))
-                        .background(
-                            if (user.status == "Active") Color(0xFF2E7D32).copy(alpha = 0.14f)
-                            else MaterialTheme.colorScheme.error.copy(alpha = 0.14f)
-                        )
-                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
                 ) {
                     Text(
-                        text = user.status,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (user.status == "Active") Color(0xFF2E7D32) else MaterialTheme.colorScheme.error
+                        text = "User Management",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Manage students and faculty in one place",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
-
-            InfoRow("Department", user.department)
-            InfoRow("Company", user.company)
-            InfoRow("Assignment", if (user.assigned) "Assigned" else "Not Assigned")
-            if (!compact) {
-                InfoRow("Roles", user.assignedRoles.joinToString(", "))
+            item {
+                AppSearchBar(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    placeholder = "Search by name, email, or ID...",
+                    query = searchQuery,
+                    onQueryChange = { searchQuery = it },
+                    onFilterClick = {}
+                )
             }
+            CourseDomainMappingFilter(
+                courses = educationViewModel.courses,
+                courseDomains = educationViewModel.domains,
+                selectedDomains = selectedDomains,
+                isLoading = educationViewModel.isLoading,
+                onCourseClick = { course ->
+                    runCatching {
+                        activeCourseFilter = course
+                        educationViewModel.fetchDomains(course)
+                        selectedDomains = emptySet()
+                    }.onFailure { e ->
+                        Log.e(TAG, "fetchDomains failed for course=$course", e)
+                        selectedDomains = emptySet()
+                    }
+                },
+                onDomainToggle = { domain ->
+                    selectedDomains = if (domain in selectedDomains) {
+                        selectedDomains - domain
+                    } else {
+                        selectedDomains + domain
+                    }
+                }
+            )
+            item {
+                UserManagementTabStrip(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    selectedTab = selectedTab,
+                    onTabSelected = { selectedTab = it }
+                )
+            }
+            items(items = filtered, key = { it.id }) { user ->
+                UserIdCard(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    name = user.name,
+                    email = user.email,
+                    idText = user.idCode,
+                    profileImageResId = user.portraitResId,
+                    searchQuery = q,
+                    departmentValue = user.department,
+                    secondaryAttributeLabel = user.secondaryRowLabel,
+                    secondaryAttributeValue = user.secondaryRowValue,
+                    optionalEndTag = user.capsuleTag,
+                    tags = emptyList(),
+                    selected = user.id in selectedIds,
+                    onSelectionChange = { checked ->
+                        if (checked) selectedIds.add(user.id) else selectedIds.remove(user.id)
+                    },
+                    isFavorite = user.id in favoriteIds,
+                    onFavoriteToggle = {
+                        if (user.id in favoriteIds) favoriteIds.remove(user.id) else favoriteIds.add(user.id)
+                    }
+                )
+            }
+            item {
+                OutlinedButton(
+                    onClick = onJobManagementClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                ) {
+                    Text("Open Job Management")
+                }
+            }
+        }
+    }
+}
 
-            if (user.tags.isNotEmpty()) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    user.tags.forEach { tag ->
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Text(tag, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
+/**
+ * Visual parity with [com.example.placementprojectmp.ui.screens.shared.component.AppTabSection]
+ * (underline + divider); two equal-width tabs [Students] [Faculty].
+ */
+@Composable
+private fun UserManagementTabStrip(
+    selectedTab: UserManagementTab,
+    onTabSelected: (UserManagementTab) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val tabTitles = listOf("Students", "Faculty")
+    val tabKeys = listOf(UserManagementTab.STUDENTS, UserManagementTab.FACULTY)
+    val selectedIndex = tabKeys.indexOf(selectedTab).coerceIn(0, tabKeys.lastIndex)
+    var rowRootX by remember { mutableFloatStateOf(0f) }
+    val tabSegments = remember(tabTitles) { mutableStateMapOf<Int, Pair<Float, Float>>() }
+    val density = LocalDensity.current
+
+    val targetSeg = tabSegments[selectedIndex]
+    val targetOffsetDp = with(density) { (targetSeg?.first ?: 0f).toDp() }
+    val targetWidthDp = with(density) { (targetSeg?.second ?: 0f).toDp() }
+    val animatedOffset by animateDpAsState(
+        targetValue = targetOffsetDp,
+        animationSpec = tween(durationMillis = 280, easing = FastOutSlowInEasing),
+        label = "system_user_tab_offset"
+    )
+    val animatedWidth by animateDpAsState(
+        targetValue = targetWidthDp,
+        animationSpec = tween(durationMillis = 280, easing = FastOutSlowInEasing),
+        label = "system_user_tab_width"
+    )
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onGloballyPositioned { coordinates ->
+                        rowRootX = coordinates.positionInRoot().x
+                    }
+            ) {
+                tabTitles.forEachIndexed { index, title ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .weight(1f)
+                            .onGloballyPositioned { coordinates ->
+                                val x = coordinates.positionInRoot().x - rowRootX
+                                val w = coordinates.size.width.toFloat()
+                                val next = x to w
+                                if (tabSegments[index] != next) {
+                                    tabSegments[index] = next
+                                }
+                            }
+                            .clickable { onTabSelected(tabKeys[index]) }
+                            .padding(vertical = 10.dp)
+                    ) {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (selectedIndex == index) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
             }
 
-            ActionRow(
-                onActivateDeactivate = onToggleStatus,
-                onAssignRole = onAssignRole,
-                onAssignDepartment = onAssignDepartment,
-                onAssignCompany = onAssignCompany,
-                onAddTag = onAddTag,
-                onToggleSelected = onToggleSelected,
-                active = user.status == "Active"
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(2.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .offset(x = animatedOffset)
+                        .width(animatedWidth)
+                        .fillMaxHeight()
+                        .background(MaterialTheme.colorScheme.primary)
+                )
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth(),
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
             )
         }
     }
 }
-
-@Composable
-private fun ActionRow(
-    onActivateDeactivate: () -> Unit,
-    onAssignRole: () -> Unit,
-    onAssignDepartment: () -> Unit,
-    onAssignCompany: () -> Unit,
-    onAddTag: () -> Unit,
-    onToggleSelected: () -> Unit,
-    active: Boolean
-) {
-    var expanded by remember { mutableStateOf(false) }
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = onActivateDeactivate) {
-                Icon(
-                    imageVector = if (active) Icons.Default.ToggleOff else Icons.Default.ToggleOn,
-                    contentDescription = "Toggle",
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(Modifier.width(6.dp))
-                Text(if (active) "Deactivate" else "Activate")
-            }
-            OutlinedButton(onClick = onAssignRole) {
-                Icon(Icons.Default.CheckCircle, contentDescription = "Assign", modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("Assign Role")
-            }
-        }
-        Box {
-            IconButton(onClick = { expanded = true }) {
-                Icon(Icons.Default.MoreVert, contentDescription = "More")
-            }
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                DropdownMenuItem(
-                    text = { Text("Assign Department") },
-                    onClick = { expanded = false; onAssignDepartment() }
-                )
-                DropdownMenuItem(
-                    text = { Text("Assign Company") },
-                    onClick = { expanded = false; onAssignCompany() }
-                )
-                DropdownMenuItem(
-                    text = { Text("Add Tag") },
-                    onClick = { expanded = false; onAddTag() }
-                )
-                DropdownMenuItem(
-                    text = { Text("Select for Bulk") },
-                    onClick = { expanded = false; onToggleSelected() }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun FilterRow(
-    modifier: Modifier = Modifier,
-    label: String,
-    options: List<String>,
-    selected: Set<String>,
-    onToggle: (String) -> Unit
-) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            options.take(5).forEach { option ->
-                FilterChip(
-                    selected = option in selected,
-                    onClick = { onToggle(option) },
-                    label = { Text(option, style = MaterialTheme.typography.labelSmall) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun SortRow(
-    modifier: Modifier = Modifier,
-    selectedSort: String,
-    onSortSelected: (String) -> Unit
-) {
-    val options = listOf("Name (A-Z)", "Recently Added", "Active First")
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Sort By", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            options.forEach { option ->
-                FilterChip(
-                    selected = selectedSort == option,
-                    onClick = { onSortSelected(option) },
-                    label = { Text(option, style = MaterialTheme.typography.labelSmall) }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun BulkActionBar(
-    selectedCount: Int,
-    onActivateAll: () -> Unit,
-    onDeactivateAll: () -> Unit,
-    onAssignRoleAll: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text("$selectedCount selected", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("Activate", color = MaterialTheme.colorScheme.primary, modifier = Modifier.clickable(onClick = onActivateAll))
-            Text("Deactivate", color = MaterialTheme.colorScheme.error, modifier = Modifier.clickable(onClick = onDeactivateAll))
-            Text("Assign Role", color = MaterialTheme.colorScheme.primary, modifier = Modifier.clickable(onClick = onAssignRoleAll))
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ManagementFabSheet(
-    onDismiss: () -> Unit,
-    onAddUser: () -> Unit,
-    onAssignRole: () -> Unit,
-    onBulkAction: () -> Unit
-) {
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Button(onClick = onAddUser, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Default.PersonAdd, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Add User")
-            }
-            Button(onClick = onAssignRole, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Default.CheckCircle, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Assign Role")
-            }
-            Button(onClick = onBulkAction, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Default.Groups, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Bulk Actions")
-            }
-        }
-    }
-}
-
-@Composable
-private fun SelectionDialog(
-    title: String,
-    options: List<String>,
-    onDismiss: () -> Unit,
-    onSelect: (String) -> Unit
-) {
-    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
-        Card(shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-                options.forEach { option ->
-                    OutlinedButton(onClick = { onSelect(option) }, modifier = Modifier.fillMaxWidth()) {
-                        Text(option)
-                    }
-                }
-                OutlinedButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
-                    Text("Cancel")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun TagDialog(
-    tagText: String,
-    onTagTextChange: (String) -> Unit,
-    onDismiss: () -> Unit,
-    onApply: () -> Unit
-) {
-    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
-        Card(shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text("Add Tag", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-                TextField(
-                    value = tagText,
-                    onValueChange = onTagTextChange,
-                    placeholder = { Text("e.g. Priority, Verified, Top Recruiter") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                    OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
-                    Button(onClick = onApply, modifier = Modifier.weight(1f)) { Text("Apply") }
-                }
-            }
-        }
-    }
-}
-
-private data class ManagedUser(
-    val id: String,
-    val name: String,
-    val role: String,
-    val department: String,
-    val company: String,
-    val status: String,
-    val tags: List<String>,
-    val assignedRoles: List<String>,
-    val assigned: Boolean
-)
