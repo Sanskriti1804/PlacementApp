@@ -12,6 +12,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.CastForEducation
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,11 +36,20 @@ import com.example.placementprojectmp.ui.screens.shared.component.JobItem
 import com.example.placementprojectmp.ui.screens.shared.component.JobSection
 import com.example.placementprojectmp.ui.screens.shared.component.SystemCTA
 import com.example.placementprojectmp.ui.screens.shared.component.TopPerformerCard
+import com.example.placementprojectmp.ui.screens.student.component.FeatureTool
+import com.example.placementprojectmp.ui.screens.student.component.FeatureTools
 import com.example.placementprojectmp.ui.screens.system.component.CountGrid
 import com.example.placementprojectmp.viewmodel.UserViewModel
 import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "SystemDashboard"
+
+private val systemFeatureToolsItems = listOf(
+    FeatureTool(label = "Student Management", imageVector = Icons.Default.School),
+    FeatureTool(label = "Faculty Management", imageVector = Icons.Default.CastForEducation),
+    FeatureTool(label = "Company Management", imageVector = Icons.Default.Business),
+    FeatureTool(label = "System Settings", imageVector = Icons.Default.Settings)
+)
 
 private val systemFabMenuLabels = listOf(
     "Add Drive",
@@ -104,9 +118,8 @@ private fun systemDeadlineApplicationItems(): List<ApplicationItem> = listOf(
 )
 
 /**
- * System home dashboard: profile, search, KPI [CountGrid], recent activity ([JobSection], same building block
- * as the student “recent jobs” section in `DashboardRecentActivitySection.kt`), top performers, alerts, and
- * [SystemCTA] FAB + sheet (system menu labels).
+ * System home dashboard: profile, search, KPI [CountGrid], recent activity ([JobSection]), [FeatureTools]
+ * (system-only labels/icons), top performers, alerts, and [SystemCTA] FAB + sheet (system menu labels).
  */
 @Composable
 fun SystemDashboardScreen(
@@ -162,6 +175,9 @@ fun SystemDashboardScreen(
                     jobs = recentJobs,
                     onDismissJob = { job -> recentJobs = recentJobs.filter { it.id != job.id } }
                 )
+            }
+            item {
+                FeatureTools(featureTools = systemFeatureToolsItems)
             }
             item {
                 Column(

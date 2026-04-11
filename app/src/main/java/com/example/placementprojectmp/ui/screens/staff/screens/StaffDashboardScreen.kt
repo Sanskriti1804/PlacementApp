@@ -15,6 +15,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountTree
+import androidx.compose.material.icons.filled.Article
+import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +39,8 @@ import com.example.placementprojectmp.ui.screens.shared.component.JobItem
 import com.example.placementprojectmp.ui.screens.shared.component.JobSection
 import com.example.placementprojectmp.ui.screens.shared.component.SystemCTA
 import com.example.placementprojectmp.ui.screens.student.component.CourseDomainMappingFilter
+import com.example.placementprojectmp.ui.screens.student.component.FeatureTool
+import com.example.placementprojectmp.ui.screens.student.component.FeatureTools
 import com.example.placementprojectmp.viewmodel.EducationViewModel
 import com.example.placementprojectmp.viewmodel.UserViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -41,6 +48,13 @@ import kotlin.random.Random
 
 private const val TAG = "StaffDashboard"
 private const val educationProfileId = 3L
+
+private val staffFeatureToolsItems = listOf(
+    FeatureTool(label = "Company Documents", imageVector = Icons.Default.Business),
+    FeatureTool(label = "Student Resumes", imageVector = Icons.Default.Article),
+    FeatureTool(label = "Student Management", imageVector = Icons.Default.Groups),
+    FeatureTool(label = "Department Management", imageVector = Icons.Default.AccountTree)
+)
 
 private data class StaffTopPerformerSectionCardData(
     val stateKey: Int,
@@ -291,6 +305,9 @@ fun StaffDashboardScreen(
                     jobs = recentActivities,
                     onDismissJob = { job -> recentActivities = recentActivities.filter { it.id != job.id } }
                 )
+            }
+            item {
+                FeatureTools(featureTools = staffFeatureToolsItems)
             }
             item {
                 Column(

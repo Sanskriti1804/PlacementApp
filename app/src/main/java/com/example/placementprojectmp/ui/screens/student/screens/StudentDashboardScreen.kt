@@ -91,8 +91,8 @@ fun StudentDashboardScreen(
         ApplicationItem("Meta", "UX Designer", "Interview Scheduled")
     )
     val featureToolsItems = listOf(
-        FeatureTool(label = "Resume", imageVector = Icons.Default.Description),
-        FeatureTool(label = "Preparation", imageVector = Icons.Default.MenuBook),
+        FeatureTool(label = "AI Resume Builder", imageVector = Icons.Default.Description),
+        FeatureTool(label = "ATS Optimization Checker", imageVector = Icons.Default.MenuBook),
         FeatureTool(label = "Chatbot", imageVector = Icons.Default.Chat),
         FeatureTool(
             label = "Resources",
