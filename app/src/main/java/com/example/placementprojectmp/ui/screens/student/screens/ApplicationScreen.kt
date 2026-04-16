@@ -46,6 +46,9 @@ import com.example.placementprojectmp.ui.components.ApplicationStatusStage
 import com.example.placementprojectmp.ui.screens.student.component.UserInfoTabs
 import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
 import org.koin.androidx.compose.koinViewModel
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.decodeFromString
+import com.example.placementprojectmp.data.model.JobEntryDraft
 
 /**
  * Application screen: company header, profile preview, contact, platform links,
@@ -64,26 +67,39 @@ fun ApplicationScreen(
 
     val resolvedName = personalDraft.fullName.takeIf { it.isNotBlank() } ?: "RAHUL SHARMA"
     val resolvedHandle = personalDraft.username.takeIf { it.isNotBlank() }?.let { "@$it" } ?: "@rahuldev"
-    val resolvedDob = listOf(personalDraft.day, personalDraft.month, personalDraft.year)
-        .takeIf { it.all { part -> part.isNotBlank() } }
-        ?.joinToString(" ")
-        ?: "12 Sep 2002"
+    val manualDob = listOf(personalDraft.day, personalDraft.month, personalDraft.year).filter { it.isNotBlank() }.joinToString(" ")
+    val resolvedDob = manualDob.takeIf { it.isNotBlank() } ?: "12 Sep 2002"
+    val resolvedEmail = personalDraft.email.takeIf { it.isNotBlank() } ?: "rahul@email.com"
+    val resolvedRole = personalDraft.role.takeIf { it.isNotBlank() } ?: "Android Developer"
 
-    val skills = listOf(
-        "Kotlin", "Java", "Jetpack Compose", "Spring Boot", "Firebase", "Git", "Postman", "REST APIs",
-        "Retrofit", "Room DB", "Docker", "Figma"
-    )
+    val mergedSkills = (personalDraft.languagesSelected + personalDraft.toolsSelected + personalDraft.frameworksSelected).toList()
+    val skills = mergedSkills.takeIf { it.isNotEmpty() }?.take(3) 
+        ?: listOf("Kotlin", "Java", "Jetpack Compose", "Spring Boot", "Firebase", "Git", "Postman", "REST APIs", "Retrofit", "Room DB", "Docker", "Figma").take(3)
+
     data class EducationItem(
         val title: String,
         val subtitle: String,
         val score: String
     )
-    val educationItems = listOf(
-        EducationItem("10th", "Delhi Public School • 2018", "92%"),
-        EducationItem("12th", "St. Xavier Senior Secondary • 2020", "89%"),
-        EducationItem("Graduation", "ABC Institute of Technology • 2021 - 2025", "8.6 CGPA"),
-        EducationItem("Post Graduation", "ABC Institute of Technology • 2025 - 2027", "—")
-    )
+    
+    val educationItems = mutableListOf<EducationItem>()
+
+    val school10 = personalDraft.school10Name.takeIf { it.isNotBlank() } ?: "Delhi Public School"
+    val year10 = personalDraft.passYear10.takeIf { it.isNotBlank() } ?: "2018"
+    val percent10 = personalDraft.class10Percent.takeIf { it.isNotBlank() }?.let { "$it%" } ?: "92%"
+    educationItems.add(EducationItem("10th", "$school10 • $year10", percent10))
+
+    val school12 = personalDraft.school12Name.takeIf { it.isNotBlank() } ?: "St. Xavier Senior Secondary"
+    val year12 = personalDraft.passYear12.takeIf { it.isNotBlank() } ?: "2020"
+    val percent12 = personalDraft.class12Percent.takeIf { it.isNotBlank() }?.let { "$it%" } ?: "89%"
+    educationItems.add(EducationItem("12th", "$school12 • $year12", percent12))
+
+    val universityGrad = personalDraft.university.takeIf { it.isNotBlank() } ?: "ABC Institute of Technology"
+    val passYearGrad = personalDraft.gradPassYear.takeIf { it.isNotBlank() } ?: "2025"
+    val cgpaGrad = personalDraft.gradCgpa.takeIf { it.isNotBlank() }?.let { "$it CGPA" } ?: "8.6 CGPA"
+    educationItems.add(EducationItem("Graduation", "$universityGrad • $passYearGrad", cgpaGrad))
+    
+    educationItems.add(EducationItem("Post Graduation", "ABC Institute of Technology • 2025 - 2027", "—"))
     val certCards = listOf(
         "Google Android",
         "Hackathon 2025",
@@ -139,7 +155,7 @@ fun ApplicationScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "Android Developer",
+                        text = resolvedRole,
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -181,7 +197,7 @@ fun ApplicationScreen(
             UserInfoTabs(
                 name = resolvedName,
                 date = resolvedDob,
-                email = "rahul@email.com"
+                email = resolvedEmail
             )
         }
         item {
@@ -299,14 +315,15 @@ fun ApplicationScreen(
                         }
                         Text(item.score, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Light, color = MaterialTheme.colorScheme.onSurface)
                     }
-                    if (index == 1) {
+                    if (index == 1 && personalDraft.academicGapEnabled) {
+                        val gapStr = personalDraft.gapYears.takeIf { it.isNotBlank() } ?: "1"
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(10.dp),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f))
                         ) {
                             Text(
-                                text = "Gap year from 2020 to 2021",
+                                text = "$gapStr-year gap",
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -326,13 +343,39 @@ fun ApplicationScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text("Experience", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-                    Text("Android Developer Intern", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("Tech Solutions Pvt Ltd • Jan 2025 - Present", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                val jobEntries = try {
+                    if (personalDraft.jobEntriesJson.isNotBlank() && personalDraft.jobEntriesJson != "[]") 
+                        Json.decodeFromString<List<JobEntryDraft>>(personalDraft.jobEntriesJson)
+                    else emptyList()
+                } catch (e: Exception) { emptyList() }
+                
+                if (jobEntries.isNotEmpty() && personalDraft.hasWorkExperience) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text("Experience", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                        jobEntries.forEach { entry ->
+                            val role = entry.jobTypeTitle.takeIf { it.isNotBlank() } ?: "Role"
+                            val company = entry.companyName.takeIf { it.isNotBlank() } ?: "Company"
+                            val start = listOf(entry.fromMonth, entry.fromYear).filter { it.isNotBlank() }.joinToString("-")
+                            val end = listOf(entry.toMonth, entry.toYear).filter { it.isNotBlank() }.joinToString("-")
+                            val duration = if (start.isNotBlank() && end.isNotBlank()) "$start - $end" else if (start.isNotBlank()) start else "Unknown"
+                            
+                            Text(role, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("$company • $duration", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text("Experience", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                        Text("Android Developer Intern", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Tech Solutions Pvt Ltd • Jan 2025 - Present", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
             }
         }
