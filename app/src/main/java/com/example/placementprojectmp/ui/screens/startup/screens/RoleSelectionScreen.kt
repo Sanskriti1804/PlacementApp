@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,10 +25,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
 import com.example.placementprojectmp.ui.screens.shared.component.AppLogo
+import com.example.placementprojectmp.ui.theme.NeonBlue
+import com.example.placementprojectmp.ui.theme.NeonBlueDim
 
 private data class RoleOption(
     val label: String,
@@ -44,9 +49,11 @@ private val ROLES = listOf(
 @Composable
 fun RoleSelectionScreen(
     modifier: Modifier = Modifier,
-    onNavigateToLogin: (String) -> Unit = {}
+    onNavigateToLogin: (String) -> Unit = {},
+    onSkipLogin: (String) -> Unit = {}
 ) {
     var selectedRole by remember { mutableStateOf<String?>(null) }
+    var skipLoginEnabled by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -82,7 +89,12 @@ fun RoleSelectionScreen(
                                 } else {
                                     "STAFF"
                                 }
-                                onNavigateToLogin(authRole)
+                                
+                                if (skipLoginEnabled) {
+                                    onSkipLogin(authRole)
+                                } else {
+                                    onNavigateToLogin(authRole)
+                                }
                             }
                             .border(
                                 width = 1.dp,
@@ -130,6 +142,26 @@ fun RoleSelectionScreen(
                 }
                 if (rowRoles.size == 1) Spacer(modifier = Modifier.weight(1f))
             }
+        }
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Button(
+            onClick = {
+               skipLoginEnabled = true
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(28.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (skipLoginEnabled) MaterialTheme.colorScheme.primary else NeonBlue,
+                contentColor = Color.White,
+                disabledContainerColor = NeonBlueDim,
+                disabledContentColor = Color.White.copy(alpha = 0.75f)
+            )
+        ) {
+            Text(if (skipLoginEnabled) "Login Skipped. Select Role!" else "Enter without Login")
         }
     }
 }

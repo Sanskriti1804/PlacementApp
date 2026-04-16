@@ -65,7 +65,7 @@ fun AppNavGraph(
     rootStartDestination: String = Routes.StartDestination,
     modifier: androidx.compose.ui.Modifier = androidx.compose.ui.Modifier
 ) {
-    val safeRootStartDestination = Routes.GraphRoutes.Student
+    val safeRootStartDestination = Routes.GraphRoutes.Startup
 
 
     key(safeRootStartDestination) {
@@ -161,6 +161,17 @@ private fun androidx.navigation.NavGraphBuilder.startupGraph(
                 onNavigateToLogin = { role ->
                     navController.navigate("login?role=$role") {
                         launchSingleTop = true
+                    }
+                },
+                onSkipLogin = { role ->
+                    val graphRoute = when (role.uppercase()) {
+                        "STUDENT" -> Routes.GraphRoutes.Student
+                        "SYSTEM" -> Routes.GraphRoutes.System
+                        else -> Routes.GraphRoutes.Staff
+                    }
+                    navController.navigate(graphRoute) {
+                        launchSingleTop = true
+                        popUpTo(Routes.StartupRoutes.RoleSelection) { inclusive = true }
                     }
                 }
             )
