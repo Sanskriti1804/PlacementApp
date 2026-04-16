@@ -49,6 +49,7 @@ import kotlin.collections.emptyList
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.clickable
 import android.content.Intent
 import android.widget.Toast
 /**
@@ -80,6 +81,12 @@ fun ProfileScreen(
     val profileUser = currentStudentProfile?.user
 
     val personalDraft by personalDraftViewModel.draft.collectAsState()
+
+    val connectorLinks = try {
+        if (personalDraft.connectorLinksJson.isNotBlank() && personalDraft.connectorLinksJson != "{}") {
+            kotlinx.serialization.json.Json.decodeFromString<Map<com.example.placementprojectmp.ui.components.ProfilePlatform, String>>(personalDraft.connectorLinksJson)
+        } else emptyMap()
+    } catch(e: Exception) { emptyMap() }
 
     val resolvedUserName = personalDraft.fullName.takeIf { it.isNotBlank() } ?: "User"
     val resolvedRole = personalDraft.role.takeIf { it.isNotBlank() } ?: "Android Developer"
@@ -274,7 +281,38 @@ fun ProfileScreen(
                     Card(
                         modifier = Modifier
                             .fillParentMaxWidth(0.20f)
-                            .aspectRatio(1f),
+                            .aspectRatio(1f)
+                            .clickable {
+                                val url = when (mediaRes) {
+                                    R.drawable.pic_linkedin -> connectorLinks[com.example.placementprojectmp.ui.components.ProfilePlatform.LinkedIn]
+                                    R.drawable.pic_github -> connectorLinks[com.example.placementprojectmp.ui.components.ProfilePlatform.GitHub]
+                                    R.drawable.pic_leetcode -> connectorLinks[com.example.placementprojectmp.ui.components.ProfilePlatform.LeetCode]
+                                    R.drawable.pic_portfolio -> connectorLinks[com.example.placementprojectmp.ui.components.ProfilePlatform.Portfolio]
+                                    else -> null
+                                }
+                                val finalUrl = if (mediaRes == R.drawable.pic_resume) personalDraft.resumePdfUri else url
+                                if (!finalUrl.isNullOrBlank()) {
+                                    try {
+                                        var parsedUrl = finalUrl
+                                        if (mediaRes != R.drawable.pic_resume && !parsedUrl.startsWith("http://") && !parsedUrl.startsWith("https://")) {
+                                            parsedUrl = "https://$parsedUrl"
+                                        }
+                                        val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(parsedUrl)).apply {
+                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                            if (mediaRes == R.drawable.pic_resume) {
+                                                setDataAndType(android.net.Uri.parse(parsedUrl), "application/pdf")
+                                            }
+                                        }
+                                        if (mediaRes == R.drawable.pic_resume) {
+                                            context.startActivity(Intent.createChooser(intent, "Open PDF"))
+                                        } else {
+                                            context.startActivity(intent)
+                                        }
+                                    } catch (e: Exception) {
+                                        // Ignore
+                                    }
+                                }
+                            },
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)

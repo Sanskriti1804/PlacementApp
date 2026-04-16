@@ -53,6 +53,7 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
+import com.example.placementprojectmp.ui.components.ProfilePlatform
 
 /**
  * Application screen: company header, profile preview, contact, platform links,
@@ -69,6 +70,12 @@ fun ApplicationScreen(
     val personalDraftViewModel: StudentPersonalDraftViewModel = koinViewModel()
     val personalDraft by personalDraftViewModel.draft.collectAsState()
     val context = LocalContext.current
+
+    val connectorLinks = try {
+        if (personalDraft.connectorLinksJson.isNotBlank() && personalDraft.connectorLinksJson != "{}") {
+            Json.decodeFromString<Map<ProfilePlatform, String>>(personalDraft.connectorLinksJson)
+        } else emptyMap()
+    } catch(e: Exception) { emptyMap() }
 
     val resolvedName = personalDraft.fullName.takeIf { it.isNotBlank() } ?: "RAHUL SHARMA"
     val resolvedHandle = personalDraft.username.takeIf { it.isNotBlank() }?.let { "@$it" } ?: "@rahuldev"
@@ -223,6 +230,28 @@ fun ApplicationScreen(
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Card(
+                            modifier = Modifier.clickable {
+                                val url = when (label) {
+                                    "LinkedIn" -> connectorLinks[ProfilePlatform.LinkedIn]
+                                    "GitHub" -> connectorLinks[ProfilePlatform.GitHub]
+                                    "LeetCode" -> connectorLinks[ProfilePlatform.LeetCode]
+                                    else -> null
+                                }
+                                if (!url.isNullOrBlank()) {
+                                    try {
+                                        var parsedUrl = url
+                                        if (!parsedUrl.startsWith("http://") && !parsedUrl.startsWith("https://")) {
+                                            parsedUrl = "https://$parsedUrl"
+                                        }
+                                        val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(parsedUrl)).apply {
+                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                        }
+                                        context.startActivity(intent)
+                                    } catch (e: Exception) {
+                                        // Ignore
+                                    }
+                                }
+                            },
                             shape = RoundedCornerShape(10.dp),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
                         ) {
