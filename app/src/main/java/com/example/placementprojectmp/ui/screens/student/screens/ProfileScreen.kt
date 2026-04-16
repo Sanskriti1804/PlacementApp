@@ -46,7 +46,11 @@ import org.koin.androidx.compose.koinViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import kotlin.collections.emptyList
-
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import android.widget.Toast
 /**
  * Profile screen: TopBar, Profile Header, Completion Card, Social Platforms, Recent Work + Skills.
  * Tapping "Complete your profile" opens StudentProfileFormScreen; tapping intro card opens PersonalInformationFormScreen.
@@ -92,6 +96,25 @@ fun ProfileScreen(
         "Coroutines"
     )
     val profileSkills = currentStudentProfile?.skills?.map { it.name }?.takeIf { it.isNotEmpty() } ?: dummySkills
+
+    val context = LocalContext.current
+    val pdfPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri: android.net.Uri? ->
+        uri?.let {
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    it,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+                personalDraftViewModel.updateResumePdfUri(it.toString())
+                personalDraftViewModel.save()
+                Toast.makeText(context, "PDF uploaded", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 
     LazyColumn(
         modifier = modifier
@@ -176,7 +199,21 @@ fun ProfileScreen(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Button(
-                            onClick = onNavigateToResume,
+                            onClick = {
+                                if (personalDraft.resumePdfUri.isNotBlank()) {
+                                    try {
+                                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                                            setDataAndType(android.net.Uri.parse(personalDraft.resumePdfUri), "application/pdf")
+                                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+                                        }
+                                        context.startActivity(Intent.createChooser(intent, "Open PDF"))
+                                    } catch (e: Exception) {
+                                        Toast.makeText(context, "No app found to open PDF", Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    pdfPickerLauncher.launch(arrayOf("application/pdf"))
+                                }
+                            },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(

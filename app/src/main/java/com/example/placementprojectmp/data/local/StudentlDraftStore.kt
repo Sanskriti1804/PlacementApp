@@ -26,6 +26,7 @@ class StudentPersonalDraftStore(private val context: Context) {
     private val yearKey = stringPreferencesKey("dob_year")
     private val profileImageUriKey = stringPreferencesKey("profile_image_uri")
     private val connectorLinksJsonKey = stringPreferencesKey("connector_links_json")
+    private val resumePdfUriKey = stringPreferencesKey("resume_pdf_uri")
 
     // Education fields
     private val universityKey = stringPreferencesKey("university")
@@ -84,6 +85,7 @@ class StudentPersonalDraftStore(private val context: Context) {
             year = prefs[yearKey].orEmpty(),
             profileImageUri = prefs[profileImageUriKey].orEmpty(),
             connectorLinksJson = prefs[connectorLinksJsonKey] ?: "{}",
+            resumePdfUri = prefs[resumePdfUriKey].orEmpty(),
 
             university = prefs[universityKey].orEmpty(),
             course = prefs[courseKey].orEmpty(),
@@ -140,6 +142,7 @@ class StudentPersonalDraftStore(private val context: Context) {
             prefs[yearKey] = draft.year
             prefs[profileImageUriKey] = draft.profileImageUri
             prefs[connectorLinksJsonKey] = draft.connectorLinksJson
+            prefs[resumePdfUriKey] = draft.resumePdfUri
 
             prefs[universityKey] = draft.university
             prefs[courseKey] = draft.course

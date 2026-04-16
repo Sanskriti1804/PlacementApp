@@ -65,6 +65,7 @@ class StudentPersonalDraftViewModel(
         copy(day = day, month = month, year = year)
     }
     fun updateConnectorLinksJson(value: String) = update { copy(connectorLinksJson = value) }
+    fun updateResumePdfUri(value: String) = update { copy(resumePdfUri = value) }
 
     // Education Updates
     fun updateUniversity(value: String) = update { copy(university = value) }

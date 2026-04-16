@@ -80,5 +80,6 @@ data class StudentDraft(
     
     // Additional Image URIs
     val profileImageUri: String = "",
-    val connectorLinksJson: String = "{}"
+    val connectorLinksJson: String = "{}",
+    val resumePdfUri: String = ""
 )
