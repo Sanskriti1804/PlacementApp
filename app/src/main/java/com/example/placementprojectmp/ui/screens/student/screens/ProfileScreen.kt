@@ -56,7 +56,8 @@ fun ProfileScreen(
     onCompleteProfileClick: (() -> Unit)? = null,
     onIntroCardClick: (() -> Unit)? = null,
     onNavigateToAcademic: () -> Unit = {},
-    onNavigateToApplication: () -> Unit = {}
+    onNavigateToApplication: () -> Unit = {},
+    onNavigateToResume: () -> Unit = {}
 ) {
 
     val userViewModel : UserViewModel = koinViewModel()
@@ -171,7 +172,7 @@ fun ProfileScreen(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Button(
-                            onClick = onNavigateToApplication,
+                            onClick = onNavigateToResume,
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(
@@ -182,7 +183,7 @@ fun ProfileScreen(
                             Text("RESUME")
                         }
                         Button(
-                            onClick = {},
+                            onClick = onNavigateToApplication,
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(

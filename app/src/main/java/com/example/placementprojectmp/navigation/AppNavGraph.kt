@@ -1,5 +1,6 @@
 package com.example.placementprojectmp.navigation
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -200,8 +201,17 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
             ProfileScreen(
                 modifier = modifier,
                 onNavigateToAcademic = { navController.navigate(Routes.StudentRoutes.AcademicDetails) },
-                onNavigateToApplication = { navController.navigate(Routes.StudentRoutes.ApplicationScreen) }
+                onNavigateToApplication = { navController.navigate(Routes.StudentRoutes.ApplicationScreen) },
+                onNavigateToResume = { navController.navigate(Routes.StudentRoutes.Resume) }
             )
+        }
+        composable(Routes.StudentRoutes.Resume) {
+            androidx.compose.foundation.layout.Box(
+                modifier = modifier.fillMaxSize(),
+                contentAlignment = androidx.compose.ui.Alignment.Center
+            ) {
+                androidx.compose.material3.Text("Resume Screen")
+            }
         }
         composable(Routes.StudentRoutes.AcademicDetails) {
             AcademicPerdormanceScreen(modifier = modifier)

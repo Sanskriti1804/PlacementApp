@@ -42,27 +42,6 @@ fun AppTopBar(
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(MaterialTheme.shapes.medium)
-                .clickable(onClick = onMenuClick),
-            contentAlignment = Alignment.Center
-        ) {
-            if (menuIconResId != 0) {
-                Icon(
-                    painter = painterResource(menuIconResId),
-                    contentDescription = "Menu",
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Menu",
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
         Text(
             text = title.uppercase(),
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),

@@ -54,6 +54,7 @@ object Routes {
         const val Chatbot = "chatbot"
         /** Outer-graph opportunities route (distinct from tab [Opportunities]). */
         const val OpportunitiesOuter = "opportunities"
+        const val Resume = "resume_screen"
         const val StudentProfileForm = "dashboard/studentform"
         const val PersonalInformationFormScreen = "personal_information_screen"
         const val ApplicationScreen = "application_screen"
