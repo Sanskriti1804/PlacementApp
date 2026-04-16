@@ -13,6 +13,8 @@ class StudentPersonalDraftStore(private val context: Context) {
     // Personal fields
     private val fullNameKey = stringPreferencesKey("full_name")
     private val usernameKey = stringPreferencesKey("username")
+    private val emailKey = stringPreferencesKey("email")
+    private val roleKey = stringPreferencesKey("role")
     private val phoneKey = stringPreferencesKey("phone")
     private val addressKey = stringPreferencesKey("address")
     private val cityKey = stringPreferencesKey("city")
@@ -23,13 +25,20 @@ class StudentPersonalDraftStore(private val context: Context) {
     private val monthKey = stringPreferencesKey("dob_month")
     private val yearKey = stringPreferencesKey("dob_year")
     private val profileImageUriKey = stringPreferencesKey("profile_image_uri")
+    private val connectorLinksJsonKey = stringPreferencesKey("connector_links_json")
 
     // Education fields
     private val universityKey = stringPreferencesKey("university")
     private val courseKey = stringPreferencesKey("course")
     private val selectedYearKey = stringPreferencesKey("selected_year")
     private val class12PercentKey = stringPreferencesKey("class12_percent")
+    private val school12NameKey = stringPreferencesKey("school12_name")
+    private val passYear12Key = stringPreferencesKey("pass_year_12")
     private val class10PercentKey = stringPreferencesKey("class10_percent")
+    private val school10NameKey = stringPreferencesKey("school10_name")
+    private val passYear10Key = stringPreferencesKey("pass_year_10")
+    private val gradCgpaKey = stringPreferencesKey("grad_cgpa")
+    private val gradPassYearKey = stringPreferencesKey("grad_pass_year")
     private val activeBacklogsEnabledKey = booleanPreferencesKey("active_backlogs_enabled")
     private val backlogCountKey = intPreferencesKey("backlog_count")
     private val backlogSubjectsKey = stringPreferencesKey("backlog_subjects")
@@ -62,6 +71,8 @@ class StudentPersonalDraftStore(private val context: Context) {
         StudentDraft(
             fullName = prefs[fullNameKey].orEmpty(),
             username = prefs[usernameKey].orEmpty(),
+            email = prefs[emailKey].orEmpty(),
+            role = prefs[roleKey].orEmpty(),
             phone = prefs[phoneKey].orEmpty(),
             address = prefs[addressKey].orEmpty(),
             city = prefs[cityKey].orEmpty(),
@@ -72,12 +83,19 @@ class StudentPersonalDraftStore(private val context: Context) {
             month = prefs[monthKey].orEmpty(),
             year = prefs[yearKey].orEmpty(),
             profileImageUri = prefs[profileImageUriKey].orEmpty(),
+            connectorLinksJson = prefs[connectorLinksJsonKey] ?: "{}",
 
             university = prefs[universityKey].orEmpty(),
             course = prefs[courseKey].orEmpty(),
             selectedYear = prefs[selectedYearKey].orEmpty(),
             class12Percent = prefs[class12PercentKey].orEmpty(),
+            school12Name = prefs[school12NameKey].orEmpty(),
+            passYear12 = prefs[passYear12Key].orEmpty(),
             class10Percent = prefs[class10PercentKey].orEmpty(),
+            school10Name = prefs[school10NameKey].orEmpty(),
+            passYear10 = prefs[passYear10Key].orEmpty(),
+            gradCgpa = prefs[gradCgpaKey].orEmpty(),
+            gradPassYear = prefs[gradPassYearKey].orEmpty(),
             activeBacklogsEnabled = prefs[activeBacklogsEnabledKey] ?: false,
             backlogCount = prefs[backlogCountKey] ?: 1,
             backlogSubjects = prefs[backlogSubjectsKey].orEmpty(),
@@ -109,6 +127,8 @@ class StudentPersonalDraftStore(private val context: Context) {
         context.personalDraftDataStore.edit { prefs ->
             prefs[fullNameKey] = draft.fullName
             prefs[usernameKey] = draft.username
+            prefs[emailKey] = draft.email
+            prefs[roleKey] = draft.role
             prefs[phoneKey] = draft.phone
             prefs[addressKey] = draft.address
             prefs[cityKey] = draft.city
@@ -119,12 +139,19 @@ class StudentPersonalDraftStore(private val context: Context) {
             prefs[monthKey] = draft.month
             prefs[yearKey] = draft.year
             prefs[profileImageUriKey] = draft.profileImageUri
+            prefs[connectorLinksJsonKey] = draft.connectorLinksJson
 
             prefs[universityKey] = draft.university
             prefs[courseKey] = draft.course
             prefs[selectedYearKey] = draft.selectedYear
             prefs[class12PercentKey] = draft.class12Percent
+            prefs[school12NameKey] = draft.school12Name
+            prefs[passYear12Key] = draft.passYear12
             prefs[class10PercentKey] = draft.class10Percent
+            prefs[school10NameKey] = draft.school10Name
+            prefs[passYear10Key] = draft.passYear10
+            prefs[gradCgpaKey] = draft.gradCgpa
+            prefs[gradPassYearKey] = draft.gradPassYear
             prefs[activeBacklogsEnabledKey] = draft.activeBacklogsEnabled
             prefs[backlogCountKey] = draft.backlogCount
             prefs[backlogSubjectsKey] = draft.backlogSubjects

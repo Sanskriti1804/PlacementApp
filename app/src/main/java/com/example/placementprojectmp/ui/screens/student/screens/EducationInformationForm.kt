@@ -46,6 +46,13 @@ fun EducationInformationForm(
     var selectedYear by remember(draft.selectedYear) { mutableStateOf(draft.selectedYear.toIntOrNull()) }
     var class12Percent by remember(draft.class12Percent) { mutableStateOf(draft.class12Percent) }
     var class10Percent by remember(draft.class10Percent) { mutableStateOf(draft.class10Percent) }
+    var school12Name by remember(draft.school12Name) { mutableStateOf(draft.school12Name) }
+    var passYear12 by remember(draft.passYear12) { mutableStateOf(draft.passYear12) }
+    var school10Name by remember(draft.school10Name) { mutableStateOf(draft.school10Name) }
+    var passYear10 by remember(draft.passYear10) { mutableStateOf(draft.passYear10) }
+    var gradCgpa by remember(draft.gradCgpa) { mutableStateOf(draft.gradCgpa) }
+    var gradPassYear by remember(draft.gradPassYear) { mutableStateOf(draft.gradPassYear) }
+    
     var activeBacklogsEnabled by remember(draft.activeBacklogsEnabled) { mutableStateOf(draft.activeBacklogsEnabled) }
     var backlogCount by remember(draft.backlogCount) { mutableStateOf(if (draft.backlogCount < 1) 1 else draft.backlogCount) }
     
@@ -67,8 +74,83 @@ fun EducationInformationForm(
             .animateContentSize(),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
+        androidx.compose.material3.Text("Class 10th Details", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         FormField(
-            label = "University",
+            label = "Class 10th School Name",
+            value = school10Name,
+            onValueChange = { 
+                school10Name = it 
+                draftViewModel.updateSchool10Name(it)
+            },
+            placeholder = "Enter your school name"
+        )
+        androidx.compose.foundation.layout.Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            FormField(
+                modifier = Modifier.weight(1f),
+                label = "Class 10th Percentage",
+                value = class10Percent,
+                onValueChange = { 
+                    class10Percent = it.filter { c -> c.isDigit() || c == '.' } 
+                    draftViewModel.updateClass10Percent(class10Percent)
+                },
+                placeholder = "e.g. 90",
+                keyboardType = KeyboardType.Decimal
+            )
+            FormField(
+                modifier = Modifier.weight(1f),
+                label = "Passing Year (10th)",
+                value = passYear10,
+                onValueChange = { 
+                    passYear10 = it.filter { c -> c.isDigit() } 
+                    draftViewModel.updatePassYear10(passYear10)
+                },
+                placeholder = "YYYY",
+                keyboardType = KeyboardType.Number
+            )
+        }
+
+        HorizontalDivider(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+
+        androidx.compose.material3.Text("Class 12th Details", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        FormField(
+            label = "Class 12th School Name",
+            value = school12Name,
+            onValueChange = { 
+                school12Name = it 
+                draftViewModel.updateSchool12Name(it)
+            },
+            placeholder = "Enter your school name"
+        )
+        androidx.compose.foundation.layout.Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            FormField(
+                modifier = Modifier.weight(1f),
+                label = "Class 12th Percentage",
+                value = class12Percent,
+                onValueChange = { 
+                    class12Percent = it.filter { c -> c.isDigit() || c == '.' } 
+                    draftViewModel.updateClass12Percent(class12Percent)
+                },
+                placeholder = "e.g. 85",
+                keyboardType = KeyboardType.Decimal
+            )
+            FormField(
+                modifier = Modifier.weight(1f),
+                label = "Passing Year (12th)",
+                value = passYear12,
+                onValueChange = { 
+                    passYear12 = it.filter { c -> c.isDigit() } 
+                    draftViewModel.updatePassYear12(passYear12)
+                },
+                placeholder = "YYYY",
+                keyboardType = KeyboardType.Number
+            )
+        }
+
+        HorizontalDivider(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+
+        androidx.compose.material3.Text("Graduation Details", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        FormField(
+            label = "Graduation University Name",
             value = university,
             onValueChange = { 
                 university = it 
@@ -83,36 +165,32 @@ fun EducationInformationForm(
                 course = it 
                 draftViewModel.updateCourse(it)
             },
-            placeholder = "e.g. BCA, MCA, BTech, MTech, BBA, MBA"
+            placeholder = "e.g. BCA, MCA, BTech, MTech"
         )
-        CourseYearSelector(
-            course = course,
-            selectedYear = selectedYear,
-            onYearSelected = { 
-                selectedYear = it 
-                draftViewModel.updateSelectedYear(it?.toString() ?: "")
-            }
-        )
-        FormField(
-            label = "Class 12th Percentage",
-            value = class12Percent,
-            onValueChange = { 
-                class12Percent = it.filter { c -> c.isDigit() || c == '.' } 
-                draftViewModel.updateClass12Percent(class12Percent)
-            },
-            placeholder = "e.g. 85",
-            keyboardType = KeyboardType.Decimal
-        )
-        FormField(
-            label = "Class 10th Percentage",
-            value = class10Percent,
-            onValueChange = { 
-                class10Percent = it.filter { c -> c.isDigit() || c == '.' } 
-                draftViewModel.updateClass10Percent(class10Percent)
-            },
-            placeholder = "e.g. 90",
-            keyboardType = KeyboardType.Decimal
-        )
+        androidx.compose.foundation.layout.Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            FormField(
+                modifier = Modifier.weight(1f),
+                label = "Enter CGPA",
+                value = gradCgpa,
+                onValueChange = { 
+                    gradCgpa = it.filter { c -> c.isDigit() || c == '.' } 
+                    draftViewModel.updateGradCgpa(gradCgpa)
+                },
+                placeholder = "e.g. 8.5",
+                keyboardType = KeyboardType.Decimal
+            )
+            FormField(
+                modifier = Modifier.weight(1f),
+                label = "Passing Year (Graduation)",
+                value = gradPassYear,
+                onValueChange = { 
+                    gradPassYear = it.filter { c -> c.isDigit() } 
+                    draftViewModel.updateGradPassYear(gradPassYear)
+                },
+                placeholder = "YYYY",
+                keyboardType = KeyboardType.Number
+            )
+        }
 
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),

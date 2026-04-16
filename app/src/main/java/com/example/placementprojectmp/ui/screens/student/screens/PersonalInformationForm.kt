@@ -26,6 +26,9 @@ import com.example.placementprojectmp.ui.components.ProfilePlatform
 import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
 
 /**
  * Personal Information Form: profile row (name + photo), connect profile, phone, address, location, DOB.
@@ -39,8 +42,19 @@ fun PersonalInformationForm(
     val draft by draftViewModel.draft.collectAsState()
     var fullName by remember(draft.fullName) { mutableStateOf(draft.fullName) }
     var username by remember(draft.username) { mutableStateOf(draft.username) }
+    var email by remember(draft.email) { mutableStateOf(draft.email) }
+    var role by remember(draft.role) { mutableStateOf(draft.role) }
+    
     var expandedPlatform by remember { mutableStateOf<ProfilePlatform?>(null) }
-    var urlValues by remember { mutableStateOf<Map<ProfilePlatform, String>>(emptyMap()) }
+    
+    val initialConnectorLinks = try {
+        if (draft.connectorLinksJson.isNotBlank() && draft.connectorLinksJson != "{}") {
+            Json.decodeFromString<Map<ProfilePlatform, String>>(draft.connectorLinksJson)
+        } else emptyMap()
+    } catch(e: Exception) { emptyMap() }
+    
+    var urlValues by remember(draft.connectorLinksJson) { mutableStateOf(initialConnectorLinks) }
+    
     var countryCode by remember { mutableStateOf("+91") }
     var phone by remember(draft.phone) { mutableStateOf(draft.phone) }
     var address by remember(draft.address) { mutableStateOf(draft.address) }
@@ -49,9 +63,9 @@ fun PersonalInformationForm(
     var state by remember(draft.state) { mutableStateOf(draft.state) }
     var country by remember(draft.country) { mutableStateOf(draft.country) }
     val cal = remember { Calendar.getInstance() }
-    var day by remember(draft.day) { mutableStateOf(draft.day.ifBlank { cal.get(Calendar.DAY_OF_MONTH).toString() }) }
-    var month by remember(draft.month) { mutableStateOf(draft.month.ifBlank { (cal.get(Calendar.MONTH) + 1).toString() }) }
-    var year by remember(draft.year) { mutableStateOf(draft.year.ifBlank { cal.get(Calendar.YEAR).toString() }) }
+    var day by remember(draft.day) { mutableStateOf(draft.day) }
+    var month by remember(draft.month) { mutableStateOf(draft.month) }
+    var year by remember(draft.year) { mutableStateOf(draft.year) }
 
     Column(
         modifier = modifier
@@ -99,11 +113,35 @@ fun PersonalInformationForm(
             }
         }
 
+        FormField(
+            label = "Email",
+            value = email,
+            onValueChange = {
+                email = it
+                draftViewModel.updateEmail(it)
+            },
+            placeholder = "Enter email address"
+        )
+        
+        FormField(
+            label = "Role",
+            value = role,
+            onValueChange = {
+                role = it
+                draftViewModel.updateRole(it)
+            },
+            placeholder = "Enter your role (e.g. STUDENT)"
+        )
+
         // Connect Your Profile: full width; LazyRow scrolls horizontally with outlined cards
         ConnectProfileRow(
             expandedPlatform = expandedPlatform,
             urlValues = urlValues,
-            onUrlChange = { p, v -> urlValues = urlValues + (p to v) },
+            onUrlChange = { p, v -> 
+                val newMap = urlValues + (p to v)
+                urlValues = newMap 
+                draftViewModel.updateConnectorLinksJson(Json.encodeToString(newMap))
+            },
             onExpandToggle = { p ->
                 expandedPlatform = if (expandedPlatform == p) null else p
             },

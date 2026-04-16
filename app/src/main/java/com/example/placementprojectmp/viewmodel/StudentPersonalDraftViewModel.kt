@@ -53,6 +53,8 @@ class StudentPersonalDraftViewModel(
 
     fun updateFullName(value: String) = update { copy(fullName = value) }
     fun updateUsername(value: String) = update { copy(username = value) }
+    fun updateEmail(value: String) = update { copy(email = value) }
+    fun updateRole(value: String) = update { copy(role = value) }
     fun updatePhone(value: String) = update { copy(phone = value) }
     fun updateAddress(value: String) = update { copy(address = value) }
     fun updateCity(value: String) = update { copy(city = value) }
@@ -62,13 +64,20 @@ class StudentPersonalDraftViewModel(
     fun updateDob(day: String, month: String, year: String) = update {
         copy(day = day, month = month, year = year)
     }
+    fun updateConnectorLinksJson(value: String) = update { copy(connectorLinksJson = value) }
 
     // Education Updates
     fun updateUniversity(value: String) = update { copy(university = value) }
     fun updateCourse(value: String) = update { copy(course = value) }
     fun updateSelectedYear(value: String) = update { copy(selectedYear = value) }
     fun updateClass12Percent(value: String) = update { copy(class12Percent = value) }
+    fun updateSchool12Name(value: String) = update { copy(school12Name = value) }
+    fun updatePassYear12(value: String) = update { copy(passYear12 = value) }
     fun updateClass10Percent(value: String) = update { copy(class10Percent = value) }
+    fun updateSchool10Name(value: String) = update { copy(school10Name = value) }
+    fun updatePassYear10(value: String) = update { copy(passYear10 = value) }
+    fun updateGradCgpa(value: String) = update { copy(gradCgpa = value) }
+    fun updateGradPassYear(value: String) = update { copy(gradPassYear = value) }
     fun updateActiveBacklogsEnabled(value: Boolean) = update { copy(activeBacklogsEnabled = value) }
     fun updateBacklogCount(value: Int) = update { copy(backlogCount = value) }
     fun updateBacklogSubjects(value: String) = update { copy(backlogSubjects = value) }

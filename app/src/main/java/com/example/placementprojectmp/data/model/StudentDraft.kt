@@ -26,6 +26,8 @@ data class StudentDraft(
     // Personal fields
     val fullName: String = "",
     val username: String = "",
+    val email: String = "",
+    val role: String = "",
     val phone: String = "",
     val address: String = "",
     val city: String = "",
@@ -41,7 +43,13 @@ data class StudentDraft(
     val course: String = "",
     val selectedYear: String = "",
     val class12Percent: String = "",
+    val school12Name: String = "",
+    val passYear12: String = "",
     val class10Percent: String = "",
+    val school10Name: String = "",
+    val passYear10: String = "",
+    val gradCgpa: String = "",
+    val gradPassYear: String = "",
     val activeBacklogsEnabled: Boolean = false,
     val backlogCount: Int = 1,
     val backlogSubjects: String = "",
@@ -71,5 +79,6 @@ data class StudentDraft(
     val teamMembersJson: String = "[]",
     
     // Additional Image URIs
-    val profileImageUri: String = ""
+    val profileImageUri: String = "",
+    val connectorLinksJson: String = "{}"
 )
