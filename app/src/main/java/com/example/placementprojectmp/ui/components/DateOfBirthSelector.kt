@@ -37,7 +37,7 @@ fun DateOfBirthSelector(
     day: String,
     month: String,
     year: String,
-    onDateChange: (day: Int, month: Int, year: Int) -> Unit,
+    onDateChange: (day: String, month: String, year: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showPicker by remember { mutableStateOf(false) }
@@ -80,9 +80,10 @@ fun DateOfBirthSelector(
         ) {
             OutlinedTextField(
                 value = day,
-                onValueChange = {},
+                onValueChange = { onDateChange(it, month, year) },
                 modifier = Modifier.weight(1f),
-                readOnly = true,
+                readOnly = false,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -95,9 +96,10 @@ fun DateOfBirthSelector(
             )
             OutlinedTextField(
                 value = month,
-                onValueChange = {},
+                onValueChange = { onDateChange(day, it, year) },
                 modifier = Modifier.weight(1f),
-                readOnly = true,
+                readOnly = false,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -110,9 +112,10 @@ fun DateOfBirthSelector(
             )
             OutlinedTextField(
                 value = year,
-                onValueChange = {},
+                onValueChange = { onDateChange(day, month, it) },
                 modifier = Modifier.weight(1f),
-                readOnly = true,
+                readOnly = false,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -137,9 +140,9 @@ fun DateOfBirthSelector(
                                 timeInMillis = millis
                             }
                             onDateChange(
-                                c.get(Calendar.DAY_OF_MONTH),
-                                c.get(Calendar.MONTH) + 1,
-                                c.get(Calendar.YEAR)
+                                c.get(Calendar.DAY_OF_MONTH).toString(),
+                                (c.get(Calendar.MONTH) + 1).toString(),
+                                c.get(Calendar.YEAR).toString()
                             )
                         }
                         showPicker = false

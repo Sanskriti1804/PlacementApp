@@ -35,8 +35,7 @@ enum class ProfilePlatform(
     GitHub("GitHub", true),
     LinkedIn("LinkedIn", true),
     Portfolio("Portfolio", false),
-    LeetCode("LeetCode", true),
-    Resume("Resume Upload", true)
+    LeetCode("LeetCode", true)
 }
 
 /**

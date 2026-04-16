@@ -56,6 +56,11 @@ fun EducationInformationForm(
     var activeBacklogsEnabled by remember(draft.activeBacklogsEnabled) { mutableStateOf(draft.activeBacklogsEnabled) }
     var backlogCount by remember(draft.backlogCount) { mutableStateOf(if (draft.backlogCount < 1) 1 else draft.backlogCount) }
     
+    var postgradUniversity by remember { mutableStateOf("") }
+    var postgradCourse by remember { mutableStateOf("") }
+    var postgradCgpa by remember { mutableStateOf("") }
+    var postgradPassYear by remember { mutableStateOf("") }
+    
     val initialBacklogs = draft.backlogSubjects.split(",").filter { it.isNotBlank() }
     val backlogSubjects = remember(draft.backlogSubjects) { 
         mutableStateListOf<String>().apply { 
@@ -187,6 +192,40 @@ fun EducationInformationForm(
                     gradPassYear = it.filter { c -> c.isDigit() } 
                     draftViewModel.updateGradPassYear(gradPassYear)
                 },
+                placeholder = "YYYY",
+                keyboardType = KeyboardType.Number
+            )
+        }
+
+        HorizontalDivider(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+
+        androidx.compose.material3.Text("Postgraduate Details", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        FormField(
+            label = "Postgraduate University Name",
+            value = postgradUniversity,
+            onValueChange = { postgradUniversity = it },
+            placeholder = "University or college name"
+        )
+        FormField(
+            label = "Course",
+            value = postgradCourse,
+            onValueChange = { postgradCourse = it },
+            placeholder = "e.g. MCA, MTech, MBA"
+        )
+        androidx.compose.foundation.layout.Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            FormField(
+                modifier = Modifier.weight(1f),
+                label = "Enter CGPA",
+                value = postgradCgpa,
+                onValueChange = { postgradCgpa = it.filter { c -> c.isDigit() || c == '.' } },
+                placeholder = "e.g. 8.5",
+                keyboardType = KeyboardType.Decimal
+            )
+            FormField(
+                modifier = Modifier.weight(1f),
+                label = "Passing Year (Postgraduate)",
+                value = postgradPassYear,
+                onValueChange = { postgradPassYear = it.filter { c -> c.isDigit() } },
                 placeholder = "YYYY",
                 keyboardType = KeyboardType.Number
             )

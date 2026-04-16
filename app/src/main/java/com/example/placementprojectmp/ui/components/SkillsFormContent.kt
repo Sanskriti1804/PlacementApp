@@ -65,7 +65,7 @@ fun SkillsFormContent(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 8.dp)
             .animateContentSize(),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
