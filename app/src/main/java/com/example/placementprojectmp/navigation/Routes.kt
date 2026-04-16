@@ -50,6 +50,8 @@ object Routes {
         const val AptitudeTestPlayer = "aptitude_test_player_screen"
         const val AptitudeTestPlayerWithId = "aptitude_test_player_screen/{testId}"
         const val AptitudeTestResult = "aptitude_test_result_screen"
+
+        const val Apply = "apply_screen"
         const val AptitudeTestResultWithId = "aptitude_test_result_screen/{testId}"
         const val Chatbot = "chatbot"
         /** Outer-graph opportunities route (distinct from tab [Opportunities]). */

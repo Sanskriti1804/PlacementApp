@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import android.os.SystemClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -63,6 +64,16 @@ fun StudentMainContainer(
     outerNavController: androidx.navigation.NavHostController? = null
 ) {
     val innerNavController = rememberNavController()
+    val lastApplyNavMs = remember { longArrayOf(0L) }
+    val navigateToApply: () -> Unit = applyNav@{
+        val nav = outerNavController ?: return@applyNav
+        val now = SystemClock.uptimeMillis()
+        if (now - lastApplyNavMs[0] < 450L) return@applyNav
+        lastApplyNavMs[0] = now
+        nav.navigate(Routes.StudentRoutes.Apply) {
+            launchSingleTop = true
+        }
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -95,7 +106,8 @@ fun StudentMainContainer(
                     },
                     onDriveClick = { driveId ->
                         innerNavController.navigate(Routes.StudentRoutes.driveDetailScreen(driveId))
-                    }
+                    },
+                    onApplyClick = navigateToApply
                 )
             }
             composable(
@@ -103,7 +115,11 @@ fun StudentMainContainer(
                 arguments = listOf(navArgument("jobId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val jobId = backStackEntry.arguments?.getString("jobId").orEmpty()
-                JobDetailScreen(modifier = modifier, jobId = jobId)
+                JobDetailScreen(
+                    modifier = modifier,
+                    jobId = jobId,
+                    onApplyClick = navigateToApply
+                )
             }
             composable(
                 route = Routes.StudentRoutes.DriveDetailWithDriveId,

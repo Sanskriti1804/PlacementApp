@@ -1,5 +1,6 @@
 package com.example.placementprojectmp.navigation
 
+import android.os.SystemClock
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,6 +23,7 @@ import com.example.placementprojectmp.ui.screens.startup.screens.SplashScreen
 import com.example.placementprojectmp.ui.screens.student.screens.AcademicPerdormanceScreen
 import com.example.placementprojectmp.ui.screens.student.screens.ApplicationScreen
 import com.example.placementprojectmp.ui.screens.student.screens.ApplicationStatusScreen
+import com.example.placementprojectmp.ui.screens.student.screens.ApplyScreen
 import com.example.placementprojectmp.ui.screens.student.screens.AptitudeTestDetailsScreen
 import com.example.placementprojectmp.ui.screens.student.screens.AptitudeTestPlayerScreen
 import com.example.placementprojectmp.ui.screens.student.screens.AptitudeTestResultScreen
@@ -227,6 +229,10 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
         composable(Routes.StudentRoutes.AcademicDetails) {
             AcademicPerdormanceScreen(modifier = modifier)
         }
+        composable(Routes.StudentRoutes.Apply) {
+            ApplyScreen(modifier = modifier)
+        }
+
         composable(Routes.StudentRoutes.Preparation) {
             PreparationScreen(
                 modifier = modifier,
@@ -280,6 +286,15 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
             ChatbotScreen(modifier = modifier)
         }
         composable(Routes.StudentRoutes.OpportunitiesOuter) {
+            val lastApplyNavMs = remember { longArrayOf(0L) }
+            val navigateToApply: () -> Unit = applyNav@{
+                val now = SystemClock.uptimeMillis()
+                if (now - lastApplyNavMs[0] < 450L) return@applyNav
+                lastApplyNavMs[0] = now
+                navController.navigate(Routes.StudentRoutes.Apply) {
+                    launchSingleTop = true
+                }
+            }
             OpportunitiesScreen(
                 modifier = modifier,
                 onJobClick = { jobId ->
@@ -287,7 +302,8 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
                 },
                 onDriveClick = { driveId ->
                     navController.navigate(Routes.StudentRoutes.driveDetailScreen(driveId))
-                }
+                },
+                onApplyClick = navigateToApply
             )
         }
         composable(
@@ -295,7 +311,20 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
             arguments = listOf(navArgument("jobId") { type = NavType.StringType })
         ) { backStackEntry ->
             val jobId = backStackEntry.arguments?.getString("jobId").orEmpty()
-            JobDetailScreen(modifier = modifier, jobId = jobId)
+            val lastApplyNavMs = remember { longArrayOf(0L) }
+            val navigateToApply: () -> Unit = applyNav@{
+                val now = SystemClock.uptimeMillis()
+                if (now - lastApplyNavMs[0] < 450L) return@applyNav
+                lastApplyNavMs[0] = now
+                navController.navigate(Routes.StudentRoutes.Apply) {
+                    launchSingleTop = true
+                }
+            }
+            JobDetailScreen(
+                modifier = modifier,
+                jobId = jobId,
+                onApplyClick = navigateToApply
+            )
         }
         composable(
             route = Routes.StudentRoutes.DriveDetailWithDriveId,

@@ -236,7 +236,8 @@ fun OpportunitiesScreen(
     onMenuClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
     onJobClick: (jobId: String) -> Unit = {},
-    onDriveClick: (driveId: String) -> Unit = {}
+    onDriveClick: (driveId: String) -> Unit = {},
+    onApplyClick: () -> Unit = {}
 ) {
     val allJobs = remember { studentOpportunitiesDummyJobs() }
     val allDrives = remember { studentOpportunitiesDummyDrives() }
@@ -330,7 +331,7 @@ fun OpportunitiesScreen(
                 ) {
                     JobCard(
                         job = job,
-                        onApplyClick = { },
+                        onApplyClick = onApplyClick,
                         onClick = { onJobClick(job.id) }
                     )
                 }
