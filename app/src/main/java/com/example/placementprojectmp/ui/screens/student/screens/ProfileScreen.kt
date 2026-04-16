@@ -41,7 +41,10 @@ import com.example.placementprojectmp.ui.components.SkillsCard
 import com.example.placementprojectmp.ui.components.SocialPlatform
 import com.example.placementprojectmp.ui.components.SocialPlatformRow
 import com.example.placementprojectmp.viewmodel.StudentViewModel
+import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import kotlin.collections.emptyList
 
 /**
@@ -62,6 +65,7 @@ fun ProfileScreen(
 
     val userViewModel : UserViewModel = koinViewModel()
     val studentViewModel : StudentViewModel = koinViewModel()
+    val personalDraftViewModel: StudentPersonalDraftViewModel = koinViewModel()
     LaunchedEffect(Unit) {
         println("FETCH CALLED")
         userViewModel.fetchUsers()
@@ -71,11 +75,11 @@ fun ProfileScreen(
     val currentStudentProfile  = studentViewModel.profile
     val profileUser = currentStudentProfile?.user
 
-    val resolvedUserName = profileUser?.name?.takeIf { it.isNotBlank() }
-        ?: currentUser?.name?.takeIf { it.isNotBlank() }
-        ?: "User"
-    val resolvedRole = "Android Developer"
-    val resolvedHandle = "user@edu.com"
+    val personalDraft by personalDraftViewModel.draft.collectAsState()
+
+    val resolvedUserName = personalDraft.fullName.takeIf { it.isNotBlank() } ?: "User"
+    val resolvedRole = personalDraft.role.takeIf { it.isNotBlank() } ?: "Android Developer"
+    val resolvedHandle = personalDraft.username.takeIf { it.isNotBlank() }?.let { "@$it" } ?: "@user"
     val dummyBio = "Android developer focused on Kotlin and Jetpack Compose, building clean, scalable apps with strong attention to UI performance."
     val profileBio = currentStudentProfile?.bio?.takeIf { it.isNotBlank() } ?: dummyBio
     val dummySkills = listOf(

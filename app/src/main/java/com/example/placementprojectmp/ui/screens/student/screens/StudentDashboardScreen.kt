@@ -38,10 +38,11 @@ import com.example.placementprojectmp.ui.screens.student.component.CourseDomainM
 import com.example.placementprojectmp.ui.screens.student.component.FeatureTool
 import com.example.placementprojectmp.ui.screens.student.component.FeatureTools
 import com.example.placementprojectmp.ui.screens.shared.component.DashboardUserProfile
-import com.example.placementprojectmp.viewmodel.EducationViewModel
 import com.example.placementprojectmp.viewmodel.StudentViewModel
 import com.example.placementprojectmp.viewmodel.UserViewModel
+import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun StudentDashboardScreen(
@@ -56,7 +57,8 @@ fun StudentDashboardScreen(
 
     val userViewModel: UserViewModel = koinViewModel()
     val studentViewModel: StudentViewModel = koinViewModel()
-    val educationViewModel: EducationViewModel = koinViewModel()
+    val educationViewModel: com.example.placementprojectmp.viewmodel.EducationViewModel = koinViewModel()
+    val personalDraftViewModel: StudentPersonalDraftViewModel = koinViewModel()
 
     LaunchedEffect(Unit) {
         runCatching { userViewModel.fetchUsers() }
@@ -103,9 +105,13 @@ fun StudentDashboardScreen(
 
     val currentUser = userViewModel.students.firstOrNull()
     val profileUser = studentViewModel.profile?.user
-    val resolvedUserName = profileUser?.name?.takeIf { it.isNotBlank() }
-        ?: currentUser?.name?.takeIf { it.isNotBlank() }
-        ?: "User"
+    
+    val personalDraft by personalDraftViewModel.draft.collectAsState()
+    
+    val draftName = personalDraft.fullName.takeIf { it.isNotBlank() } ?: "User"
+
+    // Combine values into a single formatted string to bind all requested data while strictly avoiding modifications to existing composable components
+    val resolvedUserName = "$draftName"
     val courses = educationViewModel.courses
     val courseDomains = educationViewModel.domains
 
