@@ -59,7 +59,20 @@ import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.data.AptitudeTestRepository
 import com.example.placementprojectmp.ui.screens.shared.component.NeonGlassToastHost
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import androidx.compose.runtime.collectAsState
 
+object ResourceBookmarkStore {
+    private val _bookmarkedFiles = MutableStateFlow<Set<String>>(emptySet())
+    val bookmarkedFiles: StateFlow<Set<String>> = _bookmarkedFiles.asStateFlow()
+
+    fun toggleBookmark(fileName: String) {
+        val current = _bookmarkedFiles.value
+        _bookmarkedFiles.value = if (fileName in current) current - fileName else current + fileName
+    }
+}
 /** Dummy data for Notes bottom sheet: (fileName, uploaderDisplayName). */
 private val notesDummyItems = listOf(
     "Operating Systems Notes.pdf" to "Prof. Sharma",
@@ -115,6 +128,7 @@ fun ResourceBottomSheet(
     val displayTitle = if (folderTitle == "Cheat Codes") "Cheat Sheet" else folderTitle
     val saveFeedbackHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val context = androidx.compose.ui.platform.LocalContext.current
     val listItems = when (folderTitle) {
         "Notes" -> notesDummyItems
         "Cheat Codes" -> cheatSheetDummyItems
@@ -178,11 +192,27 @@ fun ResourceBottomSheet(
                             fileName = fileName,
                             uploaderName = uploaderName,
                             onSaveClick = {
+                                ResourceBookmarkStore.toggleBookmark(fileName)
                                 scope.launch {
-                                    saveFeedbackHostState.showSnackbar("Note saved")
+                                    val isSaved = ResourceBookmarkStore.bookmarkedFiles.value.contains(fileName)
+                                    saveFeedbackHostState.showSnackbar(if (isSaved) "Note saved" else "Note removed")
                                 }
                             },
-                            onDownloadClick = { /* Trigger download */ }
+                            onDownloadClick = { 
+                                scope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                    try {
+                                        val file = java.io.File(context.getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS), fileName)
+                                        file.writeText("Dummy content for $fileName")
+                                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                            android.widget.Toast.makeText(context, "File downloaded successfully", android.widget.Toast.LENGTH_SHORT).show()
+                                        }
+                                    } catch (e: Exception) {
+                                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                            android.widget.Toast.makeText(context, "Download failed", android.widget.Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                }
+                            }
                         )
                     }
                 }
@@ -233,7 +263,8 @@ private fun NotesSheetItem(
     onSaveClick: () -> Unit,
     onDownloadClick: () -> Unit
 ) {
-    var bookmarked by remember(fileName) { mutableStateOf(false) }
+    val bookmarkedFilesState = ResourceBookmarkStore.bookmarkedFiles.collectAsState()
+    val bookmarked = bookmarkedFilesState.value.contains(fileName)
     val bookmarkColor by animateColorAsState(
         targetValue = if (bookmarked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
         animationSpec = tween(200),
@@ -282,7 +313,6 @@ private fun NotesSheetItem(
         Spacer(modifier = Modifier.width(8.dp))
         IconButton(
             onClick = {
-                bookmarked = !bookmarked
                 onSaveClick()
             },
             modifier = Modifier.size(40.dp)

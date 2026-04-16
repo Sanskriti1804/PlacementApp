@@ -5,7 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.example.placementprojectmp.data.model.StudentPersonalDraft
+import com.example.placementprojectmp.data.model.StudentDraft
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -24,8 +24,8 @@ class StudentPersonalDraftStore(private val context: Context) {
     private val monthKey = stringPreferencesKey("dob_month")
     private val yearKey = stringPreferencesKey("dob_year")
 
-    val draftFlow: Flow<StudentPersonalDraft> = context.personalDraftDataStore.data.map { prefs: Preferences ->
-        StudentPersonalDraft(
+    val draftFlow: Flow<StudentDraft> = context.personalDraftDataStore.data.map { prefs: Preferences ->
+        StudentDraft(
             fullName = prefs[fullNameKey].orEmpty(),
             username = prefs[usernameKey].orEmpty(),
             phone = prefs[phoneKey].orEmpty(),
@@ -40,7 +40,7 @@ class StudentPersonalDraftStore(private val context: Context) {
         )
     }
 
-    suspend fun saveDraft(draft: StudentPersonalDraft) {
+    suspend fun saveDraft(draft: StudentDraft) {
         context.personalDraftDataStore.edit { prefs ->
             prefs[fullNameKey] = draft.fullName
             prefs[usernameKey] = draft.username

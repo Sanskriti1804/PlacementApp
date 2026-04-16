@@ -1,6 +1,6 @@
 package com.example.placementprojectmp.data.model
 
-data class StudentPersonalDraft(
+data class StudentDraft(
     val fullName: String = "",
     val username: String = "",
     val phone: String = "",

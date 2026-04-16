@@ -3,7 +3,7 @@ package com.example.placementprojectmp.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.placementprojectmp.data.local.StudentPersonalDraftStore
-import com.example.placementprojectmp.data.model.StudentPersonalDraft
+import com.example.placementprojectmp.data.model.StudentDraft
 import com.example.placementprojectmp.integration.data.dto.StudentProfileRequestDto
 import com.example.placementprojectmp.integration.data.remote.ApiResult
 import com.example.placementprojectmp.integration.data.repository.StudentRepository
@@ -18,8 +18,8 @@ class StudentPersonalDraftViewModel(
     private val store: StudentPersonalDraftStore,
     private val studentRepository: StudentRepository
 ) : ViewModel() {
-    private val _draft = MutableStateFlow(StudentPersonalDraft())
-    val draft: StateFlow<StudentPersonalDraft> = _draft.asStateFlow()
+    private val _draft = MutableStateFlow(StudentDraft())
+    val draft: StateFlow<StudentDraft> = _draft.asStateFlow()
 
     var profileImageUri by androidx.compose.runtime.mutableStateOf<android.net.Uri?>(null)
         private set
@@ -96,7 +96,7 @@ class StudentPersonalDraftViewModel(
         }
     }
 
-    private fun update(transform: StudentPersonalDraft.() -> StudentPersonalDraft) {
+    private fun update(transform: StudentDraft.() -> StudentDraft) {
         _draft.value = _draft.value.transform()
     }
 }
