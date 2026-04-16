@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.clickable
 
 /**
  * Large rectangular card for project image upload. Placeholder text; images provided later.
@@ -28,38 +29,59 @@ import androidx.compose.ui.unit.dp
 fun ProjectImageUploadCard(
     modifier: Modifier = Modifier
 ) {
+    val draftViewModel: com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel = org.koin.androidx.compose.koinViewModel()
+    val imageUris = draftViewModel.projectImagesUris
+    
+    val mediaPicker = com.example.placementprojectmp.utils.rememberMediaPicker(
+        onSingleImageSelected = { },
+        onMultipleImagesSelected = { uris -> draftViewModel.updateProjectImagesUris(uris) }
+    )
+
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp)),
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { mediaPicker.pickMultipleImages() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 140.dp)
-                .padding(48.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+        if (imageUris.isNotEmpty()) {
+            val primaryImage = imageUris.first()
+            coil.compose.AsyncImage(
+                model = primaryImage,
+                contentDescription = "Project Image",
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 140.dp)
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 140.dp)
+                    .padding(48.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add project image",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f)
-                )
-                Text(
-                    text = "Add Your Project Images",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
-                    textAlign = TextAlign.Center
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add project image",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f)
+                    )
+                    Text(
+                        text = "Add Your Project Images",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }

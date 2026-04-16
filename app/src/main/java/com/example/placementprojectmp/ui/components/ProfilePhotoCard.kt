@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.clickable
 
 /**
  * Profile photo upload/display card. Placeholder area and helper text; images provided later.
@@ -29,41 +30,61 @@ import androidx.compose.ui.unit.dp
 fun ProfilePhotoCard(
     modifier: Modifier = Modifier
 ) {
+    val draftViewModel: com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel = org.koin.androidx.compose.koinViewModel()
+    val imageUri = draftViewModel.profileImageUri
+    
+    val mediaPicker = com.example.placementprojectmp.utils.rememberMediaPicker(
+        onSingleImageSelected = { uri -> draftViewModel.updateProfileImageUri(uri) },
+        onMultipleImagesSelected = { }
+    )
+
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .fillMaxHeight(),
+            .fillMaxHeight()
+            .clickable { mediaPicker.pickSingleImage() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
-        ) {
-            Box(
+        if (imageUri != null) {
+            coil.compose.AsyncImage(
+                model = imageUri,
+                contentDescription = "Profile Photo",
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                 modifier = Modifier
-                    .size(38.dp),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            )
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add profile photo",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                Box(
+                    modifier = Modifier
+                        .size(38.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add profile photo",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "Add your personal profile photo",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
+                    textAlign = TextAlign.Center
                 )
             }
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = "Add your personal profile photo",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
-                textAlign = TextAlign.Center
-            )
         }
     }
 }

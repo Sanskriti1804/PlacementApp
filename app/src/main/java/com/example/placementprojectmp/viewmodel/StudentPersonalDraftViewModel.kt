@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 class StudentPersonalDraftViewModel(
     private val store: StudentPersonalDraftStore,
@@ -18,6 +20,20 @@ class StudentPersonalDraftViewModel(
 ) : ViewModel() {
     private val _draft = MutableStateFlow(StudentPersonalDraft())
     val draft: StateFlow<StudentPersonalDraft> = _draft.asStateFlow()
+
+    var profileImageUri by androidx.compose.runtime.mutableStateOf<android.net.Uri?>(null)
+        private set
+
+    var projectImagesUris by androidx.compose.runtime.mutableStateOf<List<android.net.Uri>>(emptyList())
+        private set
+
+    fun updateProfileImageUri(uri: android.net.Uri?) {
+        profileImageUri = uri
+    }
+
+    fun updateProjectImagesUris(uris: List<android.net.Uri>) {
+        projectImagesUris = uris
+    }
 
     init {
         viewModelScope.launch {
