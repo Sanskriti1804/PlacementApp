@@ -20,6 +20,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.collectAsState
+import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
+import org.koin.androidx.compose.koinViewModel
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
+import com.example.placementprojectmp.data.model.TeamMemberDraft
+
 
 /**
  * Project form content. Shown when Projects tab is selected (no separate screen).
@@ -36,15 +43,34 @@ private val TECHNOLOGY_OPTIONS = listOf(
 fun ProjectsFormContent(
     modifier: Modifier = Modifier
 ) {
-    var projectName by remember { mutableStateOf("") }
-    var projectLink by remember { mutableStateOf("") }
-    var projectDescription by remember { mutableStateOf("") }
+    val draftViewModel: StudentPersonalDraftViewModel = koinViewModel()
+    val draft by draftViewModel.draft.collectAsState()
+
+    var projectName by remember(draft.projectName) { mutableStateOf(draft.projectName) }
+    var projectLink by remember(draft.projectLink) { mutableStateOf(draft.projectLink) }
+    var projectDescription by remember(draft.projectDescription) { mutableStateOf(draft.projectDescription) }
     var technologiesExpanded by remember { mutableStateOf(false) }
-    var technologiesSelected by remember { mutableStateOf<Set<String>>(emptySet()) }
-    var githubRepo by remember { mutableStateOf("") }
-    var liveDemo by remember { mutableStateOf("") }
-    var teamSize by remember { mutableStateOf(0) }
-    val teamMembers = remember { mutableStateListOf<Pair<String, String>>() }
+    var technologiesSelected by remember(draft.technologiesSelected) { mutableStateOf(draft.technologiesSelected) }
+    var githubRepo by remember(draft.githubRepo) { mutableStateOf(draft.githubRepo) }
+    var liveDemo by remember(draft.liveDemo) { mutableStateOf(draft.liveDemo) }
+    var teamSize by remember(draft.teamSize) { mutableStateOf(draft.teamSize) }
+
+    val initialTeamMembers = try {
+        if (draft.teamMembersJson.isNotBlank())
+            Json.decodeFromString<List<TeamMemberDraft>>(draft.teamMembersJson)
+        else emptyList()
+    } catch (e: Exception) { emptyList() }
+
+    val teamMembers = remember(draft.teamMembersJson) { 
+        mutableStateListOf<Pair<String, String>>().apply {
+            addAll(initialTeamMembers.map { it.name to it.role })
+        }
+    }
+
+    fun updateTeamMembersStore() {
+        val drafts = teamMembers.map { TeamMemberDraft(it.first, it.second) }
+        draftViewModel.updateTeamMembersJson(Json.encodeToString(drafts))
+    }
 
     Column(
         modifier = modifier
@@ -56,7 +82,10 @@ fun ProjectsFormContent(
         FormField(
             label = "Project Name",
             value = projectName,
-            onValueChange = { projectName = it },
+            onValueChange = { 
+                projectName = it 
+                draftViewModel.updateProjectName(it)
+            },
             placeholder = "Project name"
         )
 
@@ -65,7 +94,10 @@ fun ProjectsFormContent(
         FormField(
             label = "Project Link",
             value = projectLink,
-            onValueChange = { projectLink = it },
+            onValueChange = { 
+                projectLink = it 
+                draftViewModel.updateProjectLink(it)
+            },
             required = false,
             placeholder = "Hosted project, demo, or documentation URL"
         )
@@ -73,7 +105,10 @@ fun ProjectsFormContent(
         FormField(
             label = "Project Description",
             value = projectDescription,
-            onValueChange = { projectDescription = it },
+            onValueChange = { 
+                projectDescription = it 
+                draftViewModel.updateProjectDescription(it)
+            },
             placeholder = "Purpose, features, implementation, achievements",
             singleLine = false
         )
@@ -85,20 +120,29 @@ fun ProjectsFormContent(
             selected = technologiesSelected,
             expanded = technologiesExpanded,
             onExpandToggle = { technologiesExpanded = true },
-            onSelectionChange = { technologiesSelected = it }
+            onSelectionChange = { 
+                technologiesSelected = it 
+                draftViewModel.updateTechnologiesSelected(it)
+            }
         )
 
         FormField(
             label = "GitHub Repository",
             value = githubRepo,
-            onValueChange = { githubRepo = it },
+            onValueChange = { 
+                githubRepo = it 
+                draftViewModel.updateGithubRepo(it)
+            },
             placeholder = "https://github.com/..."
         )
 
         FormField(
             label = "Live Demo",
             value = liveDemo,
-            onValueChange = { liveDemo = it },
+            onValueChange = { 
+                liveDemo = it 
+                draftViewModel.updateLiveDemo(it)
+            },
             required = false,
             placeholder = "Live hosted demo URL"
         )
@@ -118,12 +162,16 @@ fun ProjectsFormContent(
                 onDecrement = {
                     if (teamSize > 0) {
                         teamSize--
+                        draftViewModel.updateTeamSize(teamSize)
                         if (teamMembers.size > teamSize) teamMembers.removeAt(teamMembers.lastIndex)
+                        updateTeamMembersStore()
                     }
                 },
                 onIncrement = {
                     teamSize++
+                    draftViewModel.updateTeamSize(teamSize)
                     while (teamMembers.size < teamSize) teamMembers.add("" to "")
+                    updateTeamMembersStore()
                 }
             )
         }
@@ -146,11 +194,13 @@ fun ProjectsFormContent(
                         onMemberNameChange = { newName ->
                             while (teamMembers.size <= index) teamMembers.add("" to "")
                             teamMembers[index] = newName to teamMembers[index].second
+                            updateTeamMembersStore()
                         },
                         role = current.second,
                         onRoleChange = { newRole ->
                             while (teamMembers.size <= index) teamMembers.add("" to "")
                             teamMembers[index] = teamMembers[index].first to newRole
+                            updateTeamMembersStore()
                         }
                     )
                 }

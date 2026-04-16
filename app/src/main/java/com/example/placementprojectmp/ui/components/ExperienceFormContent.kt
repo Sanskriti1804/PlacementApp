@@ -16,6 +16,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.collectAsState
+import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
+import org.koin.androidx.compose.koinViewModel
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
+import com.example.placementprojectmp.data.model.JobEntryDraft
+
 
 /**
  * Experience form content: Work Experience toggle; when ON, job entry cards + Add Another Experience.
@@ -43,8 +50,51 @@ private data class JobEntryState(
 fun ExperienceFormContent(
     modifier: Modifier = Modifier
 ) {
-    var hasWorkExperience by remember { mutableStateOf(false) }
-    val jobEntries = remember { mutableStateListOf<JobEntryState>() }
+    val draftViewModel: StudentPersonalDraftViewModel = koinViewModel()
+    val draft by draftViewModel.draft.collectAsState()
+
+    var hasWorkExperience by remember(draft.hasWorkExperience) { mutableStateOf(draft.hasWorkExperience) }
+
+    val initialJobEntries = try {
+        if (draft.jobEntriesJson.isNotBlank()) 
+            Json.decodeFromString<List<JobEntryDraft>>(draft.jobEntriesJson).map { draftEntry ->
+                JobEntryState(
+                    companyName = draftEntry.companyName,
+                    jobType = com.example.placementprojectmp.ui.components.JobType.entries.find { it.name == draftEntry.jobTypeTitle },
+                    location = draftEntry.location,
+                    fromDay = draftEntry.fromDay,
+                    fromMonth = draftEntry.fromMonth,
+                    fromYear = draftEntry.fromYear,
+                    toDay = draftEntry.toDay,
+                    toMonth = draftEntry.toMonth,
+                    toYear = draftEntry.toYear,
+                    roleDescription = draftEntry.roleDescription
+                )
+            }
+        else emptyList()
+    } catch (e: Exception) { emptyList() }
+
+    val jobEntries = remember(draft.jobEntriesJson) { 
+        mutableStateListOf<JobEntryState>().apply { addAll(initialJobEntries) } 
+    }
+
+    fun updateStore() {
+        val drafts = jobEntries.map { state ->
+            JobEntryDraft(
+                companyName = state.companyName,
+                jobTypeTitle = state.jobType?.name ?: "",
+                location = state.location,
+                fromDay = state.fromDay,
+                fromMonth = state.fromMonth,
+                fromYear = state.fromYear,
+                toDay = state.toDay,
+                toMonth = state.toMonth,
+                toYear = state.toYear,
+                roleDescription = state.roleDescription
+            )
+        }
+        draftViewModel.updateJobEntriesJson(Json.encodeToString(drafts))
+    }
 
     Column(
         modifier = modifier
@@ -58,8 +108,10 @@ fun ExperienceFormContent(
             checked = hasWorkExperience,
             onCheckedChange = { enabled ->
                 hasWorkExperience = enabled
+                draftViewModel.updateHasWorkExperience(enabled)
                 if (enabled && jobEntries.isEmpty()) {
                     jobEntries.add(JobEntryState.empty())
+                    updateStore()
                 }
             }
         )
@@ -78,29 +130,46 @@ fun ExperienceFormContent(
                     JobExperienceCard(
                         jobIndex = index + 1,
                         companyName = entry.companyName,
-                        onCompanyNameChange = { jobEntries[index] = entry.copy(companyName = it) },
+                        onCompanyNameChange = { 
+                            jobEntries[index] = entry.copy(companyName = it) 
+                            updateStore()
+                        },
                         jobType = entry.jobType,
-                        onJobTypeChange = { jobEntries[index] = entry.copy(jobType = it) },
+                        onJobTypeChange = { 
+                            jobEntries[index] = entry.copy(jobType = it) 
+                            updateStore()
+                        },
                         location = entry.location,
-                        onLocationChange = { jobEntries[index] = entry.copy(location = it) },
+                        onLocationChange = { 
+                            jobEntries[index] = entry.copy(location = it) 
+                            updateStore()
+                        },
                         fromDay = entry.fromDay,
                         fromMonth = entry.fromMonth,
                         fromYear = entry.fromYear,
                         onFromDateChange = { d, m, y ->
                             jobEntries[index] = entry.copy(fromDay = d, fromMonth = m, fromYear = y)
+                            updateStore()
                         },
                         toDay = entry.toDay,
                         toMonth = entry.toMonth,
                         toYear = entry.toYear,
                         onToDateChange = { d, m, y ->
                             jobEntries[index] = entry.copy(toDay = d, toMonth = m, toYear = y)
+                            updateStore()
                         },
                         roleDescription = entry.roleDescription,
-                        onRoleDescriptionChange = { jobEntries[index] = entry.copy(roleDescription = it) }
+                        onRoleDescriptionChange = { 
+                            jobEntries[index] = entry.copy(roleDescription = it) 
+                            updateStore()
+                        }
                     )
                 }
                 AddExperienceButton(
-                    onClick = { jobEntries.add(JobEntryState.empty()) }
+                    onClick = { 
+                        jobEntries.add(JobEntryState.empty()) 
+                        updateStore()
+                    }
                 )
             }
         }

@@ -29,15 +29,25 @@ class StudentPersonalDraftViewModel(
 
     fun updateProfileImageUri(uri: android.net.Uri?) {
         profileImageUri = uri
+        update { copy(profileImageUri = uri?.toString() ?: "") }
     }
 
     fun updateProjectImagesUris(uris: List<android.net.Uri>) {
         projectImagesUris = uris
+        update { copy(projectImageUri = uris.joinToString(",") { it.toString() }) }
     }
 
     init {
         viewModelScope.launch {
-            store.draftFlow.collect { _draft.value = it }
+            store.draftFlow.collect { draftState -> 
+                _draft.value = draftState 
+                if (draftState.profileImageUri.isNotBlank()) {
+                    profileImageUri = android.net.Uri.parse(draftState.profileImageUri)
+                }
+                if (draftState.projectImageUri.isNotBlank()) {
+                    projectImagesUris = draftState.projectImageUri.split(",").filter { it.isNotBlank() }.map { android.net.Uri.parse(it) }
+                }
+            }
         }
     }
 
@@ -53,6 +63,39 @@ class StudentPersonalDraftViewModel(
         copy(day = day, month = month, year = year)
     }
 
+    // Education Updates
+    fun updateUniversity(value: String) = update { copy(university = value) }
+    fun updateCourse(value: String) = update { copy(course = value) }
+    fun updateSelectedYear(value: String) = update { copy(selectedYear = value) }
+    fun updateClass12Percent(value: String) = update { copy(class12Percent = value) }
+    fun updateClass10Percent(value: String) = update { copy(class10Percent = value) }
+    fun updateActiveBacklogsEnabled(value: Boolean) = update { copy(activeBacklogsEnabled = value) }
+    fun updateBacklogCount(value: Int) = update { copy(backlogCount = value) }
+    fun updateBacklogSubjects(value: String) = update { copy(backlogSubjects = value) }
+    fun updateAcademicGapEnabled(value: Boolean) = update { copy(academicGapEnabled = value) }
+    fun updateGapYears(value: String) = update { copy(gapYears = value) }
+    fun updateGapExplanation(value: String) = update { copy(gapExplanation = value) }
+
+    // Skills Updates
+    fun updateLanguagesSelected(value: Set<String>) = update { copy(languagesSelected = value) }
+    fun updateFrameworksSelected(value: Set<String>) = update { copy(frameworksSelected = value) }
+    fun updateToolsSelected(value: Set<String>) = update { copy(toolsSelected = value) }
+    fun updateSoftSkillsSelected(value: Set<String>) = update { copy(softSkillsSelected = value) }
+
+    // Experience Updates
+    fun updateHasWorkExperience(value: Boolean) = update { copy(hasWorkExperience = value) }
+    fun updateJobEntriesJson(value: String) = update { copy(jobEntriesJson = value) }
+
+    // Projects Updates
+    fun updateProjectName(value: String) = update { copy(projectName = value) }
+    fun updateProjectImageUriString(value: String) = update { copy(projectImageUri = value) }
+    fun updateProjectLink(value: String) = update { copy(projectLink = value) }
+    fun updateProjectDescription(value: String) = update { copy(projectDescription = value) }
+    fun updateTechnologiesSelected(value: Set<String>) = update { copy(technologiesSelected = value) }
+    fun updateGithubRepo(value: String) = update { copy(githubRepo = value) }
+    fun updateLiveDemo(value: String) = update { copy(liveDemo = value) }
+    fun updateTeamSize(value: Int) = update { copy(teamSize = value) }
+    fun updateTeamMembersJson(value: String) = update { copy(teamMembersJson = value) }
     fun save() {
         viewModelScope.launch {
             val draft = _draft.value

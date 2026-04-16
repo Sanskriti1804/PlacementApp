@@ -26,6 +26,10 @@ import com.example.placementprojectmp.ui.components.CourseYearSelector
 import com.example.placementprojectmp.ui.components.FormField
 import com.example.placementprojectmp.ui.components.ToggleRow
 
+import androidx.compose.runtime.collectAsState
+import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
+import org.koin.androidx.compose.koinViewModel
+
 /**
  * Education Form: university, course, year selector, percentages, divider, backlogs toggle, academic gap toggle.
  * Shown when Education tab is selected; lives inside the form container in LazyColumn.
@@ -34,17 +38,27 @@ import com.example.placementprojectmp.ui.components.ToggleRow
 fun EducationInformationForm(
     modifier: Modifier = Modifier
 ) {
-    var university by remember { mutableStateOf("") }
-    var course by remember { mutableStateOf("") }
-    var selectedYear by remember { mutableStateOf<Int?>(null) }
-    var class12Percent by remember { mutableStateOf("") }
-    var class10Percent by remember { mutableStateOf("") }
-    var activeBacklogsEnabled by remember { mutableStateOf(false) }
-    var backlogCount by remember { mutableStateOf(1) }
-    val backlogSubjects = remember { mutableStateListOf<String>().apply { add("") } }
-    var academicGapEnabled by remember { mutableStateOf(false) }
-    var gapYears by remember { mutableStateOf("") }
-    var gapExplanation by remember { mutableStateOf("") }
+    val draftViewModel: StudentPersonalDraftViewModel = koinViewModel()
+    val draft by draftViewModel.draft.collectAsState()
+
+    var university by remember(draft.university) { mutableStateOf(draft.university) }
+    var course by remember(draft.course) { mutableStateOf(draft.course) }
+    var selectedYear by remember(draft.selectedYear) { mutableStateOf(draft.selectedYear.toIntOrNull()) }
+    var class12Percent by remember(draft.class12Percent) { mutableStateOf(draft.class12Percent) }
+    var class10Percent by remember(draft.class10Percent) { mutableStateOf(draft.class10Percent) }
+    var activeBacklogsEnabled by remember(draft.activeBacklogsEnabled) { mutableStateOf(draft.activeBacklogsEnabled) }
+    var backlogCount by remember(draft.backlogCount) { mutableStateOf(if (draft.backlogCount < 1) 1 else draft.backlogCount) }
+    
+    val initialBacklogs = draft.backlogSubjects.split(",").filter { it.isNotBlank() }
+    val backlogSubjects = remember(draft.backlogSubjects) { 
+        mutableStateListOf<String>().apply { 
+            if (initialBacklogs.isEmpty()) add("") else addAll(initialBacklogs) 
+        } 
+    }
+    
+    var academicGapEnabled by remember(draft.academicGapEnabled) { mutableStateOf(draft.academicGapEnabled) }
+    var gapYears by remember(draft.gapYears) { mutableStateOf(draft.gapYears) }
+    var gapExplanation by remember(draft.gapExplanation) { mutableStateOf(draft.gapExplanation) }
 
     Column(
         modifier = modifier
@@ -56,31 +70,46 @@ fun EducationInformationForm(
         FormField(
             label = "University",
             value = university,
-            onValueChange = { university = it },
+            onValueChange = { 
+                university = it 
+                draftViewModel.updateUniversity(it)
+            },
             placeholder = "University or college name"
         )
         FormField(
             label = "Course",
             value = course,
-            onValueChange = { course = it },
+            onValueChange = { 
+                course = it 
+                draftViewModel.updateCourse(it)
+            },
             placeholder = "e.g. BCA, MCA, BTech, MTech, BBA, MBA"
         )
         CourseYearSelector(
             course = course,
             selectedYear = selectedYear,
-            onYearSelected = { selectedYear = it }
+            onYearSelected = { 
+                selectedYear = it 
+                draftViewModel.updateSelectedYear(it?.toString() ?: "")
+            }
         )
         FormField(
             label = "Class 12th Percentage",
             value = class12Percent,
-            onValueChange = { class12Percent = it.filter { c -> c.isDigit() || c == '.' } },
+            onValueChange = { 
+                class12Percent = it.filter { c -> c.isDigit() || c == '.' } 
+                draftViewModel.updateClass12Percent(class12Percent)
+            },
             placeholder = "e.g. 85",
             keyboardType = KeyboardType.Decimal
         )
         FormField(
             label = "Class 10th Percentage",
             value = class10Percent,
-            onValueChange = { class10Percent = it.filter { c -> c.isDigit() || c == '.' } },
+            onValueChange = { 
+                class10Percent = it.filter { c -> c.isDigit() || c == '.' } 
+                draftViewModel.updateClass10Percent(class10Percent)
+            },
             placeholder = "e.g. 90",
             keyboardType = KeyboardType.Decimal
         )
@@ -93,7 +122,10 @@ fun EducationInformationForm(
         ToggleRow(
             label = "Active Backlogs",
             checked = activeBacklogsEnabled,
-            onCheckedChange = { activeBacklogsEnabled = it }
+            onCheckedChange = { 
+                activeBacklogsEnabled = it 
+                draftViewModel.updateActiveBacklogsEnabled(it)
+            }
         )
         AnimatedVisibility(
             visible = activeBacklogsEnabled,
@@ -111,12 +143,16 @@ fun EducationInformationForm(
                     onDecrement = {
                         if (backlogCount > 1) {
                             backlogCount--
+                            draftViewModel.updateBacklogCount(backlogCount)
                             if (backlogSubjects.size > backlogCount) backlogSubjects.removeAt(backlogSubjects.lastIndex)
+                            draftViewModel.updateBacklogSubjects(backlogSubjects.joinToString(","))
                         }
                     },
                     onIncrement = {
                         backlogCount++
+                        draftViewModel.updateBacklogCount(backlogCount)
                         while (backlogSubjects.size < backlogCount) backlogSubjects.add("")
+                        draftViewModel.updateBacklogSubjects(backlogSubjects.joinToString(","))
                     }
                 )
                 BacklogSubjectFields(
@@ -125,6 +161,7 @@ fun EducationInformationForm(
                     onValueChange = { index, value ->
                         while (backlogSubjects.size <= index) backlogSubjects.add("")
                         if (index < backlogSubjects.size) backlogSubjects[index] = value
+                        draftViewModel.updateBacklogSubjects(backlogSubjects.joinToString(","))
                     },
                     modifier = Modifier.padding(top = 12.dp)
                 )
@@ -134,7 +171,10 @@ fun EducationInformationForm(
         ToggleRow(
             label = "Academic Gap",
             checked = academicGapEnabled,
-            onCheckedChange = { academicGapEnabled = it }
+            onCheckedChange = { 
+                academicGapEnabled = it 
+                draftViewModel.updateAcademicGapEnabled(it)
+            }
         )
         AnimatedVisibility(
             visible = academicGapEnabled,
@@ -144,9 +184,15 @@ fun EducationInformationForm(
         ) {
             AcademicGapSection(
                 gapYears = gapYears,
-                onGapYearsChange = { gapYears = it },
+                onGapYearsChange = { 
+                    gapYears = it 
+                    draftViewModel.updateGapYears(it)
+                },
                 explanation = gapExplanation,
-                onExplanationChange = { gapExplanation = it },
+                onExplanationChange = { 
+                    gapExplanation = it 
+                    draftViewModel.updateGapExplanation(it)
+                },
                 modifier = Modifier.animateContentSize()
             )
         }

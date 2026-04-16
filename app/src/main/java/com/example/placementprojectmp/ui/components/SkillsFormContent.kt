@@ -12,6 +12,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.collectAsState
+import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
+import org.koin.androidx.compose.koinViewModel
+
 
 /**
  * Skills form content: Programming Languages, Frameworks, Tools, Soft Skills.
@@ -41,18 +45,22 @@ private val SOFT_SKILLS = listOf(
     "Creativity", "Analytical Thinking", "Decision Making", "Collaboration"
 )
 
+
 @Composable
 fun SkillsFormContent(
     modifier: Modifier = Modifier
 ) {
+    val draftViewModel: StudentPersonalDraftViewModel = koinViewModel()
+    val draft by draftViewModel.draft.collectAsState()
+
     var languagesExpanded by remember { mutableStateOf(false) }
-    var languagesSelected by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var languagesSelected by remember(draft.languagesSelected) { mutableStateOf(draft.languagesSelected) }
     var frameworksExpanded by remember { mutableStateOf(false) }
-    var frameworksSelected by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var frameworksSelected by remember(draft.frameworksSelected) { mutableStateOf(draft.frameworksSelected) }
     var toolsExpanded by remember { mutableStateOf(false) }
-    var toolsSelected by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var toolsSelected by remember(draft.toolsSelected) { mutableStateOf(draft.toolsSelected) }
     var softSkillsExpanded by remember { mutableStateOf(false) }
-    var softSkillsSelected by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var softSkillsSelected by remember(draft.softSkillsSelected) { mutableStateOf(draft.softSkillsSelected) }
 
     Column(
         modifier = modifier
@@ -68,7 +76,10 @@ fun SkillsFormContent(
             selected = languagesSelected,
             expanded = languagesExpanded,
             onExpandToggle = { languagesExpanded = true },
-            onSelectionChange = { languagesSelected = it }
+            onSelectionChange = { 
+                languagesSelected = it
+                draftViewModel.updateLanguagesSelected(it)
+            }
         )
         SkillSelectionField(
             label = "Frameworks",
@@ -77,7 +88,10 @@ fun SkillsFormContent(
             selected = frameworksSelected,
             expanded = frameworksExpanded,
             onExpandToggle = { frameworksExpanded = true },
-            onSelectionChange = { frameworksSelected = it }
+            onSelectionChange = { 
+                frameworksSelected = it
+                draftViewModel.updateFrameworksSelected(it)
+            }
         )
         SkillSelectionField(
             label = "Tools & Platforms",
@@ -86,7 +100,10 @@ fun SkillsFormContent(
             selected = toolsSelected,
             expanded = toolsExpanded,
             onExpandToggle = { toolsExpanded = true },
-            onSelectionChange = { toolsSelected = it }
+            onSelectionChange = { 
+                toolsSelected = it
+                draftViewModel.updateToolsSelected(it)
+            }
         )
         SkillSelectionField(
             label = "Soft Skills",
@@ -95,7 +112,11 @@ fun SkillsFormContent(
             selected = softSkillsSelected,
             expanded = softSkillsExpanded,
             onExpandToggle = { softSkillsExpanded = true },
-            onSelectionChange = { softSkillsSelected = it }
+            onSelectionChange = { 
+                softSkillsSelected = it
+                draftViewModel.updateSoftSkillsSelected(it)
+            }
         )
     }
 }
+
