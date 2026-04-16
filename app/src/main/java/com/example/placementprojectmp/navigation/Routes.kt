@@ -51,7 +51,8 @@ object Routes {
         const val AptitudeTestPlayerWithId = "aptitude_test_player_screen/{testId}"
         const val AptitudeTestResult = "aptitude_test_result_screen"
 
-        const val Apply = "apply_screen"
+        const val Apply = "apply_screen?jobId={jobId}"
+        const val ApplyBase = "apply_screen"
         const val AptitudeTestResultWithId = "aptitude_test_result_screen/{testId}"
         const val Chatbot = "chatbot"
         /** Outer-graph opportunities route (distinct from tab [Opportunities]). */
@@ -68,6 +69,7 @@ object Routes {
         const val DriveDetailWithDriveId = "drive_detail_screen/{driveId}"
 
         fun jobDetailScreen(jobId: String): String = "job_detail_screen/$jobId"
+        fun applyScreen(jobId: String): String = "apply_screen?jobId=$jobId"
 
         fun driveDetailScreen(driveId: String): String = "drive_detail_screen/$driveId"
     }

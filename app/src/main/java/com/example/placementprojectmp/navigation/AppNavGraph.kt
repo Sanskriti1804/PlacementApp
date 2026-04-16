@@ -229,8 +229,23 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
         composable(Routes.StudentRoutes.AcademicDetails) {
             AcademicPerdormanceScreen(modifier = modifier)
         }
-        composable(Routes.StudentRoutes.Apply) {
-            ApplyScreen(modifier = modifier)
+        composable(
+            route = Routes.StudentRoutes.Apply,
+            arguments = listOf(
+                navArgument("jobId") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) { backStackEntry ->
+            val jobId = backStackEntry.arguments?.getString("jobId").orEmpty()
+            ApplyScreen(
+                modifier = modifier,
+                selectedJobId = jobId,
+                onNavigateToProfileForm = {
+                    navController.navigate(Routes.StudentRoutes.StudentProfileForm)
+                }
+            )
         }
 
         composable(Routes.StudentRoutes.Preparation) {
@@ -287,11 +302,11 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
         }
         composable(Routes.StudentRoutes.OpportunitiesOuter) {
             val lastApplyNavMs = remember { longArrayOf(0L) }
-            val navigateToApply: () -> Unit = applyNav@{
+            val navigateToApply: (String) -> Unit = applyNav@{ jobId ->
                 val now = SystemClock.uptimeMillis()
                 if (now - lastApplyNavMs[0] < 450L) return@applyNav
                 lastApplyNavMs[0] = now
-                navController.navigate(Routes.StudentRoutes.Apply) {
+                navController.navigate(Routes.StudentRoutes.applyScreen(jobId)) {
                     launchSingleTop = true
                 }
             }
@@ -312,18 +327,18 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
         ) { backStackEntry ->
             val jobId = backStackEntry.arguments?.getString("jobId").orEmpty()
             val lastApplyNavMs = remember { longArrayOf(0L) }
-            val navigateToApply: () -> Unit = applyNav@{
+            val navigateToApply: (String) -> Unit = applyNav@{ applyJobId ->
                 val now = SystemClock.uptimeMillis()
                 if (now - lastApplyNavMs[0] < 450L) return@applyNav
                 lastApplyNavMs[0] = now
-                navController.navigate(Routes.StudentRoutes.Apply) {
+                navController.navigate(Routes.StudentRoutes.applyScreen(applyJobId)) {
                     launchSingleTop = true
                 }
             }
             JobDetailScreen(
                 modifier = modifier,
                 jobId = jobId,
-                onApplyClick = navigateToApply
+                onApplyClick = { navigateToApply(jobId) }
             )
         }
         composable(

@@ -65,12 +65,12 @@ fun StudentMainContainer(
 ) {
     val innerNavController = rememberNavController()
     val lastApplyNavMs = remember { longArrayOf(0L) }
-    val navigateToApply: () -> Unit = applyNav@{
+    val navigateToApply: (String) -> Unit = applyNav@{ jobId ->
         val nav = outerNavController ?: return@applyNav
         val now = SystemClock.uptimeMillis()
         if (now - lastApplyNavMs[0] < 450L) return@applyNav
         lastApplyNavMs[0] = now
-        nav.navigate(Routes.StudentRoutes.Apply) {
+        nav.navigate(Routes.StudentRoutes.applyScreen(jobId)) {
             launchSingleTop = true
         }
     }
@@ -118,7 +118,7 @@ fun StudentMainContainer(
                 JobDetailScreen(
                     modifier = modifier,
                     jobId = jobId,
-                    onApplyClick = navigateToApply
+                    onApplyClick = { navigateToApply(jobId) }
                 )
             }
             composable(

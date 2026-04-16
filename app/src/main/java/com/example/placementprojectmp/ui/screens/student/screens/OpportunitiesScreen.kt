@@ -56,7 +56,7 @@ private val experienceFilterOptions = listOf(
     "Internship Experience Required"
 )
 
-private fun studentOpportunitiesDummyJobs(): List<JobUiModel> {
+internal fun studentOpportunitiesDummyJobs(): List<JobUiModel> {
     return listOf(
         JobUiModel(
             id = "opp-j1",
@@ -237,7 +237,7 @@ fun OpportunitiesScreen(
     onNotificationClick: () -> Unit = {},
     onJobClick: (jobId: String) -> Unit = {},
     onDriveClick: (driveId: String) -> Unit = {},
-    onApplyClick: () -> Unit = {}
+    onApplyClick: (jobId: String) -> Unit = {}
 ) {
     val allJobs = remember { studentOpportunitiesDummyJobs() }
     val allDrives = remember { studentOpportunitiesDummyDrives() }
@@ -331,7 +331,7 @@ fun OpportunitiesScreen(
                 ) {
                     JobCard(
                         job = job,
-                        onApplyClick = onApplyClick,
+                        onApplyClick = { onApplyClick(job.id) },
                         onClick = { onJobClick(job.id) }
                     )
                 }
