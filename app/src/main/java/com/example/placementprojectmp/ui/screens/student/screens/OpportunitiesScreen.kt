@@ -305,9 +305,9 @@ fun OpportunitiesScreen(
                 branchOptions = jobTypeFilterOptions,
                 courseOptions = locationFilterOptions,
                 domainOptions = experienceFilterOptions,
-                selectedBranch = selectedJobType,
-                selectedCourse = selectedLocation,
-                selectedDomain = selectedExperience,
+                selectedBranch = selectedJobType ?: "Type",
+                selectedCourse = selectedLocation ?: "Work Mode",
+                selectedDomain = selectedExperience ?: "Experience",
                 onBranchSelect = { selectedJobType = it },
                 onCourseSelect = { selectedLocation = it },
                 onDomainSelect = { selectedExperience = it }

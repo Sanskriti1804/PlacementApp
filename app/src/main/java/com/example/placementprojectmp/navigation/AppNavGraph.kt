@@ -1,8 +1,10 @@
 package com.example.placementprojectmp.navigation
 
 import android.os.SystemClock
+import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -239,11 +241,20 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
             )
         ) { backStackEntry ->
             val jobId = backStackEntry.arguments?.getString("jobId").orEmpty()
+            val context = LocalContext.current
             ApplyScreen(
                 modifier = modifier,
                 selectedJobId = jobId,
                 onNavigateToProfileForm = {
                     navController.navigate(Routes.StudentRoutes.StudentProfileForm)
+                },
+                onSubmitClick = {
+                    Toast.makeText(
+                        context,
+                        "Your application has been submitted",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    navController.popBackStack()
                 }
             )
         }
