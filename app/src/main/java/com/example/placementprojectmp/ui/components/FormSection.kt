@@ -17,7 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.screens.student.screens.EducationInformationForm
 import com.example.placementprojectmp.ui.screens.student.screens.PersonalInformationForm
+import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * Form content area for profile form tabs.
@@ -29,6 +31,7 @@ fun FormSection(
     onTabSelected: (ProfileFormTab) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val personalDraftViewModel: StudentPersonalDraftViewModel = koinViewModel()
     val tabs = ProfileFormTab.entries
     val pagerState = rememberPagerState(
         initialPage = selectedTab.ordinal,
@@ -69,6 +72,7 @@ fun FormSection(
             }
             Button(
                 onClick = {
+                    personalDraftViewModel.save()
                     if (page < tabs.lastIndex) {
                         scope.launch { pagerState.animateScrollToPage(page + 1) }
                     }

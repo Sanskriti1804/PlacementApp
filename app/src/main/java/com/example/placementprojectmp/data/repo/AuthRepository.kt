@@ -3,6 +3,7 @@ package com.example.placementprojectmp.data.repo
 import com.example.placementprojectmp.auth.AuthRequest
 import com.example.placementprojectmp.auth.AuthResponse
 import com.example.placementprojectmp.auth.AuthRole
+import com.example.placementprojectmp.auth.RegisterStudentRequest
 import com.example.placementprojectmp.auth.TokenStore
 import com.example.placementprojectmp.network.AuthApi
 import kotlinx.coroutines.flow.Flow
@@ -23,22 +24,70 @@ class AuthRepository(
 
     suspend fun login(email: String, password: String, role: AuthRole): Result<AuthResponse> {
         return runCatching {
-            val response = authApi.access(
-                AuthRequest(
-                    email = email.trim(),
-                    password = password,
-                    role = role.name
-                )
+            val normalizedEmail = email.trim().lowercase()
+            val request = AuthRequest(
+                email = normalizedEmail,
+                password = password,
+                role = role.name.uppercase()
             )
-            if (!response.isSuccessful) {
-                val backendMessage = response.errorBody()?.string()
-                    ?.takeIf { it.isNotBlank() }
-                    ?.let { safeBackendMessage(it) }
-                throw IllegalStateException(backendMessage ?: "Authentication failed. Please verify your credentials.")
+            val roleCandidates = when (role) {
+                AuthRole.STUDENT -> listOf("STUDENT")
+                AuthRole.STAFF -> listOf("STAFF", "ADMIN", "MANAGEMENT")
+                AuthRole.SYSTEM -> listOf("SYSTEM", "ADMIN")
             }
-            val body = response.body() ?: throw IllegalStateException("Empty authentication response.")
-            tokenStore.saveSession(body.token, body.email, body.roles)
-            body
+
+            var fallbackCode: Int? = null
+            var rawError: String? = null
+
+            roleCandidates.forEach { candidateRole ->
+                val roleRequest = request.copy(role = candidateRole)
+                val accessResponse = authApi.access(roleRequest)
+                if (accessResponse.isSuccessful) {
+                    val body = accessResponse.body() ?: throw IllegalStateException("Empty authentication response.")
+                    tokenStore.saveSession(body.token, body.email, body.roles)
+                    return@runCatching body
+                }
+
+                fallbackCode = accessResponse.code()
+                rawError = accessResponse.errorBody()?.string().takeIf { !it.isNullOrBlank() } ?: rawError
+
+                // New student path: explicit register if access does not authenticate.
+                if (candidateRole == AuthRole.STUDENT.name && accessResponse.code() != 401) {
+                    val registerResponse = authApi.registerStudent(
+                        RegisterStudentRequest(
+                            email = normalizedEmail,
+                            password = password,
+                            passwordBased = true,
+                            role = AuthRole.STUDENT.name
+                        )
+                    )
+                    if (registerResponse.isSuccessful) {
+                        val body = registerResponse.body() ?: throw IllegalStateException("Empty authentication response.")
+                        tokenStore.saveSession(body.token, body.email, body.roles)
+                        return@runCatching body
+                    }
+                    fallbackCode = registerResponse.code()
+                    rawError = registerResponse.errorBody()?.string().takeIf { !it.isNullOrBlank() } ?: rawError
+                }
+
+                val loginResponse = authApi.login(roleRequest)
+                if (loginResponse.isSuccessful) {
+                    val body = loginResponse.body() ?: throw IllegalStateException("Empty authentication response.")
+                    tokenStore.saveSession(body.token, body.email, body.roles)
+                    return@runCatching body
+                }
+                fallbackCode = loginResponse.code()
+                rawError = loginResponse.errorBody()?.string().takeIf { !it.isNullOrBlank() } ?: rawError
+            }
+
+            val backendMessage = rawError?.takeIf { it.isNotBlank() }?.let { safeBackendMessage(it) }
+            val message = when (fallbackCode) {
+                400 -> backendMessage ?: "Invalid email-role format."
+                401 -> backendMessage ?: "Incorrect email or password"
+                404 -> backendMessage ?: "User not found."
+                else -> backendMessage ?: "Authentication failed. Please verify your credentials."
+            }
+            throw IllegalStateException(message)
         }.recoverCatching { throwable ->
             when (throwable) {
                 is IOException -> throw IllegalStateException("Network error. Please check your internet connection.")

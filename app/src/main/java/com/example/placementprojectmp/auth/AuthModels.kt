@@ -10,6 +10,14 @@ data class AuthRequest(
 )
 
 @Serializable
+data class RegisterStudentRequest(
+    val email: String,
+    val password: String,
+    val passwordBased: Boolean,
+    val role: String
+)
+
+@Serializable
 data class AuthResponse(
     val token: String,
     val email: String,
@@ -18,10 +26,16 @@ data class AuthResponse(
 
 enum class AuthRole {
     STUDENT,
-    STAFF;
+    STAFF,
+    SYSTEM;
 
     companion object {
         fun fromInput(value: String): AuthRole =
-            entries.firstOrNull { it.name.equals(value.trim(), ignoreCase = true) } ?: STUDENT
+            when (value.trim().uppercase()) {
+                "STUDENT" -> STUDENT
+                "STAFF", "ADMIN", "MANAGEMENT" -> STAFF
+                "SYSTEM" -> SYSTEM
+                else -> STUDENT
+            }
     }
 }

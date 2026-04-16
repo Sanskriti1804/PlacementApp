@@ -8,6 +8,7 @@ import com.example.placementprojectmp.data.remote.api.MetaApi
 import com.example.placementprojectmp.data.remote.api.MetaApiImpl
 import com.example.placementprojectmp.data.remote.api.StudentApi
 import com.example.placementprojectmp.data.remote.api.StudentApiImpl
+import com.example.placementprojectmp.data.local.StudentPersonalDraftStore
 import com.example.placementprojectmp.data.repo.AuthRepository
 import com.example.placementprojectmp.data.repo.MetaRepository
 import com.example.placementprojectmp.data.repo.MetaRepositoryImpl
@@ -20,6 +21,7 @@ import com.example.placementprojectmp.viewmodel.StaffCandidateDetailViewModel
 import com.example.placementprojectmp.viewmodel.StaffCompanyDetailViewModel
 import com.example.placementprojectmp.viewmodel.StaffJobDetailViewModel
 import com.example.placementprojectmp.viewmodel.PlacementWorkspaceViewModel
+import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
 import com.example.placementprojectmp.viewmodel.StudentViewModel
 import com.example.placementprojectmp.viewmodel.UserViewModel
 import com.example.placementprojectmp.data.remote.api.UserApi
@@ -77,6 +79,12 @@ val appModule = module{
     single<StudentApi> { StudentApiImpl(get()) }
     single { StudentRepo(get()) }
     viewModel<StudentViewModel> { StudentViewModel(get()) }
+    single { StudentPersonalDraftStore(get()) }
+    single<com.example.placementprojectmp.integration.data.api.StudentProfileApi> {
+        get<Retrofit>().create(com.example.placementprojectmp.integration.data.api.StudentProfileApi::class.java)
+    }
+    single { com.example.placementprojectmp.integration.data.repository.StudentRepository(get(), get()) }
+    viewModel<StudentPersonalDraftViewModel> { StudentPersonalDraftViewModel(get(), get()) }
 
     single<EducationApi> { EductionApiImpl(get()) }
     single { EducationRepo(get()) }

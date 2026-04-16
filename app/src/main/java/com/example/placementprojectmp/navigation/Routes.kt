@@ -146,7 +146,7 @@ object Routes {
      * Do not use leaf routes like [Splash] or [StartupRoutes.Splash] here.
      * Override per build in [com.example.placementprojectmp.navigation.AppNavGraph] via `rootStartDestination` if needed.
      */
-    const val StartDestination = GraphRoutes.Student
+    const val StartDestination = GraphRoutes.Startup
 
     /**
      * Returns the dashboard route for the given role, or null if unknown.

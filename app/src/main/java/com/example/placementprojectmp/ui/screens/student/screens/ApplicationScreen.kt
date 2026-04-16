@@ -31,6 +31,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +44,8 @@ import com.example.placementprojectmp.R
 import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 import com.example.placementprojectmp.ui.components.ApplicationStatusStage
 import com.example.placementprojectmp.ui.screens.student.component.UserInfoTabs
+import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * Application screen: company header, profile preview, contact, platform links,
@@ -55,6 +59,16 @@ fun ApplicationScreen(
     onMenuClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {}
 ) {
+    val personalDraftViewModel: StudentPersonalDraftViewModel = koinViewModel()
+    val personalDraft by personalDraftViewModel.draft.collectAsState()
+
+    val resolvedName = personalDraft.fullName.takeIf { it.isNotBlank() } ?: "RAHUL SHARMA"
+    val resolvedHandle = personalDraft.username.takeIf { it.isNotBlank() }?.let { "@$it" } ?: "@rahuldev"
+    val resolvedDob = listOf(personalDraft.day, personalDraft.month, personalDraft.year)
+        .takeIf { it.all { part -> part.isNotBlank() } }
+        ?.joinToString(" ")
+        ?: "12 Sep 2002"
+
     val skills = listOf(
         "Kotlin", "Java", "Jetpack Compose", "Spring Boot", "Firebase", "Git", "Postman", "REST APIs",
         "Retrofit", "Room DB", "Docker", "Figma"
@@ -114,13 +128,13 @@ fun ApplicationScreen(
                     verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     Text(
-                        text = "RAHUL SHARMA",
+                        text = resolvedName,
                         style = MaterialTheme.typography.displaySmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "@rahuldev",
+                        text = resolvedHandle,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -165,8 +179,8 @@ fun ApplicationScreen(
         }
         item {
             UserInfoTabs(
-                name = "Rahul Sharma",
-                date = "12 Sep 2002",
+                name = resolvedName,
+                date = resolvedDob,
                 email = "rahul@email.com"
             )
         }

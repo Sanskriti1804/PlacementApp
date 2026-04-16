@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.placementprojectmp.auth.AuthRole
 import com.example.placementprojectmp.data.repo.AuthRepository
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
@@ -22,12 +21,6 @@ class AuthViewModel(
     var isAuthenticated by mutableStateOf(false)
         private set
 
-    init {
-        viewModelScope.launch {
-            isAuthenticated = !repository.tokenFlow.firstOrNull().isNullOrBlank()
-        }
-    }
-
     fun setRole(role: AuthRole) {
         selectedRole = role
         errorMessage = null
@@ -39,18 +32,22 @@ class AuthViewModel(
             return
         }
         val normalizedEmail = email.trim().lowercase()
-        val validDomains = when (selectedRole) {
-            AuthRole.STUDENT -> listOf("@student.com", "@edu.student.com")
-            AuthRole.STAFF -> listOf("@staff.com", "@edu.staff.com")
+        val roleSlug = selectedRole.name.lowercase()
+        val formatRegex = Regex("^[a-z0-9._%+-]+@([a-z0-9-]+)\\.edu\\.com$")
+        val match = formatRegex.matchEntire(normalizedEmail)
+        if (match == null) {
+            errorMessage = "Email must be in format name@role.edu.com"
+            return
         }
-        if (validDomains.none { normalizedEmail.endsWith(it) }) {
+        val domainRole = match.groupValues.getOrNull(1).orEmpty()
+        if (!domainRole.equals(roleSlug, ignoreCase = true)) {
             errorMessage = "Email domain does not match selected role."
             return
         }
         isLoading = true
         errorMessage = null
         viewModelScope.launch {
-            repository.login(email = email, password = password, role = selectedRole)
+            repository.login(email = normalizedEmail, password = password, role = selectedRole)
                 .onSuccess {
                     isAuthenticated = true
                     onSuccess(selectedRole)
