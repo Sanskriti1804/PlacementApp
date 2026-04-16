@@ -49,6 +49,10 @@ import org.koin.androidx.compose.koinViewModel
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.decodeFromString
 import com.example.placementprojectmp.data.model.JobEntryDraft
+import android.content.Intent
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.clickable
 
 /**
  * Application screen: company header, profile preview, contact, platform links,
@@ -64,6 +68,7 @@ fun ApplicationScreen(
 ) {
     val personalDraftViewModel: StudentPersonalDraftViewModel = koinViewModel()
     val personalDraft by personalDraftViewModel.draft.collectAsState()
+    val context = LocalContext.current
 
     val resolvedName = personalDraft.fullName.takeIf { it.isNotBlank() } ?: "RAHUL SHARMA"
     val resolvedHandle = personalDraft.username.takeIf { it.isNotBlank() }?.let { "@$it" } ?: "@rahuldev"
@@ -240,7 +245,20 @@ fun ApplicationScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 42.dp),
+                    .padding(horizontal = 42.dp)
+                    .clickable {
+                        if (personalDraft.resumePdfUri.isNotBlank()) {
+                            try {
+                                val intent = Intent(Intent.ACTION_VIEW).apply {
+                                    setDataAndType(android.net.Uri.parse(personalDraft.resumePdfUri), "application/pdf")
+                                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+                                }
+                                context.startActivity(Intent.createChooser(intent, "Open PDF"))
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "No app found to open PDF", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    },
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
