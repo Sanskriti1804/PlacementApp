@@ -3,8 +3,10 @@ package com.example.placementprojectmp.data.repo
 import com.example.placementprojectmp.auth.AuthRequest
 import com.example.placementprojectmp.auth.AuthResponse
 import com.example.placementprojectmp.auth.AuthRole
-import com.example.placementprojectmp.auth.RegisterStudentRequest
+import com.example.placementprojectmp.auth.RegisterRequest
 import com.example.placementprojectmp.auth.TokenStore
+import com.example.placementprojectmp.integration.data.remote.ApiResult
+import com.example.placementprojectmp.integration.data.remote.safeApiCall
 import com.example.placementprojectmp.network.AuthApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.Json
@@ -30,11 +32,7 @@ class AuthRepository(
                 password = password,
                 role = role.name.uppercase()
             )
-            val roleCandidates = when (role) {
-                AuthRole.STUDENT -> listOf("STUDENT")
-                AuthRole.STAFF -> listOf("STAFF", "ADMIN", "MANAGEMENT")
-                AuthRole.SYSTEM -> listOf("SYSTEM", "ADMIN")
-            }
+            val roleCandidates = listOf(role.name.uppercase())
 
             var fallbackCode: Int? = null
             var rawError: String? = null
@@ -54,7 +52,7 @@ class AuthRepository(
                 // New student path: explicit register if access does not authenticate.
                 if (candidateRole == AuthRole.STUDENT.name && accessResponse.code() != 401) {
                     val registerResponse = authApi.registerStudent(
-                        RegisterStudentRequest(
+                        RegisterRequest(
                             email = normalizedEmail,
                             password = password,
                             passwordBased = true,
@@ -101,6 +99,36 @@ class AuthRepository(
     suspend fun logout() {
         tokenStore.clearToken()
     }
+
+    /** `POST /api/auth/login` — persists JWT on success. */
+    suspend fun loginExchange(request: AuthRequest): ApiResult<AuthResponse> =
+        when (val r = safeApiCall(json) { authApi.login(request) }) {
+            is ApiResult.Success -> {
+                tokenStore.saveSession(r.data.token, r.data.email, r.data.roles)
+                r
+            }
+            is ApiResult.Error -> r
+        }
+
+    /** `POST /api/auth/access` — persists JWT on success. */
+    suspend fun accessExchange(request: AuthRequest): ApiResult<AuthResponse> =
+        when (val r = safeApiCall(json) { authApi.access(request) }) {
+            is ApiResult.Success -> {
+                tokenStore.saveSession(r.data.token, r.data.email, r.data.roles)
+                r
+            }
+            is ApiResult.Error -> r
+        }
+
+    /** `POST /api/auth/register/student` — persists JWT on success. */
+    suspend fun registerStudentExchange(request: RegisterRequest): ApiResult<AuthResponse> =
+        when (val r = safeApiCall(json) { authApi.registerStudent(request) }) {
+            is ApiResult.Success -> {
+                tokenStore.saveSession(r.data.token, r.data.email, r.data.roles)
+                r
+            }
+            is ApiResult.Error -> r
+        }
 
     private fun safeBackendMessage(raw: String): String {
         return runCatching {

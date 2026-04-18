@@ -9,8 +9,9 @@ data class AuthRequest(
     val role: String
 )
 
+/** Body for `POST /api/auth/register/student` and `POST /api/users`. */
 @Serializable
-data class RegisterStudentRequest(
+data class RegisterRequest(
     val email: String,
     val password: String,
     val passwordBased: Boolean,
@@ -33,7 +34,7 @@ enum class AuthRole {
         fun fromInput(value: String): AuthRole =
             when (value.trim().uppercase()) {
                 "STUDENT" -> STUDENT
-                "STAFF", "ADMIN", "MANAGEMENT" -> STAFF
+                "STAFF" -> STAFF
                 "SYSTEM" -> SYSTEM
                 else -> STUDENT
             }

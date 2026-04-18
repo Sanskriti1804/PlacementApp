@@ -40,7 +40,9 @@ fun mapHttpCodeToMessage(code: Int, raw: String?, json: Json): String {
     return when (code) {
         400 -> backendMessage ?: "Invalid request. Check email-role format and required fields."
         401 -> backendMessage ?: "Invalid credentials. Please verify email and password."
+        403 -> backendMessage ?: "Forbidden. A valid Bearer token may be required."
         404 -> backendMessage ?: "Requested user/student record was not found."
+        409 -> backendMessage ?: "Conflict. The resource may already exist."
         500 -> backendMessage ?: "Server error. Please try again shortly."
         else -> backendMessage ?: "Request failed with code $code."
     }

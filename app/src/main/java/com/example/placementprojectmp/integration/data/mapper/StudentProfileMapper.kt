@@ -1,16 +1,19 @@
 package com.example.placementprojectmp.integration.data.mapper
 
-import com.example.placementprojectmp.integration.data.dto.PlatformLinkDto
-import com.example.placementprojectmp.integration.data.dto.SkillsDto
-import com.example.placementprojectmp.integration.data.dto.StudentProfileResponseDto
+import com.example.placementprojectmp.data.remote.dto.PlatformResponse
+import com.example.placementprojectmp.data.remote.dto.SkillResponse
+import com.example.placementprojectmp.data.remote.dto.StudentProfileResponse
+import com.example.placementprojectmp.integration.data.dto.PlatformType
 import com.example.placementprojectmp.integration.domain.model.PlatformLinkModel
 import com.example.placementprojectmp.integration.domain.model.SkillsModel
 import com.example.placementprojectmp.integration.domain.model.StudentProfileModel
 
-fun StudentProfileResponseDto.toDomain(): StudentProfileModel {
+fun StudentProfileResponse.toDomain(): StudentProfileModel {
+    val uid = user?.id ?: 0L
+    val sid = id ?: 0L
     return StudentProfileModel(
-        id = id,
-        userId = userId,
+        id = sid,
+        userId = uid,
         name = name,
         domainRole = domainRole,
         bio = bio,
@@ -21,25 +24,30 @@ fun StudentProfileResponseDto.toDomain(): StudentProfileModel {
         city = city,
         state = state,
         skills = skills?.toDomain(),
-        platformLinks = platformLinks.map { it.toDomain() }
+        platformLinks = platformLinks.orEmpty().map { it.toDomain(sid) }
     )
 }
 
-private fun SkillsDto.toDomain(): SkillsModel {
+private fun SkillResponse.toDomain(): SkillsModel {
     return SkillsModel(
-        languages = languages.orEmpty(),
-        frameworks = frameworks.orEmpty(),
-        tools = tools.orEmpty(),
-        platforms = platforms.orEmpty()
+        languages = stringToParts(languages),
+        frameworks = stringToParts(frameworks),
+        tools = stringToParts(tools),
+        platforms = stringToParts(platforms)
     )
 }
 
-private fun PlatformLinkDto.toDomain(): PlatformLinkModel {
+private fun stringToParts(value: String?): List<String> {
+    if (value.isNullOrBlank()) return emptyList()
+    return value.split(',').map { it.trim() }.filter { it.isNotEmpty() }
+}
+
+private fun PlatformResponse.toDomain(fallbackStudentId: Long): PlatformLinkModel {
+    val type = runCatching { PlatformType.valueOf(type.orEmpty()) }.getOrDefault(PlatformType.RESUME)
     return PlatformLinkModel(
-        id = id,
-        studentId = studentId,
-        platformType = platformType,
-        url = url
+        id = id ?: 0L,
+        studentId = fallbackStudentId,
+        platformType = type,
+        url = url.orEmpty()
     )
 }
-

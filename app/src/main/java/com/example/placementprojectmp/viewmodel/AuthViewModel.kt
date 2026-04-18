@@ -33,15 +33,16 @@ class AuthViewModel(
         }
         val normalizedEmail = email.trim().lowercase()
         val roleSlug = selectedRole.name.lowercase()
-        val formatRegex = Regex("^[a-z0-9._%+-]+@([a-z0-9-]+)\\.edu\\.com$")
+        val formatRegex =
+            Regex("^[a-z0-9._%+-]+@([a-z]+)\\.[a-z0-9.-]+\\.[a-z]{2,}$")
         val match = formatRegex.matchEntire(normalizedEmail)
         if (match == null) {
-            errorMessage = "Email must be in format name@role.edu.com"
+            errorMessage = "Email must match server pattern: local@role.<college-domain>.<tld>"
             return
         }
         val domainRole = match.groupValues.getOrNull(1).orEmpty()
         if (!domainRole.equals(roleSlug, ignoreCase = true)) {
-            errorMessage = "Email domain does not match selected role."
+            errorMessage = "The segment after @ must match selected role (e.g. student@student...)."
             return
         }
         isLoading = true

@@ -1,9 +1,9 @@
 package com.example.placementprojectmp.integration.data.repository
 
+import com.example.placementprojectmp.data.remote.dto.PlatformLinkRequest
+import com.example.placementprojectmp.data.remote.dto.StudentProfileRequest
 import com.example.placementprojectmp.integration.data.api.StudentProfileApi
-import com.example.placementprojectmp.integration.data.dto.PlatformLinkRequestDto
 import com.example.placementprojectmp.integration.data.dto.PlatformType
-import com.example.placementprojectmp.integration.data.dto.StudentProfileRequestDto
 import com.example.placementprojectmp.integration.data.mapper.toDomain
 import com.example.placementprojectmp.integration.data.remote.ApiResult
 import com.example.placementprojectmp.integration.data.remote.safeApiCall
@@ -17,7 +17,7 @@ class StudentRepository(
 ) {
     suspend fun createProfile(
         userId: Long,
-        request: StudentProfileRequestDto
+        request: StudentProfileRequest
     ): ApiResult<StudentProfileModel> {
         return when (val result = safeApiCall(json) { api.createProfile(userId, request) }) {
             is ApiResult.Success -> ApiResult.Success(result.data.toDomain())
@@ -39,17 +39,17 @@ class StudentRepository(
     ): ApiResult<PlatformLinkModel> {
         return when (
             val result = safeApiCall(json) {
-                api.addPlatform(studentId, PlatformLinkRequestDto(platformType = type, url = url))
+                api.addPlatform(studentId, PlatformLinkRequest(type = type.name, url = url))
             }
         ) {
             is ApiResult.Success -> {
                 val body = result.data
                 ApiResult.Success(
                     PlatformLinkModel(
-                        id = body.id,
-                        studentId = body.studentId,
-                        platformType = body.platformType,
-                        url = body.url
+                        id = body.id ?: 0L,
+                        studentId = studentId,
+                        platformType = type,
+                        url = body.url.orEmpty()
                     )
                 )
             }
@@ -58,4 +58,3 @@ class StudentRepository(
         }
     }
 }
-

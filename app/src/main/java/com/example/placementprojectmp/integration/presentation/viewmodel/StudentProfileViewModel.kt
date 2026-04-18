@@ -2,8 +2,8 @@ package com.example.placementprojectmp.integration.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.placementprojectmp.integration.data.dto.SkillsDto
-import com.example.placementprojectmp.integration.data.dto.StudentProfileRequestDto
+import com.example.placementprojectmp.data.remote.dto.SkillRequest
+import com.example.placementprojectmp.data.remote.dto.StudentProfileRequest
 import com.example.placementprojectmp.integration.data.remote.ApiResult
 import com.example.placementprojectmp.integration.data.repository.StudentRepository
 import com.example.placementprojectmp.integration.domain.model.StudentProfileModel
@@ -47,7 +47,7 @@ class StudentProfileViewModel(
         val state = _ui.value
         _ui.value = state.copy(loading = true, error = null, success = false)
         viewModelScope.launch {
-            val request = StudentProfileRequestDto(
+            val request = StudentProfileRequest(
                 userId = userId,
                 name = state.name.nullIfBlank(),
                 domainRole = state.domainRole.nullIfBlank(),
@@ -58,12 +58,14 @@ class StudentProfileViewModel(
                 addressLine = state.addressLine.nullIfBlank(),
                 city = state.city.nullIfBlank(),
                 state = state.state.nullIfBlank(),
-                skills = SkillsDto(
-                    languages = state.languages.toListFromCsv(),
-                    frameworks = state.frameworks.toListFromCsv(),
-                    tools = state.tools.toListFromCsv(),
-                    platforms = state.platforms.toListFromCsv()
-                )
+                skills = SkillRequest(
+                    languages = state.languages.nullIfBlank(),
+                    frameworks = state.frameworks.nullIfBlank(),
+                    tools = state.tools.nullIfBlank(),
+                    platforms = state.platforms.nullIfBlank()
+                ).takeIf { s ->
+                    listOf(s.languages, s.frameworks, s.tools, s.platforms).any { !it.isNullOrBlank() }
+                }
             )
             when (val result = repository.createProfile(userId, request)) {
                 is ApiResult.Success -> _ui.value = _ui.value.copy(loading = false, success = true, data = result.data)
@@ -105,6 +107,4 @@ class StudentProfileViewModel(
 }
 
 private fun String.nullIfBlank(): String? = trim().ifBlank { null }
-private fun String.toListFromCsv(): List<String>? =
-    split(",").map { it.trim() }.filter { it.isNotBlank() }.takeIf { it.isNotEmpty() }
 

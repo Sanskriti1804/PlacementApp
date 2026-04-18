@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.placementprojectmp.data.local.StudentPersonalDraftStore
 import com.example.placementprojectmp.data.model.StudentDraft
-import com.example.placementprojectmp.integration.data.dto.StudentProfileRequestDto
+import com.example.placementprojectmp.data.remote.dto.StudentProfileRequest
 import com.example.placementprojectmp.integration.data.remote.ApiResult
 import com.example.placementprojectmp.integration.data.repository.StudentRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -133,7 +133,7 @@ class StudentPersonalDraftViewModel(
                 null
             }
 
-            val request = StudentProfileRequestDto(
+            val request = StudentProfileRequest(
                 userId = 3L,
                 name = draft.fullName.trim().ifBlank { null },
                 phoneNumber = draft.phone.trim().ifBlank { null },
