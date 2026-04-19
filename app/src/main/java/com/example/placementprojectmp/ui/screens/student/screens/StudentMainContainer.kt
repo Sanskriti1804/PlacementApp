@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -64,6 +65,7 @@ fun StudentMainContainer(
     outerNavController: androidx.navigation.NavHostController? = null
 ) {
     val innerNavController = rememberNavController()
+    val uriHandler = LocalUriHandler.current
     val lastApplyNavMs = remember { longArrayOf(0L) }
     val navigateToApply: (String) -> Unit = applyNav@{ jobId ->
         val nav = outerNavController ?: return@applyNav
@@ -107,7 +109,10 @@ fun StudentMainContainer(
                     onDriveClick = { driveId ->
                         innerNavController.navigate(Routes.StudentRoutes.driveDetailScreen(driveId))
                     },
-                    onApplyClick = navigateToApply
+                    onApplyClick = navigateToApply,
+                    onDriveRegisterClick = { driveId ->
+                        uriHandler.openUri(studentDriveRegistrationUrl(driveId))
+                    }
                 )
             }
             composable(
@@ -126,7 +131,11 @@ fun StudentMainContainer(
                 arguments = listOf(navArgument("driveId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val driveId = backStackEntry.arguments?.getString("driveId").orEmpty()
-                DriveDetailScreen(modifier = modifier, driveId = driveId)
+                DriveDetailScreen(
+                    modifier = modifier,
+                    driveId = driveId,
+                    onRegisterClick = { uriHandler.openUri(studentDriveRegistrationUrl(driveId)) }
+                )
             }
             composable(Routes.StudentRoutes.Dashboard) {
                 StudentDashboardScreen(

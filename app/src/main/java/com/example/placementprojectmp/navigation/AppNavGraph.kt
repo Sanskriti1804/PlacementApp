@@ -10,6 +10,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -34,9 +35,11 @@ import com.example.placementprojectmp.ui.screens.student.screens.OpportunitiesSc
 import com.example.placementprojectmp.ui.screens.student.screens.PreparationScreen
 import com.example.placementprojectmp.ui.screens.student.screens.ProfileScreen
 import com.example.placementprojectmp.ui.screens.student.screens.PyqQuestionsScreen
+import com.example.placementprojectmp.ui.screens.student.screens.StudentApplicationSubmissionStore
 import com.example.placementprojectmp.ui.screens.staff.screens.StudentDetailsScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentDashboardScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentMainContainer
+import com.example.placementprojectmp.ui.screens.student.screens.studentDriveRegistrationUrl
 import com.example.placementprojectmp.ui.screens.shared.screens.DriveDetailScreen
 import com.example.placementprojectmp.ui.screens.shared.screens.JobDetailScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentProfileFormScreen
@@ -251,9 +254,10 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
                 onSubmitClick = {
                     Toast.makeText(
                         context,
-                        "Your application has been submitted",
+                        "Application submitted",
                         Toast.LENGTH_SHORT
                     ).show()
+                    StudentApplicationSubmissionStore.addAppliedJob(jobId)
                     navController.popBackStack()
                 }
             )
@@ -312,6 +316,7 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
             ChatbotScreen(modifier = modifier)
         }
         composable(Routes.StudentRoutes.OpportunitiesOuter) {
+            val uriHandler = LocalUriHandler.current
             val lastApplyNavMs = remember { longArrayOf(0L) }
             val navigateToApply: (String) -> Unit = applyNav@{ jobId ->
                 val now = SystemClock.uptimeMillis()
@@ -329,7 +334,10 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
                 onDriveClick = { driveId ->
                     navController.navigate(Routes.StudentRoutes.driveDetailScreen(driveId))
                 },
-                onApplyClick = navigateToApply
+                onApplyClick = navigateToApply,
+                onDriveRegisterClick = { driveId ->
+                    uriHandler.openUri(studentDriveRegistrationUrl(driveId))
+                }
             )
         }
         composable(
@@ -357,7 +365,12 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
             arguments = listOf(navArgument("driveId") { type = NavType.StringType })
         ) { backStackEntry ->
             val driveId = backStackEntry.arguments?.getString("driveId").orEmpty()
-            DriveDetailScreen(modifier = modifier, driveId = driveId)
+            val uriHandler = LocalUriHandler.current
+            DriveDetailScreen(
+                modifier = modifier,
+                driveId = driveId,
+                onRegisterClick = { uriHandler.openUri(studentDriveRegistrationUrl(driveId)) }
+            )
         }
         composable(Routes.StudentRoutes.StudentProfileForm) {
             StudentProfileFormScreen(modifier = modifier)

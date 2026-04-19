@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,9 +40,10 @@ fun ApplicationsSection(
             color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            applications.forEach { app ->
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            items(applications, key = { "${it.companyName}_${it.role}_${it.status}" }) { app ->
                 ApplicationStatusCard(
+                    modifier = Modifier.fillParentMaxWidth(0.78f),
                     companyName = app.companyName,
                     role = app.role,
                     status = app.status

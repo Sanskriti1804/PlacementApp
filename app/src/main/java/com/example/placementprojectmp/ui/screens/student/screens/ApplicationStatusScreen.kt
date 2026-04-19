@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.components.ApplicationStatusScreenItem
@@ -52,6 +54,16 @@ fun ApplicationStatusScreen(
     onNotificationClick: () -> Unit = {},
     onApplicationClick: (ApplicationStatusScreenItem) -> Unit = {}
 ) {
+    val submittedApplications by StudentApplicationSubmissionStore.submittedApplications.collectAsState()
+    val applications = dummyApplications + submittedApplications.map { submitted ->
+        ApplicationStatusScreenItem(
+            companyName = submitted.companyName,
+            location = submitted.location,
+            role = submitted.role,
+            appliedDate = submitted.appliedDate,
+            currentStage = ApplicationStatusStage.Applied
+        )
+    }
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -71,7 +83,7 @@ fun ApplicationStatusScreen(
                 subtitle = "Track the progress of your job and internship applications."
             )
         }
-        items(dummyApplications) { item ->
+        items(applications) { item ->
             ApplicationStatusCard(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 item = item,

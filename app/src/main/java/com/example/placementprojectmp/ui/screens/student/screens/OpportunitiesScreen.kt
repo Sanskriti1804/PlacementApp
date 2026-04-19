@@ -121,7 +121,7 @@ internal fun studentOpportunitiesDummyJobs(): List<JobUiModel> {
     )
 }
 
-private fun studentOpportunitiesDummyDrives(): List<DriveUiModel> {
+internal fun studentOpportunitiesDummyDrives(): List<DriveUiModel> {
     return listOf(
         DriveUiModel(
             id = "opp-d1",
@@ -154,6 +154,18 @@ private fun studentOpportunitiesDummyDrives(): List<DriveUiModel> {
             candidateCount = 95
         )
     )
+}
+
+internal fun studentDriveRegistrationUrl(driveId: String): String {
+    val companyName = studentOpportunitiesDummyDrives()
+        .firstOrNull { it.id == driveId }
+        ?.companyName
+        .orEmpty()
+    val companySlug = companyName
+        .lowercase()
+        .replace(Regex("[^a-z0-9]+"), "")
+        .ifBlank { "placement" }
+    return "https://www.$companySlug.com"
 }
 
 private fun JobUiModel.matchesJobTypeFilter(selected: String?): Boolean {
@@ -237,7 +249,8 @@ fun OpportunitiesScreen(
     onNotificationClick: () -> Unit = {},
     onJobClick: (jobId: String) -> Unit = {},
     onDriveClick: (driveId: String) -> Unit = {},
-    onApplyClick: (jobId: String) -> Unit = {}
+    onApplyClick: (jobId: String) -> Unit = {},
+    onDriveRegisterClick: (driveId: String) -> Unit = {}
 ) {
     val allJobs = remember { studentOpportunitiesDummyJobs() }
     val allDrives = remember { studentOpportunitiesDummyDrives() }
@@ -345,7 +358,7 @@ fun OpportunitiesScreen(
                 ) {
                     DriveCard(
                         drive = drive,
-                        onRegisterClick = { },
+                        onRegisterClick = { onDriveRegisterClick(drive.id) },
                         onClick = { onDriveClick(drive.id) }
                     )
                 }

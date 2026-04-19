@@ -87,11 +87,19 @@ fun StudentDashboardScreen(
         DriveItem("Microsoft", "2:00 PM", "Tomorrow"),
         DriveItem("Amazon", "11:00 AM", "Mar 10")
     )
-    val applications = listOf(
+    val dummyApplications = listOf(
         ApplicationItem("Google", "Software Engineer", "Shortlisted"),
         ApplicationItem("Microsoft", "Product Manager", "Applied"),
         ApplicationItem("Meta", "UX Designer", "Interview Scheduled")
     )
+    val submittedApplications by StudentApplicationSubmissionStore.submittedApplications.collectAsState()
+    val applications = submittedApplications.map { submitted ->
+        ApplicationItem(
+            companyName = submitted.companyName,
+            role = submitted.role,
+            status = submitted.status
+        )
+    } + dummyApplications
     val featureToolsItems = listOf(
         FeatureTool(
             label = "AI Resume Builder",

@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -52,6 +53,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
 import android.content.Intent
 import android.widget.Toast
+import kotlin.math.roundToInt
 /**
  * Profile screen: TopBar, Profile Header, Completion Card, Social Platforms, Recent Work + Skills.
  * Tapping "Complete your profile" opens StudentProfileFormScreen; tapping intro card opens PersonalInformationFormScreen.
@@ -103,6 +105,61 @@ fun ProfileScreen(
         "Coroutines"
     )
     val profileSkills = currentStudentProfile?.skills?.map { it.name }?.takeIf { it.isNotEmpty() } ?: dummySkills
+    val profileFieldsFilled = remember(personalDraft) {
+        listOf(
+            personalDraft.fullName.isNotBlank(),
+            personalDraft.username.isNotBlank(),
+            personalDraft.email.isNotBlank(),
+            personalDraft.role.isNotBlank(),
+            personalDraft.phone.isNotBlank(),
+            personalDraft.address.isNotBlank(),
+            personalDraft.city.isNotBlank(),
+            personalDraft.state.isNotBlank(),
+            personalDraft.country.isNotBlank(),
+            personalDraft.pinCode.isNotBlank(),
+            personalDraft.day.isNotBlank(),
+            personalDraft.month.isNotBlank(),
+            personalDraft.year.isNotBlank(),
+            personalDraft.university.isNotBlank(),
+            personalDraft.course.isNotBlank(),
+            personalDraft.selectedYear.isNotBlank(),
+            personalDraft.class12Percent.isNotBlank(),
+            personalDraft.school12Name.isNotBlank(),
+            personalDraft.passYear12.isNotBlank(),
+            personalDraft.class10Percent.isNotBlank(),
+            personalDraft.school10Name.isNotBlank(),
+            personalDraft.passYear10.isNotBlank(),
+            personalDraft.gradCgpa.isNotBlank(),
+            personalDraft.gradPassYear.isNotBlank(),
+            personalDraft.backlogSubjects.isNotBlank(),
+            personalDraft.gapYears.isNotBlank(),
+            personalDraft.gapExplanation.isNotBlank(),
+            personalDraft.languagesSelected.isNotEmpty(),
+            personalDraft.frameworksSelected.isNotEmpty(),
+            personalDraft.toolsSelected.isNotEmpty(),
+            personalDraft.softSkillsSelected.isNotEmpty(),
+            personalDraft.jobEntriesJson.isNotBlank() && personalDraft.jobEntriesJson != "[]",
+            personalDraft.projectName.isNotBlank(),
+            personalDraft.projectImageUri.isNotBlank(),
+            personalDraft.projectLink.isNotBlank(),
+            personalDraft.projectDescription.isNotBlank(),
+            personalDraft.technologiesSelected.isNotEmpty(),
+            personalDraft.githubRepo.isNotBlank(),
+            personalDraft.liveDemo.isNotBlank(),
+            personalDraft.teamSize > 0,
+            personalDraft.teamMembersJson.isNotBlank() && personalDraft.teamMembersJson != "[]",
+            personalDraft.profileImageUri.isNotBlank(),
+            personalDraft.connectorLinksJson.isNotBlank() && personalDraft.connectorLinksJson != "{}",
+            personalDraft.resumePdfUri.isNotBlank()
+        )
+    }
+    val totalProfileFields = profileFieldsFilled.size
+    val filledProfileFields = profileFieldsFilled.count { it }
+    val completionPercent = if (totalProfileFields == 0) {
+        0
+    } else {
+        ((filledProfileFields.toFloat() / totalProfileFields.toFloat()) * 100f).roundToInt()
+    }
 
     val context = LocalContext.current
     val pdfPickerLauncher = rememberLauncherForActivityResult(
@@ -250,13 +307,23 @@ fun ProfileScreen(
             ProfileCompletionCard(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 title = "Complete Your Profile",
-                completionPercent = 60,
+                completionPercent = completionPercent,
                 items = listOf(
-                    ProfileCompletionItem("Profile Photo", true),
-                    ProfileCompletionItem("Bio", true),
-                    ProfileCompletionItem("Portfolio", false),
-                    ProfileCompletionItem("Resume", false),
-                    ProfileCompletionItem("Skills", true)
+                    ProfileCompletionItem("Profile Photo", personalDraft.profileImageUri.isNotBlank()),
+                    ProfileCompletionItem("Bio", personalDraft.role.isNotBlank() || personalDraft.fullName.isNotBlank()),
+                    ProfileCompletionItem(
+                        "Portfolio",
+                        connectorLinks[com.example.placementprojectmp.ui.components.ProfilePlatform.Portfolio]
+                            ?.isNotBlank() == true
+                    ),
+                    ProfileCompletionItem("Resume", personalDraft.resumePdfUri.isNotBlank()),
+                    ProfileCompletionItem(
+                        "Skills",
+                        personalDraft.languagesSelected.isNotEmpty() ||
+                            personalDraft.frameworksSelected.isNotEmpty() ||
+                            personalDraft.toolsSelected.isNotEmpty() ||
+                            personalDraft.softSkillsSelected.isNotEmpty()
+                    )
                 ),
                 onTitleClick = onCompleteProfileClick
             )
