@@ -73,14 +73,35 @@ fun StudentDashboardScreen(
 
     var searchQuery by remember { mutableStateOf("") }
     var selectedDomains by remember { mutableStateOf(setOf<String>()) }
-    var jobs by remember {
-        mutableStateOf(
-            listOf(
-                JobItem("1", "Google", "Software Engineer", "18 hours ago"),
-                JobItem("2", "Microsoft", "Product Manager", "1 day ago"),
-                JobItem("3", "Amazon", "Data Analyst", "2 days ago")
-            )
+    val defaultJobs = remember {
+        listOf(
+            JobItem("1", "Google", "Software Engineer", "18 hours ago"),
+            JobItem("2", "Microsoft", "Product Manager", "1 day ago"),
+            JobItem("3", "Amazon", "Data Analyst", "2 days ago")
         )
+    }
+    var jobs by remember { mutableStateOf(defaultJobs) }
+
+    LaunchedEffect(selectedDomains) {
+        if (selectedDomains.isEmpty()) {
+            jobs = defaultJobs
+        } else {
+            val mappedRoles = selectedDomains.flatMap { domain ->
+                com.example.placementprojectmp.data.local.DummyJobRoleMapping.getJobRolesForDomain(domain)
+            }.distinct()
+
+            if (mappedRoles.isEmpty()) {
+                jobs = defaultJobs
+            } else {
+                jobs = mappedRoles.mapIndexed { index, role ->
+                    val baseJob = defaultJobs[index % defaultJobs.size]
+                    baseJob.copy(
+                        id = "mapped_${index}",
+                        roleTitle = role
+                    )
+                }
+            }
+        }
     }
     val drives = listOf(
         DriveItem("Google", "10:00 AM", "Today"),
