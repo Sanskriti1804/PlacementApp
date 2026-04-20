@@ -549,8 +549,12 @@ fun ApplicationScreen(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    androidx.compose.material3.HorizontalDivider(
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
+                        thickness = 1.dp,
+                        color = com.example.placementprojectmp.ui.theme.NeonBlue
+                    )
                     Text("Live Applications", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.45f))
                     
                     StaffInjectedApplicationCard(companyName = "Google", role = "Software Engineer II", initialStatus = "Applied")
                     StaffInjectedApplicationCard(companyName = "Microsoft", role = "Data Scientist", initialStatus = "Shortlisted")
@@ -565,34 +569,30 @@ fun StaffInjectedApplicationCard(companyName: String, role: String, initialStatu
     var status by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(initialStatus) }
     var showDialog by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
 
+    val currentStage = when (status) {
+        "Shortlisted" -> com.example.placementprojectmp.ui.components.ApplicationStatusStage.Shortlisted
+        "Interview Scheduled" -> com.example.placementprojectmp.ui.components.ApplicationStatusStage.InterviewScheduled
+        "Selected" -> com.example.placementprojectmp.ui.components.ApplicationStatusStage.Hired
+        else -> com.example.placementprojectmp.ui.components.ApplicationStatusStage.Applied
+    }
+    
+    val item = com.example.placementprojectmp.ui.components.ApplicationStatusScreenItem(
+        companyName = companyName,
+        location = "Campus",
+        role = role,
+        appliedDate = "Today",
+        currentStage = currentStage
+    )
+
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(14.dp)
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = companyName,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = role,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f)
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = status,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.height(12.dp))
+        com.example.placementprojectmp.ui.screens.shared.cards.ApplicationStatusCard(item = item)
         
         if (status != "Selected" && status != "Rejected") {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(
