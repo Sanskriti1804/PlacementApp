@@ -4,6 +4,7 @@ import android.os.SystemClock
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -35,11 +36,14 @@ import com.example.placementprojectmp.ui.screens.student.screens.OpportunitiesSc
 import com.example.placementprojectmp.ui.screens.student.screens.PreparationScreen
 import com.example.placementprojectmp.ui.screens.student.screens.ProfileScreen
 import com.example.placementprojectmp.ui.screens.student.screens.PyqQuestionsScreen
+import com.example.placementprojectmp.notification.PlacementNotifications
 import com.example.placementprojectmp.ui.screens.student.screens.StudentApplicationSubmissionStore
 import com.example.placementprojectmp.ui.screens.staff.screens.StudentDetailsScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentDashboardScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentMainContainer
 import com.example.placementprojectmp.ui.screens.student.screens.studentDriveRegistrationUrl
+import com.example.placementprojectmp.ui.screens.student.screens.studentOpportunitiesDummyDrives
+import com.example.placementprojectmp.ui.screens.student.screens.studentOpportunitiesDummyJobs
 import com.example.placementprojectmp.ui.screens.shared.screens.DriveDetailScreen
 import com.example.placementprojectmp.ui.screens.shared.screens.JobDetailScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentProfileFormScreen
@@ -59,6 +63,8 @@ import com.example.placementprojectmp.ui.screens.system.screens.SystemDashboardS
 import com.example.placementprojectmp.ui.screens.system.screens.SystemManagementScreen
 import com.example.placementprojectmp.ui.screens.system.screens.SystemProfileScreen
 import com.example.placementprojectmp.ui.screens.system.screens.SystemSettingsScreen
+import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * Root navigation host with four graphs: Startup, Student, Staff, System.
@@ -245,6 +251,12 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
         ) { backStackEntry ->
             val jobId = backStackEntry.arguments?.getString("jobId").orEmpty()
             val context = LocalContext.current
+            val personalDraftVm = koinViewModel<StudentPersonalDraftViewModel>()
+            val personalDraft by personalDraftVm.draft.collectAsState()
+            val studentName = personalDraft.fullName.takeIf { it.isNotBlank() } ?: "Student"
+            val companyName = remember(jobId) {
+                studentOpportunitiesDummyJobs().firstOrNull { it.id == jobId }?.companyName.orEmpty()
+            }
             ApplyScreen(
                 modifier = modifier,
                 selectedJobId = jobId,
@@ -257,6 +269,11 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
                         "Application submitted",
                         Toast.LENGTH_SHORT
                     ).show()
+                    PlacementNotifications.notifyApplicationSubmitted(
+                        context.applicationContext,
+                        studentName,
+                        companyName
+                    )
                     StudentApplicationSubmissionStore.addAppliedJob(jobId)
                     navController.popBackStack()
                 }
@@ -317,6 +334,10 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
         }
         composable(Routes.StudentRoutes.OpportunitiesOuter) {
             val uriHandler = LocalUriHandler.current
+            val context = LocalContext.current
+            val personalDraftVm = koinViewModel<StudentPersonalDraftViewModel>()
+            val personalDraft by personalDraftVm.draft.collectAsState()
+            val studentName = personalDraft.fullName.takeIf { it.isNotBlank() } ?: "Student"
             val lastApplyNavMs = remember { longArrayOf(0L) }
             val navigateToApply: (String) -> Unit = applyNav@{ jobId ->
                 val now = SystemClock.uptimeMillis()
@@ -337,6 +358,15 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
                 onApplyClick = navigateToApply,
                 onDriveRegisterClick = { driveId ->
                     uriHandler.openUri(studentDriveRegistrationUrl(driveId))
+                    val driveTitle = studentOpportunitiesDummyDrives()
+                        .firstOrNull { it.id == driveId }
+                        ?.driveName
+                        .orEmpty()
+                    PlacementNotifications.notifyDriveRegistration(
+                        context.applicationContext,
+                        studentName,
+                        driveTitle
+                    )
                 }
             )
         }
@@ -366,10 +396,25 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
         ) { backStackEntry ->
             val driveId = backStackEntry.arguments?.getString("driveId").orEmpty()
             val uriHandler = LocalUriHandler.current
+            val context = LocalContext.current
+            val personalDraftVm = koinViewModel<StudentPersonalDraftViewModel>()
+            val personalDraft by personalDraftVm.draft.collectAsState()
+            val studentName = personalDraft.fullName.takeIf { it.isNotBlank() } ?: "Student"
             DriveDetailScreen(
                 modifier = modifier,
                 driveId = driveId,
-                onRegisterClick = { uriHandler.openUri(studentDriveRegistrationUrl(driveId)) }
+                onRegisterClick = {
+                    uriHandler.openUri(studentDriveRegistrationUrl(driveId))
+                    val driveTitle = studentOpportunitiesDummyDrives()
+                        .firstOrNull { it.id == driveId }
+                        ?.driveName
+                        .orEmpty()
+                    PlacementNotifications.notifyDriveRegistration(
+                        context.applicationContext,
+                        studentName,
+                        driveTitle
+                    )
+                }
             )
         }
         composable(Routes.StudentRoutes.StudentProfileForm) {

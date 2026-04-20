@@ -34,6 +34,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import android.os.SystemClock
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -41,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -51,8 +53,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.placementprojectmp.navigation.Routes
+import com.example.placementprojectmp.notification.PlacementNotifications
 import com.example.placementprojectmp.ui.screens.shared.screens.DriveDetailScreen
 import com.example.placementprojectmp.ui.screens.shared.screens.JobDetailScreen
+import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * Main container for the student module: Scaffold with top content area and custom bottom navigation.
@@ -66,6 +71,10 @@ fun StudentMainContainer(
 ) {
     val innerNavController = rememberNavController()
     val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+    val personalDraftVm = koinViewModel<StudentPersonalDraftViewModel>()
+    val personalDraft by personalDraftVm.draft.collectAsState()
+    val studentName = personalDraft.fullName.takeIf { it.isNotBlank() } ?: "Student"
     val lastApplyNavMs = remember { longArrayOf(0L) }
     val navigateToApply: (String) -> Unit = applyNav@{ jobId ->
         val nav = outerNavController ?: return@applyNav
@@ -112,6 +121,15 @@ fun StudentMainContainer(
                     onApplyClick = navigateToApply,
                     onDriveRegisterClick = { driveId ->
                         uriHandler.openUri(studentDriveRegistrationUrl(driveId))
+                        val driveTitle = studentOpportunitiesDummyDrives()
+                            .firstOrNull { it.id == driveId }
+                            ?.driveName
+                            .orEmpty()
+                        PlacementNotifications.notifyDriveRegistration(
+                            context.applicationContext,
+                            studentName,
+                            driveTitle
+                        )
                     }
                 )
             }
@@ -134,7 +152,18 @@ fun StudentMainContainer(
                 DriveDetailScreen(
                     modifier = modifier,
                     driveId = driveId,
-                    onRegisterClick = { uriHandler.openUri(studentDriveRegistrationUrl(driveId)) }
+                    onRegisterClick = {
+                        uriHandler.openUri(studentDriveRegistrationUrl(driveId))
+                        val driveTitle = studentOpportunitiesDummyDrives()
+                            .firstOrNull { it.id == driveId }
+                            ?.driveName
+                            .orEmpty()
+                        PlacementNotifications.notifyDriveRegistration(
+                            context.applicationContext,
+                            studentName,
+                            driveTitle
+                        )
+                    }
                 )
             }
             composable(Routes.StudentRoutes.Dashboard) {

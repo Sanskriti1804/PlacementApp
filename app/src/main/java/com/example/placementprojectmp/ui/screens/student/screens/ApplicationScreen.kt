@@ -50,6 +50,7 @@ import com.example.placementprojectmp.R
 import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 import com.example.placementprojectmp.ui.components.ApplicationStatusStage
 import com.example.placementprojectmp.ui.screens.student.component.UserInfoTabs
+import com.example.placementprojectmp.notification.PlacementNotifications
 import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
 import org.koin.androidx.compose.koinViewModel
 import kotlinx.serialization.json.Json
@@ -62,6 +63,14 @@ import androidx.compose.foundation.clickable
 import com.example.placementprojectmp.ui.components.ProfilePlatform
 
 class ApplicationOverrideViewModel(val savedStateHandle: SavedStateHandle) : ViewModel()
+
+private fun staffStatusPhraseForNotification(status: String): String = when (status) {
+    "Rejected" -> "rejected"
+    "Shortlisted" -> "shortlisted"
+    "Interview Scheduled" -> "interview scheduled"
+    "Selected" -> "selected"
+    else -> status.lowercase()
+}
 
 /**
  * Application screen: company header, profile preview, contact, platform links,
@@ -556,8 +565,18 @@ fun ApplicationScreen(
                     )
                     Text("Live Applications", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
                     
-                    StaffInjectedApplicationCard(companyName = "Google", role = "Software Engineer II", initialStatus = "Applied")
-                    StaffInjectedApplicationCard(companyName = "Microsoft", role = "Data Scientist", initialStatus = "Shortlisted")
+                    StaffInjectedApplicationCard(
+                        companyName = "Google",
+                        role = "Software Engineer II",
+                        initialStatus = "Applied",
+                        studentDisplayName = resolvedName
+                    )
+                    StaffInjectedApplicationCard(
+                        companyName = "Microsoft",
+                        role = "Data Scientist",
+                        initialStatus = "Shortlisted",
+                        studentDisplayName = resolvedName
+                    )
                 }
             }
         }
@@ -565,9 +584,15 @@ fun ApplicationScreen(
 }
 
 @Composable
-fun StaffInjectedApplicationCard(companyName: String, role: String, initialStatus: String) {
+fun StaffInjectedApplicationCard(
+    companyName: String,
+    role: String,
+    initialStatus: String,
+    studentDisplayName: String
+) {
     var status by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(initialStatus) }
     var showDialog by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    val context = LocalContext.current
 
     val currentStage = when (status) {
         "Shortlisted" -> com.example.placementprojectmp.ui.components.ApplicationStatusStage.Shortlisted
@@ -596,7 +621,15 @@ fun StaffInjectedApplicationCard(companyName: String, role: String, initialStatu
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(
-                    onClick = { status = "Rejected" },
+                    onClick = {
+                        status = "Rejected"
+                        PlacementNotifications.notifyApplicationStatusUpdated(
+                            context.applicationContext,
+                            studentDisplayName,
+                            companyName,
+                            staffStatusPhraseForNotification("Rejected")
+                        )
+                    },
                     modifier = Modifier.weight(1f),
                     colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
                     border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.error)
@@ -607,7 +640,15 @@ fun StaffInjectedApplicationCard(companyName: String, role: String, initialStatu
                 when (status) {
                     "Applied" -> {
                         androidx.compose.material3.Button(
-                            onClick = { status = "Shortlisted" },
+                            onClick = {
+                                status = "Shortlisted"
+                                PlacementNotifications.notifyApplicationStatusUpdated(
+                                    context.applicationContext,
+                                    studentDisplayName,
+                                    companyName,
+                                    staffStatusPhraseForNotification("Shortlisted")
+                                )
+                            },
                             modifier = Modifier.weight(1f),
                             colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = com.example.placementprojectmp.ui.theme.NeonBlue)
                         ) {
@@ -625,7 +666,15 @@ fun StaffInjectedApplicationCard(companyName: String, role: String, initialStatu
                     }
                     "Interview Scheduled" -> {
                         androidx.compose.material3.Button(
-                            onClick = { status = "Selected" },
+                            onClick = {
+                                status = "Selected"
+                                PlacementNotifications.notifyApplicationStatusUpdated(
+                                    context.applicationContext,
+                                    studentDisplayName,
+                                    companyName,
+                                    staffStatusPhraseForNotification("Selected")
+                                )
+                            },
                             modifier = Modifier.weight(1f),
                             colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = com.example.placementprojectmp.ui.theme.NeonBlue)
                         ) {
@@ -660,6 +709,12 @@ fun StaffInjectedApplicationCard(companyName: String, role: String, initialStatu
                     androidx.compose.material3.Button(onClick = {
                         status = "Interview Scheduled"
                         showDialog = false
+                        PlacementNotifications.notifyApplicationStatusUpdated(
+                            context.applicationContext,
+                            studentDisplayName,
+                            companyName,
+                            staffStatusPhraseForNotification("Interview Scheduled")
+                        )
                     }) {
                         Text("Confirm")
                     }
