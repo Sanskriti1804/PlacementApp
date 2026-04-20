@@ -51,12 +51,6 @@ import kotlin.random.Random
 private const val TAG = "StaffDashboard"
 private const val educationProfileId = 3L
 
-private val staffFeatureToolsItems = listOf(
-    FeatureTool(label = "Company Documents", imageVector = Icons.Default.Business),
-    FeatureTool(label = "Student Resumes", imageVector = Icons.Default.Article),
-    FeatureTool(label = "Student Management", imageVector = Icons.Default.Groups),
-    FeatureTool(label = "Department Management", imageVector = Icons.Default.AccountTree)
-)
 
 private data class StaffTopPerformerSectionCardData(
     val stateKey: Int,
@@ -235,7 +229,11 @@ private fun staffTopPerformerSectionCards(): List<StaffTopPerformerSectionCardDa
  */
 @Composable
 fun StaffDashboardScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDocumentClick: () -> Unit = {},
+    onStudentApplicationClick: () -> Unit = {},
+    onStudentManagementClick: () -> Unit = {},
+    onDepartmentManagementClick: () -> Unit = {}
 ) {
     val userViewModel: UserViewModel = koinViewModel()
     val educationViewModel: EducationViewModel = koinViewModel()
@@ -346,7 +344,14 @@ fun StaffDashboardScreen(
                 )
             }
             item {
-                FeatureTools(featureTools = staffFeatureToolsItems)
+                FeatureTools(
+                    featureTools = listOf(
+                        FeatureTool(label = "Document", imageVector = Icons.Default.Business, onClick = onDocumentClick),
+                        FeatureTool(label = "Student Application", imageVector = Icons.Default.Article, onClick = onStudentApplicationClick),
+                        FeatureTool(label = "Student Management", imageVector = Icons.Default.Groups, onClick = onStudentManagementClick),
+                        FeatureTool(label = "Department Management", imageVector = Icons.Default.AccountTree, onClick = onDepartmentManagementClick)
+                    )
+                )
             }
             item {
                 Column(

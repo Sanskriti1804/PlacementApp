@@ -30,6 +30,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -55,6 +60,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
 import com.example.placementprojectmp.ui.components.ProfilePlatform
 
+class ApplicationOverrideViewModel(val savedStateHandle: SavedStateHandle) : ViewModel()
+
 /**
  * Application screen: company header, profile preview, contact, platform links,
  * resume button, skills, education, collapsible additional info, certifications.
@@ -77,12 +84,24 @@ fun ApplicationScreen(
         } else emptyMap()
     } catch(e: Exception) { emptyMap() }
 
-    val resolvedName = personalDraft.fullName.takeIf { it.isNotBlank() } ?: "RAHUL SHARMA"
+    val overrideViewModel: ApplicationOverrideViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>, extras: androidx.lifecycle.viewmodel.CreationExtras): T {
+                val savedStateHandle = extras.createSavedStateHandle()
+                return ApplicationOverrideViewModel(savedStateHandle) as T
+            }
+        }
+    )
+    val overrideName = overrideViewModel.savedStateHandle.get<String>("name")
+    val overrideEmail = overrideViewModel.savedStateHandle.get<String>("email")
+    val overrideDept = overrideViewModel.savedStateHandle.get<String>("department")
+
+    val resolvedName = overrideName?.takeIf { it.isNotBlank() } ?: personalDraft.fullName.takeIf { it.isNotBlank() } ?: "RAHUL SHARMA"
     val resolvedHandle = personalDraft.username.takeIf { it.isNotBlank() }?.let { "@$it" } ?: "@rahuldev"
     val manualDob = listOf(personalDraft.day, personalDraft.month, personalDraft.year).filter { it.isNotBlank() }.joinToString(" ")
     val resolvedDob = manualDob.takeIf { it.isNotBlank() } ?: "12 Sep 2002"
-    val resolvedEmail = personalDraft.email.takeIf { it.isNotBlank() } ?: "rahul@email.com"
-    val resolvedRole = personalDraft.role.takeIf { it.isNotBlank() } ?: "Android Developer"
+    val resolvedEmail = overrideEmail?.takeIf { it.isNotBlank() } ?: personalDraft.email.takeIf { it.isNotBlank() } ?: "rahul@email.com"
+    val resolvedRole = overrideDept?.takeIf { it.isNotBlank() } ?: personalDraft.role.takeIf { it.isNotBlank() } ?: "Android Developer"
 
     val mergedSkills = (personalDraft.languagesSelected + personalDraft.toolsSelected + personalDraft.frameworksSelected).toList()
     val skills = mergedSkills.takeIf { it.isNotEmpty() }?.take(3) 

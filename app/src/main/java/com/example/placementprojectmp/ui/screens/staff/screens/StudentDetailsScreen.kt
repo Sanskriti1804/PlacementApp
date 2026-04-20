@@ -85,7 +85,8 @@ private fun dummyStudents(): List<StudentItem> = listOf(
 fun StudentDetailsScreen(
     modifier: Modifier = Modifier,
     onMenuClick: () -> Unit = {},
-    onNotificationClick: () -> Unit = {}
+    onNotificationClick: () -> Unit = {},
+    onStudentClick: (name: String, email: String, department: String) -> Unit = { _, _, _ -> }
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -281,7 +282,9 @@ fun StudentDetailsScreen(
                 itemsIndexed(paginatedStudents) { _, student ->
                     val (dept, _, _) = metaByStudentId.getValue(student.id)
                     UserIdCard(
-                        modifier = Modifier.padding(horizontal = 20.dp),
+                        modifier = Modifier
+                            .padding(horizontal = 20.dp)
+                            .clickable { onStudentClick(student.name, student.email, dept) },
                         name = student.name,
                         email = student.email,
                         idText = student.rollNumber,

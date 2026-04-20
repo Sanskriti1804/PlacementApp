@@ -88,13 +88,43 @@ fun StaffMainContainer(
                 modifier = Modifier.fillMaxSize()
             ) {
                 composable(Routes.StaffRoutes.StudentDetails) {
-                    StudentDetailsScreen(modifier = modifier)
+                    StudentDetailsScreen(
+                        modifier = modifier,
+                        onStudentClick = { name, email, department ->
+                            val nName = android.net.Uri.encode(name)
+                            val nEmail = android.net.Uri.encode(email)
+                            val nDept = android.net.Uri.encode(department)
+                            innerNavController.navigate("${Routes.StudentRoutes.ApplicationScreen}?name=$nName&email=$nEmail&department=$nDept")
+                        }
+                    )
                 }
                 composable(Routes.StaffRoutes.TeacherCompanyDetails) {
                     TeacherCompanyDetailsScreen(modifier = modifier)
                 }
                 composable(Routes.StaffRoutes.StaffDashboard) {
-                    StaffDashboardScreen(modifier = modifier)
+                    StaffDashboardScreen(
+                        modifier = modifier,
+                        onDocumentClick = { innerNavController.navigate(Routes.StaffRoutes.PlacementWorkspace) },
+                        onStudentApplicationClick = { innerNavController.navigate("student_application_screen") },
+                        onStudentManagementClick = { innerNavController.navigate(Routes.StaffRoutes.StudentDetails) },
+                        onDepartmentManagementClick = { innerNavController.navigate("staff_department_screen") }
+                    )
+                }
+                composable("student_application_screen") {
+                    StudentApplicationScreen(modifier = modifier)
+                }
+                composable("staff_department_screen") {
+                    StaffDepartmentScreen(modifier = modifier)
+                }
+                composable(
+                    route = "${Routes.StudentRoutes.ApplicationScreen}?name={name}&email={email}&department={department}",
+                    arguments = listOf(
+                        navArgument("name") { nullable = true },
+                        navArgument("email") { nullable = true },
+                        navArgument("department") { nullable = true }
+                    )
+                ) {
+                    com.example.placementprojectmp.ui.screens.student.screens.ApplicationScreen(modifier = modifier)
                 }
                 composable(Routes.StaffRoutes.Drive) {
                     StaffDriveScreen(
