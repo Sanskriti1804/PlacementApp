@@ -1,5 +1,10 @@
 package com.example.placementprojectmp.ui.screens.startup.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,8 +31,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.example.placementprojectmp.R
 import com.example.placementprojectmp.ui.screens.shared.component.AppLogo
 import com.example.placementprojectmp.ui.theme.NeonBlue
@@ -54,6 +61,30 @@ fun RoleSelectionScreen(
 ) {
     var selectedRole by remember { mutableStateOf<String?>(null) }
     var skipLoginEnabled by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    var pendingRoleNavigation by remember { mutableStateOf<(() -> Unit)?>(null) }
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        pendingRoleNavigation?.invoke()
+        pendingRoleNavigation = null
+    }
+
+    fun proceedAfterNotificationPermission(block: () -> Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val perm = Manifest.permission.POST_NOTIFICATIONS
+            when {
+                ContextCompat.checkSelfPermission(context, perm) == PackageManager.PERMISSION_GRANTED ->
+                    block()
+                else -> {
+                    pendingRoleNavigation = block
+                    notificationPermissionLauncher.launch(perm)
+                }
+            }
+        } else {
+            block()
+        }
+    }
 
     Column(
         modifier = modifier
@@ -89,11 +120,13 @@ fun RoleSelectionScreen(
                                 } else {
                                     "STAFF"
                                 }
-                                
-                                if (skipLoginEnabled) {
-                                    onSkipLogin(authRole)
-                                } else {
-                                    onNavigateToLogin(authRole)
+
+                                proceedAfterNotificationPermission {
+                                    if (skipLoginEnabled) {
+                                        onSkipLogin(authRole)
+                                    } else {
+                                        onNavigateToLogin(authRole)
+                                    }
                                 }
                             }
                             .border(

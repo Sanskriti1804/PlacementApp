@@ -1,20 +1,16 @@
 package com.example.placementprojectmp.notification
 
-import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import com.example.placementprojectmp.R
 
 /**
  * Lightweight system notifications for three placement events only.
- * Falls back to [Toast] when notifications are disabled or POST_NOTIFICATIONS is denied (API 33+).
+ * All delivery goes through the system notification shade (no in-app Toast).
  */
 object PlacementNotifications {
 
@@ -43,17 +39,6 @@ object PlacementNotifications {
         mgr.createNotificationChannel(channel)
     }
 
-    private fun mayPostToTray(context: Context): Boolean {
-        if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return false
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            return ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-        }
-        return true
-    }
-
     private fun deliver(
         context: Context,
         notificationId: Int,
@@ -62,19 +47,19 @@ object PlacementNotifications {
     ) {
         val appContext = context.applicationContext
         ensureChannel(appContext)
-        if (mayPostToTray(appContext)) {
-            val notification = NotificationCompat.Builder(appContext, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle(title)
-                .setContentText(text)
-                .setStyle(NotificationCompat.BigTextStyle().bigText(text))
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setColor(NEON_BLUE_ARGB)
-                .setAutoCancel(true)
-                .build()
+        val notification = NotificationCompat.Builder(appContext, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setColor(NEON_BLUE_ARGB)
+            .setAutoCancel(true)
+            .build()
+        try {
             NotificationManagerCompat.from(appContext).notify(notificationId, notification)
-        } else {
-            Toast.makeText(appContext, "$title — $text", Toast.LENGTH_LONG).show()
+        } catch (_: SecurityException) {
+            // API 33+: POST_NOTIFICATIONS not granted — system blocks posting; no fallback UI here.
         }
     }
 
