@@ -34,7 +34,7 @@ fun StaffJobDetailScreen(
     modifier: Modifier = Modifier,
     jobId: String
 ) {
-    JobDetailScreen(modifier = modifier, jobId = jobId)
+    JobDetailScreen(modifier = modifier, jobId = jobId, showApplyButton = false)
 }
 
 @OptIn(ExperimentalFoundationApi::class)

@@ -147,7 +147,8 @@ fun StaffDriveScreen(
                         DriveCard(
                             drive = drive,
                             onRegisterClick = {},
-                            onClick = { onDriveClick(drive.id) }
+                            onClick = { onDriveClick(drive.id) },
+                            showRegisterButton = false
                         )
                     }
                 }
@@ -157,7 +158,8 @@ fun StaffDriveScreen(
                         JobCard(
                             job = job,
                             onApplyClick = {},
-                            onClick = { onJobClick(job.id) }
+                            onClick = { onJobClick(job.id) },
+                            showApplyButton = false
                         )
                     }
                 }

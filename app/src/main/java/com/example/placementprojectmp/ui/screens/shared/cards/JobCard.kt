@@ -49,7 +49,8 @@ private val jobApplyButtonContainer = Color(0xFF00A3C4)
 fun JobCard(
     job: JobUiModel,
     onApplyClick: () -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    showApplyButton: Boolean = true
 ) {
     val scope = rememberCoroutineScope()
     var applyScaleTarget by remember { mutableFloatStateOf(1f) }
@@ -136,7 +137,11 @@ fun JobCard(
             Spacer(modifier = Modifier.height(22.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = if (showApplyButton) {
+                    Arrangement.SpaceBetween
+                } else {
+                    Arrangement.Start
+                },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -151,28 +156,30 @@ fun JobCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                Button(
-                    onClick = {
-                        scope.launch {
-                            applyScaleTarget = 1.05f
-                            delay(95)
-                            applyScaleTarget = 1f
-                            delay(95)
-                            onApplyClick()
-                        }
-                    },
-                    modifier = Modifier.graphicsLayer {
-                        scaleX = applyScale
-                        scaleY = applyScale
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = jobApplyButtonContainer,
-                        contentColor = Color.White
-                    ),
-                    contentPadding = ButtonDefaults.ContentPadding
-                ) {
-                    Text(text = "Apply")
+                if (showApplyButton) {
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                applyScaleTarget = 1.05f
+                                delay(95)
+                                applyScaleTarget = 1f
+                                delay(95)
+                                onApplyClick()
+                            }
+                        },
+                        modifier = Modifier.graphicsLayer {
+                            scaleX = applyScale
+                            scaleY = applyScale
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = jobApplyButtonContainer,
+                            contentColor = Color.White
+                        ),
+                        contentPadding = ButtonDefaults.ContentPadding
+                    ) {
+                        Text(text = "Apply")
+                    }
                 }
             }
         }

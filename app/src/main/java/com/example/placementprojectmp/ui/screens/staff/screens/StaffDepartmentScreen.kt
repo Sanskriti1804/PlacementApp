@@ -22,7 +22,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.R
 import com.example.placementprojectmp.ui.screens.shared.component.AppScreenHeader
-import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 import com.example.placementprojectmp.ui.screens.student.component.CourseDomainMappingFilter
 import com.example.placementprojectmp.ui.theme.NeonBlue
 import com.example.placementprojectmp.ui.theme.colormap.ColorMapper
@@ -30,9 +29,7 @@ import com.example.placementprojectmp.ui.theme.colormap.Department
 
 @Composable
 fun StaffDepartmentScreen(
-    modifier: Modifier = Modifier,
-    onMenuClick: () -> Unit = {},
-    onNotificationClick: () -> Unit = {}
+    modifier: Modifier = Modifier
 ) {
     var selectedDomains by remember { mutableStateOf(setOf<String>()) }
     
@@ -46,12 +43,6 @@ fun StaffDepartmentScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(bottom = 24.dp)
     ) {
-        item {
-            AppTopBar(
-                onMenuClick = onMenuClick,
-                onNotificationClick = onNotificationClick
-            )
-        }
         item {
             AppScreenHeader(
                 title = "Department",

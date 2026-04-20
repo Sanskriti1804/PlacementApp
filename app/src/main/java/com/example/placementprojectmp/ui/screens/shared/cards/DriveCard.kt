@@ -50,7 +50,8 @@ private val driveRegisterButtonContainer = Color(0xFF00A3C4)
 fun DriveCard(
     drive: DriveUiModel,
     onRegisterClick: () -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    showRegisterButton: Boolean = true
 ) {
     val scope = rememberCoroutineScope()
     var registerScaleTarget by remember { mutableFloatStateOf(1f) }
@@ -127,7 +128,11 @@ fun DriveCard(
             Spacer(modifier = Modifier.height(22.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = if (showRegisterButton) {
+                    Arrangement.SpaceBetween
+                } else {
+                    Arrangement.Start
+                },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -142,28 +147,30 @@ fun DriveCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                Button(
-                    onClick = {
-                        scope.launch {
-                            registerScaleTarget = 1.05f
-                            delay(95)
-                            registerScaleTarget = 1f
-                            delay(95)
-                            onRegisterClick()
-                        }
-                    },
-                    modifier = Modifier.graphicsLayer {
-                        scaleX = registerScale
-                        scaleY = registerScale
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = driveRegisterButtonContainer,
-                        contentColor = Color.White
-                    ),
-                    contentPadding = ButtonDefaults.ContentPadding
-                ) {
-                    Text(text = "Register")
+                if (showRegisterButton) {
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                registerScaleTarget = 1.05f
+                                delay(95)
+                                registerScaleTarget = 1f
+                                delay(95)
+                                onRegisterClick()
+                            }
+                        },
+                        modifier = Modifier.graphicsLayer {
+                            scaleX = registerScale
+                            scaleY = registerScale
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = driveRegisterButtonContainer,
+                            contentColor = Color.White
+                        ),
+                        contentPadding = ButtonDefaults.ContentPadding
+                    ) {
+                        Text(text = "Register")
+                    }
                 }
             }
         }

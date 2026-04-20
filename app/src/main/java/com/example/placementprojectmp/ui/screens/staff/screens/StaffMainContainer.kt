@@ -153,7 +153,8 @@ fun StaffMainContainer(
                 ) { backStackEntry ->
                     StaffDriveDetailScreen(
                         modifier = modifier,
-                        driveId = backStackEntry.arguments?.getString("driveId").orEmpty()
+                        driveId = backStackEntry.arguments?.getString("driveId").orEmpty(),
+                        showRegisterButton = false
                     )
                 }
                 composable(

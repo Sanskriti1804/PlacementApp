@@ -11,11 +11,13 @@ import com.example.placementprojectmp.ui.screens.staff.screens.StaffDriveDetailS
 fun DriveDetailScreen(
     modifier: Modifier = Modifier,
     driveId: String,
-    onRegisterClick: () -> Unit = {}
+    onRegisterClick: () -> Unit = {},
+    showRegisterButton: Boolean = true
 ) {
     StaffDriveDetailScreen(
         modifier = modifier,
         driveId = driveId,
-        onRegisterClick = onRegisterClick
+        onRegisterClick = onRegisterClick,
+        showRegisterButton = showRegisterButton
     )
 }

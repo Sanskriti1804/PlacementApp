@@ -158,6 +158,7 @@ fun StaffDriveDetailScreen(
     modifier: Modifier = Modifier,
     driveId: String,
     onRegisterClick: () -> Unit = {},
+    showRegisterButton: Boolean = true,
     /** When non-null (e.g. System role), rendered immediately after [CompanyIdCard]. */
     contentBelowDriveIdCard: (@Composable () -> Unit)? = null
 ) {
@@ -279,36 +280,38 @@ fun StaffDriveDetailScreen(
                 SelectionRounds(rounds = p.selectionRounds)
             }
         }
-        item {
-            Spacer(modifier = Modifier.height(30.dp))
-        }
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-                OutlinedButton(
-                    onClick = onRegisterClick,
-                    modifier = Modifier.fillMaxWidth(0.5f),
-                    shape = RoundedCornerShape(12.dp),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.primary,
-                        containerColor = Color.Transparent
-                    )
+        if (showRegisterButton) {
+            item {
+                Spacer(modifier = Modifier.height(30.dp))
+            }
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Text(
-                        text = "Register",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    OutlinedButton(
+                        onClick = onRegisterClick,
+                        modifier = Modifier.fillMaxWidth(0.5f),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary,
+                            containerColor = Color.Transparent
+                        )
+                    ) {
+                        Text(
+                            text = "Register",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
-        }
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
         }
     }
 }

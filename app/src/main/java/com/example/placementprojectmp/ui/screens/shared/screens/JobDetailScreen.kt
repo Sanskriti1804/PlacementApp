@@ -180,7 +180,8 @@ private fun presentationForJobId(jobId: String): JobDetailPresentation {
 fun JobDetailScreen(
     modifier: Modifier = Modifier,
     jobId: String,
-    onApplyClick: () -> Unit = {}
+    onApplyClick: () -> Unit = {},
+    showApplyButton: Boolean = true
 ) {
     val p = remember(jobId) { presentationForJobId(jobId) }
 
@@ -270,36 +271,38 @@ fun JobDetailScreen(
                 SelectionRounds(rounds = p.selectionRounds)
             }
         }
-        item {
-            Spacer(modifier = Modifier.height(30.dp))
-        }
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-                OutlinedButton(
-                    onClick = onApplyClick,
-                    modifier = Modifier.fillMaxWidth(0.5f),
-                    shape = RoundedCornerShape(12.dp),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.primary,
-                        containerColor = Color.Transparent
-                    )
+        if (showApplyButton) {
+            item {
+                Spacer(modifier = Modifier.height(30.dp))
+            }
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Text(
-                        text = "Apply",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    OutlinedButton(
+                        onClick = onApplyClick,
+                        modifier = Modifier.fillMaxWidth(0.5f),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary,
+                            containerColor = Color.Transparent
+                        )
+                    ) {
+                        Text(
+                            text = "Apply",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
-        }
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
         }
     }
 }

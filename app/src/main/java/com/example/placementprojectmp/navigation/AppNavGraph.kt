@@ -452,7 +452,11 @@ private fun androidx.navigation.NavGraphBuilder.staffGraph(
             route = Routes.StaffRoutes.DriveDetail,
             arguments = listOf(navArgument("driveId") { type = NavType.StringType })
         ) { backStackEntry ->
-            StaffDriveDetailScreen(modifier = modifier, driveId = backStackEntry.arguments?.getString("driveId").orEmpty())
+            StaffDriveDetailScreen(
+                modifier = modifier,
+                driveId = backStackEntry.arguments?.getString("driveId").orEmpty(),
+                showRegisterButton = false
+            )
         }
         composable(
             route = Routes.StaffRoutes.JobDetail,
