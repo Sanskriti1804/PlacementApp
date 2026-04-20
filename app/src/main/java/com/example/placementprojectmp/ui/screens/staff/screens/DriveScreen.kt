@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -325,18 +326,6 @@ private fun FilterBottomSheet(
                 label = { it.label },
                 onToggle = onWorkModeToggle
             )
-            OutlinedTextField(
-                value = filterState.companyQuery,
-                onValueChange = onCompanyQueryChanged,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Company Name") }
-            )
-            OutlinedTextField(
-                value = filterState.location,
-                onValueChange = onLocationChanged,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Location") }
-            )
             Text(
                 text = "Salary Range (LPA): ${filterState.salaryRange.start.toInt()} - ${filterState.salaryRange.endInclusive.toInt()}",
                 style = MaterialTheme.typography.labelMedium
@@ -344,7 +333,23 @@ private fun FilterBottomSheet(
             RangeSlider(
                 value = filterState.salaryRange,
                 onValueChange = onSalaryRangeChanged,
-                valueRange = 2f..40f
+                valueRange = 2f..40f,
+                startThumb = {
+                    Box(
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary)
+                    )
+                },
+                endThumb = {
+                    Box(
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary)
+                    )
+                }
             )
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                 OutlinedButton(onClick = onReset, modifier = Modifier.weight(1f)) { Text("Reset") }

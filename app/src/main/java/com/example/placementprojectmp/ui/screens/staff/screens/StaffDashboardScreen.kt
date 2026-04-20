@@ -41,6 +41,8 @@ import com.example.placementprojectmp.ui.screens.shared.component.SystemCTA
 import com.example.placementprojectmp.ui.screens.student.component.CourseDomainMappingFilter
 import com.example.placementprojectmp.ui.screens.student.component.FeatureTool
 import com.example.placementprojectmp.ui.screens.student.component.FeatureTools
+import com.example.placementprojectmp.ui.screens.shared.component.cards.UserIdCard
+import com.example.placementprojectmp.ui.screens.staff.StaffStudentPortraitIds
 import com.example.placementprojectmp.viewmodel.EducationViewModel
 import com.example.placementprojectmp.viewmodel.UserViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -298,6 +300,43 @@ fun StaffDashboardScreen(
                     }
                 }
             )
+            if (selectedDomains.isNotEmpty()) {
+                item {
+                    val domainStudents = remember(selectedDomains) {
+                        selectedDomains.flatMap { domain ->
+                            listOf(
+                                Triple("Rahul $domain", "rahul.${domain.lowercase().replace(" ", "")}@email.com", "CSE-BT-2101"),
+                                Triple("Priya $domain", "priya.${domain.lowercase().replace(" ", "")}@email.com", "ECE-BT-2104")
+                            )
+                        }
+                    }
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(domainStudents.size) { index ->
+                            val (name, email, roll) = domainStudents[index]
+                            UserIdCard(
+                                modifier = Modifier.width(320.dp),
+                                name = name,
+                                email = email,
+                                idText = roll,
+                                profileImageResId = StaffStudentPortraitIds.all[index % StaffStudentPortraitIds.all.size],
+                                departmentValue = selectedDomains.elementAt(index / 2),
+                                secondaryAttributeLabel = "Hired",
+                                secondaryAttributeValue = "NA",
+                                optionalEndTag = null,
+                                tags = emptyList(),
+                                selected = false,
+                                onSelectionChange = {},
+                                isFavorite = false,
+                                onFavoriteToggle = {}
+                            )
+                        }
+                    }
+                }
+            }
             item {
                 JobSection(
                     modifier = Modifier.padding(horizontal = 20.dp),

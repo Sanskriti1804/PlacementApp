@@ -290,7 +290,7 @@ fun StudentDetailsScreen(
                         departmentValue = dept,
                         secondaryAttributeLabel = "Hired",
                         secondaryAttributeValue = hiredDisplayByStudentId.getValue(student.id),
-                        optionalEndTag = "Faculty",
+                        optionalEndTag = null,
                         tags = tagsByStudent[student.id].orEmpty(),
                         selected = student.id in selectedIds,
                         onSelectionChange = { checked ->
@@ -499,7 +499,7 @@ private fun AdvancedFiltersBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                listOf("Highest Package", "Name (A → Z)", "Package", "CGPA").forEach { option ->
+                listOf("Name (A → Z)", "CGPA").forEach { option ->
                     SortOptionBox(
                         modifier = Modifier.weight(1f),
                         label = option,
@@ -514,12 +514,6 @@ private fun AdvancedFiltersBottomSheet(
                 options = listOf("Applied", "Not Applied", "Shortlisted", "Rejected", "Selected", "Placed"),
                 selected = selectedStatuses,
                 onChange = onStatusesChange
-            )
-            AdvancedChipGroup(
-                label = "Passing Year",
-                options = listOf("Before 2022", "2022", "2023", "2024", "2025", "2026", "Ongoing"),
-                selected = selectedPassingYears,
-                onChange = onPassingYearsChange
             )
             AdvancedChipGroup(
                 label = "Backlog Status",
@@ -552,12 +546,15 @@ private fun AdvancedFiltersBottomSheet(
                 OutlinedButton(
                     onClick = onReset,
                     shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.White)
                 ) { Text("Reset") }
                 Button(
                     onClick = onApply,
                     shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = NeonBlue)
                 ) { Text("Apply") }
             }
             Spacer(modifier = Modifier.height(10.dp))
