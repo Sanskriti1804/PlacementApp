@@ -86,7 +86,8 @@ fun StudentDetailsScreen(
     modifier: Modifier = Modifier,
     onMenuClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
-    onStudentClick: (name: String, email: String, department: String) -> Unit = { _, _, _ -> }
+    source: String? = null,
+    onStudentClick: (name: String, email: String, department: String, imageResId: Int) -> Unit = { _, _, _, _ -> }
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -230,13 +231,13 @@ fun StudentDetailsScreen(
                             .padding(horizontal = 20.dp)
                     ) {
                         androidx.compose.material3.Text(
-                            text = "Student Details",
+                            text = if (source == "student_application_management") "Student Applications" else "Student Details",
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                         )
                         androidx.compose.material3.Text(
-                            text = "Manage student profile and actions",
+                            text = if (source == "student_application_management") "Screen candidates, updates, status, and manage placement" else "Manage student profile and actions",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Normal
@@ -281,15 +282,16 @@ fun StudentDetailsScreen(
                 }
                 itemsIndexed(paginatedStudents) { _, student ->
                     val (dept, _, _) = metaByStudentId.getValue(student.id)
+                    val portraitResId = portraitByStudentId.getValue(student.id)
                     UserIdCard(
                         modifier = Modifier
                             .padding(horizontal = 20.dp)
-                            .clickable { onStudentClick(student.name, student.email, dept) },
+                            .clickable { onStudentClick(student.name, student.email, dept, portraitResId) },
                         name = student.name,
                         email = student.email,
                         idText = student.rollNumber,
                         searchQuery = queryTrimmed,
-                        profileImageResId = portraitByStudentId.getValue(student.id),
+                        profileImageResId = portraitResId,
                         departmentValue = dept,
                         secondaryAttributeLabel = "Hired",
                         secondaryAttributeValue = hiredDisplayByStudentId.getValue(student.id),

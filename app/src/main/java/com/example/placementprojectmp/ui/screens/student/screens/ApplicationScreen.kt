@@ -38,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -95,13 +96,28 @@ fun ApplicationScreen(
     val overrideName = overrideViewModel.savedStateHandle.get<String>("name")
     val overrideEmail = overrideViewModel.savedStateHandle.get<String>("email")
     val overrideDept = overrideViewModel.savedStateHandle.get<String>("department")
+    val overrideImageResId = overrideViewModel.savedStateHandle.get<Int>("imageResId")
+    val isFromStaffModule = overrideViewModel.savedStateHandle.get<Boolean>("isFromStaffModule") ?: false
 
     val resolvedName = overrideName?.takeIf { it.isNotBlank() } ?: personalDraft.fullName.takeIf { it.isNotBlank() } ?: "RAHUL SHARMA"
     val resolvedHandle = personalDraft.username.takeIf { it.isNotBlank() }?.let { "@$it" } ?: "@rahuldev"
     val manualDob = listOf(personalDraft.day, personalDraft.month, personalDraft.year).filter { it.isNotBlank() }.joinToString(" ")
     val resolvedDob = manualDob.takeIf { it.isNotBlank() } ?: "12 Sep 2002"
-    val resolvedEmail = overrideEmail?.takeIf { it.isNotBlank() } ?: personalDraft.email.takeIf { it.isNotBlank() } ?: "rahul@email.com"
-    val resolvedRole = overrideDept?.takeIf { it.isNotBlank() } ?: personalDraft.role.takeIf { it.isNotBlank() } ?: "Android Developer"
+    val resolvedEmail = if (isFromStaffModule) {
+        resolvedName.lowercase().replace(" ", ".") + "@email.com"
+    } else {
+        overrideEmail?.takeIf { it.isNotBlank() } ?: personalDraft.email.takeIf { it.isNotBlank() } ?: "rahul@email.com"
+    }
+    
+    val randomRoles = listOf("Android Developer", "Data Scientist", "Backend Engineer", "Frontend Developer", "ML Engineer", "Product Manager")
+    val assignedRole = if (isFromStaffModule) randomRoles[kotlin.math.abs(resolvedName.hashCode()) % randomRoles.size] else null
+    val resolvedRole = assignedRole ?: overrideDept?.takeIf { it.isNotBlank() } ?: personalDraft.role.takeIf { it.isNotBlank() } ?: "Android Developer"
+    
+    val profileImageId = if (isFromStaffModule && overrideImageResId != null && overrideImageResId != -1) {
+        overrideImageResId
+    } else {
+        R.drawable.pfp_user
+    }
 
     val mergedSkills = (personalDraft.languagesSelected + personalDraft.toolsSelected + personalDraft.frameworksSelected).toList()
     val skills = mergedSkills.takeIf { it.isNotEmpty() }?.take(3) 
@@ -155,13 +171,17 @@ fun ApplicationScreen(
         contentPadding = PaddingValues(bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        item {
-            AppTopBar(
-                onMenuClick = onMenuClick,
-                onNotificationClick = onNotificationClick
-            )
+        if (!isFromStaffModule) {
+            item {
+                AppTopBar(
+                    onMenuClick = onMenuClick,
+                    onNotificationClick = onNotificationClick
+                )
+            }
+            item { Spacer(modifier = Modifier.height(12.dp)) }
+        } else {
+            item { Spacer(modifier = Modifier.height(24.dp)) }
         }
-        item { Spacer(modifier = Modifier.height(12.dp)) }
         item {
             Row(
                 modifier = Modifier
@@ -202,7 +222,7 @@ fun ApplicationScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
                     Image(
-                        painter = painterResource(R.drawable.pfp_user),
+                        painter = painterResource(profileImageId),
                         contentDescription = "Profile",
                         modifier = Modifier
                             .fillMaxSize()
@@ -521,6 +541,135 @@ fun ApplicationScreen(
                     }
                 }
             }
+        }
+        
+        if (isFromStaffModule) {
+            item {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text("Live Applications", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.45f))
+                    
+                    StaffInjectedApplicationCard(companyName = "Google", role = "Software Engineer II", initialStatus = "Applied")
+                    StaffInjectedApplicationCard(companyName = "Microsoft", role = "Data Scientist", initialStatus = "Shortlisted")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun StaffInjectedApplicationCard(companyName: String, role: String, initialStatus: String) {
+    var status by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(initialStatus) }
+    var showDialog by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(14.dp)
+    ) {
+        Text(
+            text = companyName,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = role,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = status,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        
+        if (status != "Selected" && status != "Rejected") {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(
+                    onClick = { status = "Rejected" },
+                    modifier = Modifier.weight(1f),
+                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Reject")
+                }
+                
+                when (status) {
+                    "Applied" -> {
+                        androidx.compose.material3.Button(
+                            onClick = { status = "Shortlisted" },
+                            modifier = Modifier.weight(1f),
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = com.example.placementprojectmp.ui.theme.NeonBlue)
+                        ) {
+                            Text("Shortlist")
+                        }
+                    }
+                    "Shortlisted" -> {
+                        androidx.compose.material3.Button(
+                            onClick = { showDialog = true },
+                            modifier = Modifier.weight(1f),
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = com.example.placementprojectmp.ui.theme.NeonBlue)
+                        ) {
+                            Text("Schedule")
+                        }
+                    }
+                    "Interview Scheduled" -> {
+                        androidx.compose.material3.Button(
+                            onClick = { status = "Selected" },
+                            modifier = Modifier.weight(1f),
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = com.example.placementprojectmp.ui.theme.NeonBlue)
+                        ) {
+                            Text("Select")
+                        }
+                    }
+                }
+            }
+        }
+
+        if (showDialog) {
+            var date by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf("") }
+            var mode by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf("") }
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text("Schedule Interview") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        androidx.compose.material3.OutlinedTextField(
+                            value = date,
+                            onValueChange = { date = it },
+                            label = { Text("Date & Time") }
+                        )
+                        androidx.compose.material3.OutlinedTextField(
+                            value = mode,
+                            onValueChange = { mode = it },
+                            label = { Text("Mode (e.g. Online/Offline)") }
+                        )
+                    }
+                },
+                confirmButton = {
+                    androidx.compose.material3.Button(onClick = {
+                        status = "Interview Scheduled"
+                        showDialog = false
+                    }) {
+                        Text("Confirm")
+                    }
+                },
+                dismissButton = {
+                    androidx.compose.material3.TextButton(onClick = { showDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 }

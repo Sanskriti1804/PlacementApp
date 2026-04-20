@@ -87,14 +87,19 @@ fun StaffMainContainer(
                 startDestination = Routes.StaffRoutes.StudentDetails,
                 modifier = Modifier.fillMaxSize()
             ) {
-                composable(Routes.StaffRoutes.StudentDetails) {
+                composable(
+                    route = Routes.StaffRoutes.StudentDetails + "?source={source}",
+                    arguments = listOf(navArgument("source") { nullable = true; defaultValue = null })
+                ) { backStackEntry ->
+                    val source = backStackEntry.arguments?.getString("source")
                     StudentDetailsScreen(
                         modifier = modifier,
-                        onStudentClick = { name, email, department ->
+                        source = source,
+                        onStudentClick = { name, email, department, imageResId ->
                             val nName = android.net.Uri.encode(name)
                             val nEmail = android.net.Uri.encode(email)
                             val nDept = android.net.Uri.encode(department)
-                            innerNavController.navigate("${Routes.StudentRoutes.ApplicationScreen}?name=$nName&email=$nEmail&department=$nDept")
+                            innerNavController.navigate("${Routes.StudentRoutes.ApplicationScreen}?name=$nName&email=$nEmail&department=$nDept&imageResId=$imageResId&isFromStaffModule=true")
                         }
                     )
                 }
@@ -105,23 +110,22 @@ fun StaffMainContainer(
                     StaffDashboardScreen(
                         modifier = modifier,
                         onDocumentClick = { innerNavController.navigate(Routes.StaffRoutes.PlacementWorkspace) },
-                        onStudentApplicationClick = { innerNavController.navigate("student_application_screen") },
-                        onStudentManagementClick = { innerNavController.navigate(Routes.StaffRoutes.StudentDetails) },
+                        onStudentManagementClick = { innerNavController.navigate(Routes.StaffRoutes.StudentDetails + "?source=student_application_management") },
                         onDepartmentManagementClick = { innerNavController.navigate("staff_department_screen") }
                     )
                 }
-                composable("student_application_screen") {
-                    StudentApplicationScreen(modifier = modifier)
-                }
+
                 composable("staff_department_screen") {
                     StaffDepartmentScreen(modifier = modifier)
                 }
                 composable(
-                    route = "${Routes.StudentRoutes.ApplicationScreen}?name={name}&email={email}&department={department}",
+                    route = "${Routes.StudentRoutes.ApplicationScreen}?name={name}&email={email}&department={department}&imageResId={imageResId}&isFromStaffModule={isFromStaffModule}",
                     arguments = listOf(
                         navArgument("name") { nullable = true },
                         navArgument("email") { nullable = true },
-                        navArgument("department") { nullable = true }
+                        navArgument("department") { nullable = true },
+                        navArgument("imageResId") { type = androidx.navigation.NavType.IntType; defaultValue = -1 },
+                        navArgument("isFromStaffModule") { type = androidx.navigation.NavType.BoolType; defaultValue = false }
                     )
                 ) {
                     com.example.placementprojectmp.ui.screens.student.screens.ApplicationScreen(modifier = modifier)

@@ -231,7 +231,6 @@ private fun staffTopPerformerSectionCards(): List<StaffTopPerformerSectionCardDa
 fun StaffDashboardScreen(
     modifier: Modifier = Modifier,
     onDocumentClick: () -> Unit = {},
-    onStudentApplicationClick: () -> Unit = {},
     onStudentManagementClick: () -> Unit = {},
     onDepartmentManagementClick: () -> Unit = {}
 ) {
@@ -347,8 +346,7 @@ fun StaffDashboardScreen(
                 FeatureTools(
                     featureTools = listOf(
                         FeatureTool(label = "Document", imageVector = Icons.Default.Business, onClick = onDocumentClick),
-                        FeatureTool(label = "Student Application", imageVector = Icons.Default.Article, onClick = onStudentApplicationClick),
-                        FeatureTool(label = "Student Management", imageVector = Icons.Default.Groups, onClick = onStudentManagementClick),
+                        FeatureTool(label = "Student Application Management", imageVector = Icons.Default.Groups, onClick = onStudentManagementClick),
                         FeatureTool(label = "Department Management", imageVector = Icons.Default.AccountTree, onClick = onDepartmentManagementClick)
                     )
                 )
