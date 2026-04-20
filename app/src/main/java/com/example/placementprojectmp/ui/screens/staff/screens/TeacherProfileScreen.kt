@@ -76,7 +76,13 @@ fun TeacherProfileScreen(
 }
 
 @Composable
-private fun TeacherIdCardsSection() {
+fun TeacherIdCardsSection(
+    modifier: Modifier = Modifier,
+    name: String = "Dr. Ananya Sharma",
+    roleText: String = "Professor at Delhi Institute of Technology",
+    imageResId: Int = R.drawable.pfp_staff,
+    idText: String = "FAC_024"
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -89,7 +95,7 @@ private fun TeacherIdCardsSection() {
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.pfp_staff),
+                painter = painterResource(id = imageResId),
                 contentDescription = "Teacher profile",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -134,7 +140,7 @@ private fun TeacherIdCardsSection() {
 
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
-                        text = "Dr. Ananya Sharma",
+                        text = name,
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.SemiBold,
@@ -142,7 +148,7 @@ private fun TeacherIdCardsSection() {
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = "Professor at Delhi Institute of Technology",
+                        text = roleText,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -168,7 +174,7 @@ private fun TeacherIdCardsSection() {
                         )
                     )
                     Text(
-                        text = "FAC_024",
+                        text = idText,
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold,
@@ -497,7 +503,7 @@ private fun StatsGridSection() {
 }
 
 @Composable
-private fun ExpandableCounterCard(
+fun ExpandableCounterCard(
     modifier: Modifier,
     title: String,
     countText: String,
@@ -553,7 +559,7 @@ private fun ExpandableCounterCard(
 }
 
 @Composable
-private fun CounterList(
+fun CounterList(
     imageDots: List<Int>,
     colorDots: List<Color>,
     items: List<String>
@@ -601,7 +607,7 @@ private fun CounterList(
 }
 
 @Composable
-private fun OverlapCounterStrip(
+fun OverlapCounterStrip(
     imageDots: List<Int>,
     colorDots: List<Color>,
     countText: String
