@@ -115,10 +115,10 @@ fun RoleSelectionScreen(
                             .weight(1f)
                             .clickable {
                                 selectedRole = role.label.lowercase()
-                                val authRole = if (role.label.equals("STUDENT", ignoreCase = true)) {
-                                    "STUDENT"
-                                } else {
-                                    "STAFF"
+                                val authRole = when {
+                                    role.label.equals("STUDENT", ignoreCase = true) -> "STUDENT"
+                                    role.label.equals("ADMIN", ignoreCase = true) -> "SYSTEM"
+                                    else -> "STAFF"
                                 }
 
                                 proceedAfterNotificationPermission {

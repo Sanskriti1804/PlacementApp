@@ -47,7 +47,7 @@ fun AboutAppScreen(
 
     LaunchedEffect(pagerState) {
         while (true) {
-            delay(5000)
+            delay(3000)
             val nextPage = (pagerState.currentPage + 1) % pagerState.pageCount
             pagerState.animateScrollToPage(nextPage)
         }
