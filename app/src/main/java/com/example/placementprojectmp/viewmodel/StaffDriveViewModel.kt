@@ -4,9 +4,16 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.placementprojectmp.R
+import com.example.placementprojectmp.data.mapper.PlacementUiMappers
+import com.example.placementprojectmp.data.repo.BackendIntegrationRepository
+import com.example.placementprojectmp.data.repo.DriveRepository
+import com.example.placementprojectmp.data.repo.JobRepository
+import com.example.placementprojectmp.integration.data.remote.ApiResult
 import java.time.LocalDate
 import kotlin.random.Random
+import kotlinx.coroutines.launch
 
 enum class ApplicationTab { COMPANY, DRIVE, JOBS }
 enum class Status { OPEN, CLOSED, UPCOMING }
@@ -86,10 +93,16 @@ data class StaffDriveUiState(
     val filteredJobs: List<JobUiModel> = emptyList()
 )
 
-class StaffDriveViewModel : ViewModel() {
-    private val companies = mockCompanies()
-    private val drives = mockDrives(companies)
-    private val jobs = mockJobs(companies)
+class StaffDriveViewModel(
+    private val jobRepo: JobRepository,
+    private val driveRepo: DriveRepository,
+    private val backend: BackendIntegrationRepository
+) : ViewModel() {
+
+    private var companies: List<CompanyUiModel> = mockCompanies()
+    private var drives: List<DriveUiModel> = mockDrives(companies)
+    private var jobs: List<JobUiModel> = mockJobs(companies)
+
     private val _uiState = mutableStateOf(
         StaffDriveUiState(
             filteredCompanies = companies,
@@ -98,6 +111,37 @@ class StaffDriveViewModel : ViewModel() {
         )
     )
     val uiState: State<StaffDriveUiState> = _uiState
+
+    init {
+        viewModelScope.launch { loadCatalogFromBackend() }
+    }
+
+    private suspend fun loadCatalogFromBackend() {
+        val fallbackCompanies = mockCompanies()
+        val mappedCompanies = when (val r = backend.companiesList()) {
+            is ApiResult.Success ->
+                r.data.mapIndexed { idx, c -> PlacementUiMappers.companyToUiModel(c, idx) }
+                    .takeIf { it.isNotEmpty() }
+            else -> null
+        } ?: fallbackCompanies
+
+        val mappedJobs = when (val r = jobRepo.fetchList()) {
+            is ApiResult.Success ->
+                r.data.map { PlacementUiMappers.jobToUiModel(it) }.takeIf { it.isNotEmpty() }
+            else -> null
+        } ?: mockJobs(mappedCompanies)
+
+        val mappedDrives = when (val r = driveRepo.fetchList()) {
+            is ApiResult.Success ->
+                r.data.map { PlacementUiMappers.driveToUiModel(it) }.takeIf { it.isNotEmpty() }
+            else -> null
+        } ?: mockDrives(mappedCompanies)
+
+        companies = mappedCompanies
+        jobs = mappedJobs
+        drives = mappedDrives
+        recomputeLists()
+    }
 
     fun onSearchQueryChanged(query: String) {
         _uiState.value = _uiState.value.copy(searchQuery = query)

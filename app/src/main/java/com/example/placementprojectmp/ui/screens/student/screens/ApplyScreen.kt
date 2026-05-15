@@ -33,6 +33,8 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.placementprojectmp.data.local.OpportunitiesCatalogHolder
+import com.example.placementprojectmp.data.local.StudentOpportunitiesFallbackData
 import com.example.placementprojectmp.ui.screens.shared.cards.DriveStyleCapsuleChip
 import com.example.placementprojectmp.ui.screens.shared.cards.LogoImage
 import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
@@ -57,7 +59,8 @@ fun ApplyScreen(
     onSubmitClick: () -> Unit = {}
 ) {
     val selectedJob = remember(selectedJobId) {
-        studentOpportunitiesDummyJobs().firstOrNull { it.id == selectedJobId }
+        OpportunitiesCatalogHolder.jobs.firstOrNull { it.id == selectedJobId }
+            ?: StudentOpportunitiesFallbackData.jobs.firstOrNull { it.id == selectedJobId }
     }
     val applicationSectionHeight = LocalConfiguration.current.screenHeightDp.dp
     LazyColumn(

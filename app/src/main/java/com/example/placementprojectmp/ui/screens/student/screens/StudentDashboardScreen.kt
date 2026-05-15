@@ -38,6 +38,11 @@ import com.example.placementprojectmp.ui.screens.student.component.CourseDomainM
 import com.example.placementprojectmp.ui.screens.student.component.FeatureTool
 import com.example.placementprojectmp.ui.screens.student.component.FeatureTools
 import com.example.placementprojectmp.ui.screens.shared.component.DashboardUserProfile
+import com.example.placementprojectmp.data.mapper.PlacementUiMappers
+import com.example.placementprojectmp.viewmodel.BackendApplicationsViewModel
+import com.example.placementprojectmp.viewmodel.BackendDirectoryViewModel
+import com.example.placementprojectmp.viewmodel.DriveBrowseViewModel
+import com.example.placementprojectmp.viewmodel.JobBrowseViewModel
 import com.example.placementprojectmp.viewmodel.StudentViewModel
 import com.example.placementprojectmp.viewmodel.UserViewModel
 import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
@@ -53,14 +58,26 @@ fun StudentDashboardScreen(
     onNavigateToPreparation: () -> Unit = {}
 ) {
     val tag = "StudentDashboard"
-    val studentId = 3L
+    val jobBrowseVm = koinViewModel<JobBrowseViewModel>()
+    val driveBrowseVm = koinViewModel<DriveBrowseViewModel>()
+    val appsVm = koinViewModel<BackendApplicationsViewModel>()
+    val dirVm = koinViewModel<BackendDirectoryViewModel>()
+    val jobBrowseState by jobBrowseVm.state.collectAsState()
+    val driveBrowseState by driveBrowseVm.state.collectAsState()
+    val appsState by appsVm.state.collectAsState()
+    val dirState by dirVm.state.collectAsState()
 
+    val studentId = 3L
     val userViewModel: UserViewModel = koinViewModel()
     val studentViewModel: StudentViewModel = koinViewModel()
     val educationViewModel: com.example.placementprojectmp.viewmodel.EducationViewModel = koinViewModel()
     val personalDraftViewModel: StudentPersonalDraftViewModel = koinViewModel()
 
     LaunchedEffect(Unit) {
+        jobBrowseVm.refresh()
+        driveBrowseVm.refresh()
+        appsVm.refresh()
+        dirVm.refreshUsers()
         runCatching { userViewModel.fetchUsers() }
             .onFailure { Log.e(tag, "Failed to fetch user for greeting", it) }
         runCatching { studentViewModel.fetchStudentProfile(studentId) }
@@ -82,19 +99,22 @@ fun StudentDashboardScreen(
     }
     var jobs by remember { mutableStateOf(defaultJobs) }
 
-    LaunchedEffect(selectedDomains) {
+    LaunchedEffect(jobBrowseState.jobs, selectedDomains) {
+        val base = jobBrowseState.jobs.takeIf { it.isNotEmpty() }
+            ?.map { PlacementUiMappers.jobToJobItem(it) }
+            ?: defaultJobs
         if (selectedDomains.isEmpty()) {
-            jobs = defaultJobs
+            jobs = base
         } else {
             val mappedRoles = selectedDomains.flatMap { domain ->
                 com.example.placementprojectmp.data.local.DummyJobRoleMapping.getJobRolesForDomain(domain)
             }.distinct()
 
             if (mappedRoles.isEmpty()) {
-                jobs = defaultJobs
+                jobs = base
             } else {
                 jobs = mappedRoles.mapIndexed { index, role ->
-                    val baseJob = defaultJobs[index % defaultJobs.size]
+                    val baseJob = base[index % base.size]
                     baseJob.copy(
                         id = "mapped_${index}",
                         roleTitle = role
@@ -103,16 +123,36 @@ fun StudentDashboardScreen(
             }
         }
     }
-    val drives = listOf(
-        DriveItem("Google", "10:00 AM", "Today"),
-        DriveItem("Microsoft", "2:00 PM", "Tomorrow"),
-        DriveItem("Amazon", "11:00 AM", "Mar 10")
-    )
-    val dummyApplications = listOf(
-        ApplicationItem("Google", "Software Engineer", "Shortlisted"),
-        ApplicationItem("Microsoft", "Product Manager", "Applied"),
-        ApplicationItem("Meta", "UX Designer", "Interview Scheduled")
-    )
+    val defaultDrives = remember {
+        listOf(
+            DriveItem("Google", "10:00 AM", "Today"),
+            DriveItem("Microsoft", "2:00 PM", "Tomorrow"),
+            DriveItem("Amazon", "11:00 AM", "Mar 10")
+        )
+    }
+    val drives = remember(driveBrowseState.drives) {
+        driveBrowseState.drives.takeIf { it.isNotEmpty() }
+            ?.map { PlacementUiMappers.driveToDriveItem(it) }
+            ?: defaultDrives
+    }
+    val dummyApplications = remember {
+        listOf(
+            ApplicationItem("Google", "Software Engineer", "Shortlisted"),
+            ApplicationItem("Microsoft", "Product Manager", "Applied"),
+            ApplicationItem("Meta", "UX Designer", "Interview Scheduled")
+        )
+    }
+    val apiApplicationItems = remember(appsState.applications, dirState.companies, jobBrowseState.jobs) {
+        val companyById = dirState.companies.associateBy { it.id }
+        val jobById = jobBrowseState.jobs.associateBy { it.id }
+        appsState.applications.map { app ->
+            val companyName = companyById[app.companyId]?.name.orEmpty().ifBlank { "Company #${app.companyId}" }
+            val job = jobById[app.jobId]
+            val role = job?.jobDescription?.lineSequence()?.firstOrNull { it.isNotBlank() }?.take(50)
+                ?: job?.jobType?.replace('_', ' ') ?: "Job #${app.jobId}"
+            PlacementUiMappers.applicationToApplicationItem(app, companyName, role)
+        }
+    }
     val submittedApplications by StudentApplicationSubmissionStore.submittedApplications.collectAsState()
     val applications = submittedApplications.map { submitted ->
         ApplicationItem(
@@ -120,7 +160,7 @@ fun StudentDashboardScreen(
             role = submitted.role,
             status = submitted.status
         )
-    } + dummyApplications
+    } + if (apiApplicationItems.isNotEmpty()) apiApplicationItems else dummyApplications
     val featureToolsItems = listOf(
         FeatureTool(
             label = "AI Resume Builder",

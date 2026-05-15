@@ -1,5 +1,7 @@
 package com.example.placementprojectmp.ui.screens.student.screens
 
+import com.example.placementprojectmp.data.local.OpportunitiesCatalogHolder
+import com.example.placementprojectmp.data.local.StudentOpportunitiesFallbackData
 import com.example.placementprojectmp.viewmodel.JobUiModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -22,7 +24,9 @@ internal object StudentApplicationSubmissionStore {
     val submittedApplications: StateFlow<List<SubmittedApplicationEntry>> = _submittedApplications.asStateFlow()
 
     fun addAppliedJob(jobId: String) {
-        val job = studentOpportunitiesDummyJobs().firstOrNull { it.id == jobId } ?: return
+        val job = OpportunitiesCatalogHolder.jobs.firstOrNull { it.id == jobId }
+            ?: StudentOpportunitiesFallbackData.jobs.firstOrNull { it.id == jobId }
+            ?: return
         addAppliedJob(job)
     }
 

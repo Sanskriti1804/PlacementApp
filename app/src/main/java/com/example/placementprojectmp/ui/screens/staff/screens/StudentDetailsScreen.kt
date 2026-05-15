@@ -42,6 +42,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -61,7 +62,10 @@ import com.example.placementprojectmp.ui.theme.NeonBlue
 import com.example.placementprojectmp.ui.screens.shared.component.FilterCapsuleRow
 import com.example.placementprojectmp.ui.screens.staff.components.StaffPaginationControls
 import com.example.placementprojectmp.ui.screens.shared.component.cards.UserIdCard
+import com.example.placementprojectmp.data.repo.BackendIntegrationRepository
+import com.example.placementprojectmp.integration.data.remote.ApiResult
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 private data class StudentItem(
     val id: String,
@@ -89,6 +93,7 @@ fun StudentDetailsScreen(
     source: String? = null,
     onStudentClick: (name: String, email: String, department: String, imageResId: Int) -> Unit = { _, _, _, _ -> }
 ) {
+    val backend: BackendIntegrationRepository = koinInject()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var searchQuery by remember { mutableStateOf("") }
@@ -98,6 +103,33 @@ fun StudentDetailsScreen(
     var showAdvancedFilters by remember { mutableStateOf(false) }
     var moreMenuExpanded by remember { mutableStateOf(false) }
     val students = remember { mutableStateListOf<StudentItem>().apply { addAll(dummyStudents()) } }
+    LaunchedEffect(Unit) {
+        when (val r = backend.studentProfilesList()) {
+            is ApiResult.Success -> {
+                val list = r.data
+                if (list.isNotEmpty()) {
+                    students.clear()
+                    students.addAll(
+                        list.map { profile ->
+                            StudentItem(
+                                id = profile.id?.toString().orEmpty().ifBlank {
+                                    profile.username.orEmpty().ifBlank { profile.userEmail.orEmpty() }
+                                },
+                                name = profile.name.orEmpty().ifBlank {
+                                    profile.username.orEmpty().ifBlank { "Student" }
+                                },
+                                email = profile.userEmail.orEmpty().ifBlank { profile.user?.email.orEmpty() },
+                                rollNumber = profile.username.orEmpty().ifBlank {
+                                    profile.domainRole.orEmpty().ifBlank { profile.userEmail.orEmpty() }
+                                }
+                            )
+                        }
+                    )
+                }
+            }
+            else -> Unit
+        }
+    }
     val selectedIds = remember { mutableStateListOf<String>() }
     val favoriteIds = remember { mutableStateListOf<String>() }
     var selectedApplicationStatuses by remember { mutableStateOf(setOf<String>()) }

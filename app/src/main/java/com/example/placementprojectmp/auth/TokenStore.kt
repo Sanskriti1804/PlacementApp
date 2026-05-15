@@ -23,6 +23,10 @@ class TokenStore(private val context: Context) {
         prefs[roleKey]
     }
 
+    val emailFlow: Flow<String?> = context.dataStore.data.map { prefs: Preferences ->
+        prefs[emailKey]
+    }
+
     suspend fun saveSession(token: String, email: String, roles: List<String>) {
         context.dataStore.edit { prefs ->
             prefs[tokenKey] = token

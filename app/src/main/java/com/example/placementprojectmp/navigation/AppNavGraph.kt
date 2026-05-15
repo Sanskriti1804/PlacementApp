@@ -4,12 +4,14 @@ import android.os.SystemClock
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.navigation.NavHostController
@@ -37,13 +39,17 @@ import com.example.placementprojectmp.ui.screens.student.screens.PreparationScre
 import com.example.placementprojectmp.ui.screens.student.screens.ProfileScreen
 import com.example.placementprojectmp.ui.screens.student.screens.PyqQuestionsScreen
 import com.example.placementprojectmp.notification.PlacementNotifications
+import com.example.placementprojectmp.data.local.OpportunitiesCatalogHolder
+import com.example.placementprojectmp.data.local.StudentOpportunitiesFallbackData
+import com.example.placementprojectmp.data.remote.dto.JobApplicationCreateRequest
+import com.example.placementprojectmp.data.remote.dto.StudentProfileRequest
+import com.example.placementprojectmp.data.repo.BackendIntegrationRepository
+import com.example.placementprojectmp.integration.data.remote.ApiResult
 import com.example.placementprojectmp.ui.screens.student.screens.StudentApplicationSubmissionStore
 import com.example.placementprojectmp.ui.screens.staff.screens.StudentDetailsScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentDashboardScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentMainContainer
 import com.example.placementprojectmp.ui.screens.student.screens.studentDriveRegistrationUrl
-import com.example.placementprojectmp.ui.screens.student.screens.studentOpportunitiesDummyDrives
-import com.example.placementprojectmp.ui.screens.student.screens.studentOpportunitiesDummyJobs
 import com.example.placementprojectmp.ui.screens.shared.screens.DriveDetailScreen
 import com.example.placementprojectmp.ui.screens.shared.screens.JobDetailScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentProfileFormScreen
@@ -63,8 +69,13 @@ import com.example.placementprojectmp.ui.screens.system.screens.SystemDashboardS
 import com.example.placementprojectmp.ui.screens.system.screens.SystemManagementScreen
 import com.example.placementprojectmp.ui.screens.system.screens.SystemProfileScreen
 import com.example.placementprojectmp.ui.screens.system.screens.SystemSettingsScreen
+import com.example.placementprojectmp.viewmodel.BackendApplicationsViewModel
+import com.example.placementprojectmp.viewmodel.BackendDirectoryViewModel
 import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
+import com.example.placementprojectmp.viewmodel.StudentOpportunitiesViewModel
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 /**
  * Root navigation host with four graphs: Startup, Student, Staff, System.
@@ -251,12 +262,38 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
         ) { backStackEntry ->
             val jobId = backStackEntry.arguments?.getString("jobId").orEmpty()
             val context = LocalContext.current
+            val scope = rememberCoroutineScope()
+            val tokenStore: com.example.placementprojectmp.auth.TokenStore = koinInject()
+            val authEmail by tokenStore.emailFlow.collectAsState(initial = null)
             val personalDraftVm = koinViewModel<StudentPersonalDraftViewModel>()
             val personalDraft by personalDraftVm.draft.collectAsState()
             val studentName = personalDraft.fullName.takeIf { it.isNotBlank() } ?: "Student"
-            val companyName = remember(jobId) {
-                studentOpportunitiesDummyJobs().firstOrNull { it.id == jobId }?.companyName.orEmpty()
+            val opportunitiesVm = koinViewModel<StudentOpportunitiesViewModel>()
+            val oppState by opportunitiesVm.state.collectAsState()
+            val companyName = remember(jobId, oppState.jobs) {
+                oppState.jobs.firstOrNull { it.id == jobId }?.companyName
+                    ?: StudentOpportunitiesFallbackData.jobs.firstOrNull { it.id == jobId }?.companyName
+                    ?: ""
             }
+            val appsVm = koinViewModel<BackendApplicationsViewModel>()
+            val backend = koinInject<BackendIntegrationRepository>()
+            val directoryVm = koinViewModel<BackendDirectoryViewModel>()
+            val dirState by directoryVm.state.collectAsState()
+
+            var resolvedStudentProfileId by remember { mutableStateOf<Long?>(null) }
+
+            LaunchedEffect(authEmail, dirState.users) {
+                resolvedStudentProfileId = null
+                val em = authEmail?.trim()?.lowercase() ?: return@LaunchedEffect
+                val uid = dirState.users.firstOrNull { it.email?.equals(em, ignoreCase = true) == true }?.id
+                    ?: return@LaunchedEffect
+                when (val r = backend.studentProfilesList()) {
+                    is ApiResult.Success ->
+                        resolvedStudentProfileId = r.data.firstOrNull { it.user?.id == uid }?.id
+                    else -> { /* submit path will retry list or create */ }
+                }
+            }
+
             ApplyScreen(
                 modifier = modifier,
                 selectedJobId = jobId,
@@ -264,18 +301,109 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
                     navController.navigate(Routes.StudentRoutes.StudentProfileForm)
                 },
                 onSubmitClick = {
-                    Toast.makeText(
-                        context,
-                        "Application submitted",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    PlacementNotifications.notifyApplicationSubmitted(
-                        context.applicationContext,
-                        studentName,
-                        companyName
-                    )
-                    StudentApplicationSubmissionStore.addAppliedJob(jobId)
-                    navController.popBackStack()
+                    scope.launch {
+                        val jobLong = jobId.toLongOrNull()
+                        if (jobLong == null) {
+                            Toast.makeText(context, "Invalid job", Toast.LENGTH_SHORT).show()
+                            return@launch
+                        }
+                        val em = authEmail?.trim()?.lowercase()
+                        if (em.isNullOrBlank()) {
+                            Toast.makeText(context, "Not signed in.", Toast.LENGTH_SHORT).show()
+                            return@launch
+                        }
+                        val uid = dirState.users.firstOrNull { it.email?.equals(em, ignoreCase = true) == true }?.id
+                        if (uid == null) {
+                            Toast.makeText(
+                                context,
+                                "Could not match your account. Reopen the app or try again in a moment.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            return@launch
+                        }
+
+                        var studentProfileId = resolvedStudentProfileId
+                        if (studentProfileId == null) {
+                            when (val listAgain = backend.studentProfilesList()) {
+                                is ApiResult.Success ->
+                                    studentProfileId = listAgain.data.firstOrNull { it.user?.id == uid }?.id
+                                is ApiResult.Error -> {
+                                    Toast.makeText(
+                                        context,
+                                        listAgain.message.ifBlank { "Could not load student profiles." },
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    return@launch
+                                }
+                            }
+                        }
+                        if (studentProfileId == null) {
+                            val local = em.substringBefore("@").ifBlank { "student" }
+                            when (val created = backend.studentProfilesCreate(
+                                uid,
+                                StudentProfileRequest(
+                                    name = studentName.ifBlank { "Student" },
+                                    userEmail = em,
+                                    username = local
+                                )
+                            )) {
+                                is ApiResult.Success -> {
+                                    studentProfileId = created.data.id
+                                    resolvedStudentProfileId = studentProfileId
+                                }
+                                is ApiResult.Error -> {
+                                    Toast.makeText(
+                                        context,
+                                        created.message.ifBlank { "Could not create student profile for apply." },
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    return@launch
+                                }
+                            }
+                        }
+
+                        val sid = studentProfileId
+                        if (sid == null) {
+                            Toast.makeText(
+                                context,
+                                "Could not resolve student profile. Try again in a moment.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            return@launch
+                        }
+
+                        val body = JobApplicationCreateRequest(
+                            studentId = sid,
+                            jobId = jobLong,
+                            appliedDate = java.time.LocalDateTime.now().toString(),
+                            status = "APPLIED",
+                            interviewDate = null,
+                            interviewMode = null
+                        )
+                        when (val r = appsVm.createApplicationAwait(body)) {
+                            is ApiResult.Success -> {
+                                Toast.makeText(
+                                    context,
+                                    "Application submitted",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                PlacementNotifications.notifyApplicationSubmitted(
+                                    context.applicationContext,
+                                    studentName,
+                                    companyName
+                                )
+                                StudentApplicationSubmissionStore.addAppliedJob(jobId)
+                                navController.popBackStack()
+                            }
+                            is ApiResult.Error -> {
+                                Toast.makeText(
+                                    context,
+                                    r.message.ifBlank { "Could not submit application" },
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    }
                 }
             )
         }
@@ -358,10 +486,9 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
                 onApplyClick = navigateToApply,
                 onDriveRegisterClick = { driveId ->
                     uriHandler.openUri(studentDriveRegistrationUrl(driveId))
-                    val driveTitle = studentOpportunitiesDummyDrives()
-                        .firstOrNull { it.id == driveId }
-                        ?.driveName
-                        .orEmpty()
+                    val driveTitle = OpportunitiesCatalogHolder.drives.firstOrNull { it.id == driveId }?.driveName
+                        ?: StudentOpportunitiesFallbackData.drives.firstOrNull { it.id == driveId }?.driveName
+                        ?: ""
                     PlacementNotifications.notifyDriveRegistration(
                         context.applicationContext,
                         studentName,
@@ -405,10 +532,9 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
                 driveId = driveId,
                 onRegisterClick = {
                     uriHandler.openUri(studentDriveRegistrationUrl(driveId))
-                    val driveTitle = studentOpportunitiesDummyDrives()
-                        .firstOrNull { it.id == driveId }
-                        ?.driveName
-                        .orEmpty()
+                    val driveTitle = OpportunitiesCatalogHolder.drives.firstOrNull { it.id == driveId }?.driveName
+                        ?: StudentOpportunitiesFallbackData.drives.firstOrNull { it.id == driveId }?.driveName
+                        ?: ""
                     PlacementNotifications.notifyDriveRegistration(
                         context.applicationContext,
                         studentName,

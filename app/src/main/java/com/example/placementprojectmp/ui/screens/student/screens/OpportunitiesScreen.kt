@@ -13,6 +13,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.placementprojectmp.R
 import com.example.placementprojectmp.ui.screens.shared.cards.DriveCard
 import com.example.placementprojectmp.ui.screens.shared.cards.JobCard
 import com.example.placementprojectmp.ui.screens.shared.component.AppScreenHeader
@@ -29,13 +29,11 @@ import com.example.placementprojectmp.ui.screens.shared.component.AppSearchBar
 import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 import com.example.placementprojectmp.ui.screens.shared.component.FilterCapsuleRow
 import com.example.placementprojectmp.viewmodel.DriveUiModel
-import com.example.placementprojectmp.viewmodel.Industry
-import com.example.placementprojectmp.viewmodel.JobDepartment
 import com.example.placementprojectmp.viewmodel.JobType
 import com.example.placementprojectmp.viewmodel.JobUiModel
-import com.example.placementprojectmp.viewmodel.Status
+import com.example.placementprojectmp.viewmodel.StudentOpportunitiesViewModel
 import com.example.placementprojectmp.viewmodel.WorkMode
-import java.time.LocalDate
+import org.koin.androidx.compose.koinViewModel
 
 private val jobTypeFilterOptions = listOf(
     "Internship",
@@ -56,117 +54,14 @@ private val experienceFilterOptions = listOf(
     "Internship Experience Required"
 )
 
-internal fun studentOpportunitiesDummyJobs(): List<JobUiModel> {
-    return listOf(
-        JobUiModel(
-            id = "opp-j1",
-            companyLogoResId = R.drawable.comp_1,
-            companyName = "Nexora Systems",
-            location = "Bengaluru, India",
-            jobRole = "Associate Android Engineer",
-            department = JobDepartment.TECH,
-            jobType = JobType.FULL_TIME,
-            industry = Industry.TECH,
-            workMode = WorkMode.HYBRID,
-            salaryLpa = 12.5f,
-            status = Status.OPEN,
-            lastDate = LocalDate.of(2025, 12, 31),
-            appliedCount = 120
-        ),
-        JobUiModel(
-            id = "opp-j2",
-            companyLogoResId = R.drawable.comp_1,
-            companyName = "FinEdge Analytics",
-            location = "Mumbai, India",
-            jobRole = "Data Analyst Intern",
-            department = JobDepartment.TECH,
-            jobType = JobType.INTERNSHIP,
-            industry = Industry.FINANCE,
-            workMode = WorkMode.REMOTE,
-            salaryLpa = 4.2f,
-            status = Status.OPEN,
-            lastDate = LocalDate.of(2025, 11, 15),
-            appliedCount = 85
-        ),
-        JobUiModel(
-            id = "opp-j3",
-            companyLogoResId = R.drawable.comp_1,
-            companyName = "MediCore Labs",
-            location = "Hyderabad, India",
-            jobRole = "Product Designer",
-            department = JobDepartment.MANAGEMENT,
-            jobType = JobType.FULL_TIME,
-            industry = Industry.HEALTHCARE,
-            workMode = WorkMode.ONSITE,
-            salaryLpa = 9.0f,
-            status = Status.UPCOMING,
-            lastDate = LocalDate.of(2026, 1, 10),
-            appliedCount = 40
-        ),
-        JobUiModel(
-            id = "opp-j4",
-            companyLogoResId = R.drawable.comp_1,
-            companyName = "EduSphere",
-            location = "Pune, India",
-            jobRole = "Backend Engineer (Part-time)",
-            department = JobDepartment.TECH,
-            jobType = JobType.CONTRACT,
-            industry = Industry.EDUCATION,
-            workMode = WorkMode.HYBRID,
-            salaryLpa = 6.5f,
-            status = Status.OPEN,
-            lastDate = LocalDate.of(2025, 10, 20),
-            appliedCount = 62
-        )
-    )
-}
+internal fun studentOpportunitiesDummyJobs(): List<JobUiModel> =
+    com.example.placementprojectmp.data.local.StudentOpportunitiesFallbackData.jobs
 
-internal fun studentOpportunitiesDummyDrives(): List<DriveUiModel> {
-    return listOf(
-        DriveUiModel(
-            id = "opp-d1",
-            companyLogoResId = R.drawable.comp_1,
-            companyName = "Nexora Systems",
-            driveName = "Campus Hiring 2025 – Engineering",
-            startDate = LocalDate.of(2025, 9, 1),
-            lastDateToRegister = LocalDate.of(2025, 9, 30),
-            status = Status.OPEN,
-            candidateCount = 240
-        ),
-        DriveUiModel(
-            id = "opp-d2",
-            companyLogoResId = R.drawable.comp_1,
-            companyName = "FinEdge Analytics",
-            driveName = "Finance & Analytics Drive",
-            startDate = LocalDate.of(2025, 10, 5),
-            lastDateToRegister = LocalDate.of(2025, 10, 25),
-            status = Status.UPCOMING,
-            candidateCount = 180
-        ),
-        DriveUiModel(
-            id = "opp-d3",
-            companyLogoResId = R.drawable.comp_1,
-            companyName = "MediCore Labs",
-            driveName = "Healthcare Tech Internship Drive",
-            startDate = LocalDate.of(2025, 8, 15),
-            lastDateToRegister = LocalDate.of(2025, 8, 28),
-            status = Status.CLOSED,
-            candidateCount = 95
-        )
-    )
-}
+internal fun studentOpportunitiesDummyDrives(): List<DriveUiModel> =
+    com.example.placementprojectmp.data.local.StudentOpportunitiesFallbackData.drives
 
-internal fun studentDriveRegistrationUrl(driveId: String): String {
-    val companyName = studentOpportunitiesDummyDrives()
-        .firstOrNull { it.id == driveId }
-        ?.companyName
-        .orEmpty()
-    val companySlug = companyName
-        .lowercase()
-        .replace(Regex("[^a-z0-9]+"), "")
-        .ifBlank { "placement" }
-    return "https://www.$companySlug.com"
-}
+internal fun studentDriveRegistrationUrl(driveId: String): String =
+    com.example.placementprojectmp.data.local.StudentOpportunitiesFallbackData.registrationUrl(driveId)
 
 private fun JobUiModel.matchesJobTypeFilter(selected: String?): Boolean {
     if (selected.isNullOrBlank()) return true
@@ -252,8 +147,10 @@ fun OpportunitiesScreen(
     onApplyClick: (jobId: String) -> Unit = {},
     onDriveRegisterClick: (driveId: String) -> Unit = {}
 ) {
-    val allJobs = remember { studentOpportunitiesDummyJobs() }
-    val allDrives = remember { studentOpportunitiesDummyDrives() }
+    val opportunitiesVm: StudentOpportunitiesViewModel = koinViewModel()
+    val oppState by opportunitiesVm.state.collectAsState()
+    val allJobs = oppState.jobs
+    val allDrives = oppState.drives
 
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var selectedJobType by rememberSaveable { mutableStateOf<String?>(null) }
@@ -336,7 +233,10 @@ fun OpportunitiesScreen(
             )
         }
         if (selectedTab == 0) {
-            items(filteredJobs, key = { it.id }) { job ->
+            items(
+                items = filteredJobs,
+                key = { j: JobUiModel -> j.id }
+            ) { job: JobUiModel ->
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -350,7 +250,10 @@ fun OpportunitiesScreen(
                 }
             }
         } else {
-            items(filteredDrives, key = { it.id }) { drive ->
+            items(
+                items = filteredDrives,
+                key = { d: DriveUiModel -> d.id }
+            ) { drive: DriveUiModel ->
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

@@ -7,15 +7,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.placementprojectmp.data.mapper.PlacementUiMappers
 import com.example.placementprojectmp.ui.components.ApplicationStatusScreenItem
 import com.example.placementprojectmp.ui.components.ApplicationStatusStage
 import com.example.placementprojectmp.ui.screens.shared.cards.ApplicationStatusCard
 import com.example.placementprojectmp.ui.screens.shared.component.AppScreenHeader
 import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
+import com.example.placementprojectmp.viewmodel.BackendApplicationsViewModel
+import com.example.placementprojectmp.viewmodel.BackendDirectoryViewModel
+import com.example.placementprojectmp.viewmodel.JobBrowseViewModel
+import org.koin.androidx.compose.koinViewModel
 
 private val dummyApplications = listOf(
     ApplicationStatusScreenItem(
@@ -54,8 +61,35 @@ fun ApplicationStatusScreen(
     onNotificationClick: () -> Unit = {},
     onApplicationClick: (ApplicationStatusScreenItem) -> Unit = {}
 ) {
+    val appsVm = koinViewModel<BackendApplicationsViewModel>()
+    val dirVm = koinViewModel<BackendDirectoryViewModel>()
+    val jobBrowseVm = koinViewModel<JobBrowseViewModel>()
+    val appsState by appsVm.state.collectAsState()
+    val dirState by dirVm.state.collectAsState()
+    val jobBrowseState by jobBrowseVm.state.collectAsState()
+
+    LaunchedEffect(Unit) {
+        appsVm.refresh()
+        dirVm.refreshUsers()
+        jobBrowseVm.refresh()
+    }
+
+    val apiStatusItems = remember(appsState.applications, dirState.companies, jobBrowseState.jobs) {
+        val companyById = dirState.companies.associateBy { it.id }
+        val jobById = jobBrowseState.jobs.associateBy { it.id }
+        appsState.applications.map { app ->
+            val company = app.companyId?.let { companyById[it] }
+            val companyName = company?.name.orEmpty().ifBlank { "Company #${app.companyId}" }
+            val location = company?.location.orEmpty().ifBlank { "—" }
+            val job = app.jobId?.let { jobById[it] }
+            val role = job?.jobDescription?.lineSequence()?.firstOrNull { it.isNotBlank() }?.take(50)
+                ?: job?.jobType?.replace('_', ' ') ?: "Job #${app.jobId}"
+            PlacementUiMappers.applicationToStatusScreenItem(app, companyName, location, role)
+        }
+    }
+
     val submittedApplications by StudentApplicationSubmissionStore.submittedApplications.collectAsState()
-    val applications = dummyApplications + submittedApplications.map { submitted ->
+    val submittedAsStatus = submittedApplications.map { submitted ->
         ApplicationStatusScreenItem(
             companyName = submitted.companyName,
             location = submitted.location,
@@ -64,6 +98,9 @@ fun ApplicationStatusScreen(
             currentStage = ApplicationStatusStage.Applied
         )
     }
+    val applications =
+        (if (apiStatusItems.isNotEmpty()) apiStatusItems else dummyApplications) + submittedAsStatus
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()

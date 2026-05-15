@@ -69,11 +69,11 @@ class EducationViewModel(
         viewModelScope.launch {
             try {
                 isLoading = true
-                // Temporary: backend-driven mapping disabled.
-                // courses = metaRepository.getCourses()
-                courses = DummyEducationMapping.getAllCourses()
+                val fromApi = runCatching { metaRepository.getCourses() }.getOrNull()
+                courses = if (!fromApi.isNullOrEmpty()) fromApi else DummyEducationMapping.getAllCourses()
             } catch (e: Exception) {
                 Log.e("EducationVM", "Error fetching courses", e)
+                courses = DummyEducationMapping.getAllCourses()
             } finally {
                 isLoading = false
             }
@@ -89,13 +89,15 @@ class EducationViewModel(
                 }
 
                 isLoading = true
-                // Temporary: backend-driven mapping disabled.
-                // val result = metaRepository.getDomains(course)
-                val result = DummyEducationMapping.getDomainsForCourse(course)
+                val fromApi = runCatching { metaRepository.getDomains(course) }.getOrNull()
+                val result = if (!fromApi.isNullOrEmpty()) fromApi else DummyEducationMapping.getDomainsForCourse(course)
                 domains = result
                 domainCache[course] = result
             } catch (e: Exception) {
                 Log.e("EducationVM", "Error fetching domains", e)
+                val fallback = DummyEducationMapping.getDomainsForCourse(course)
+                domains = fallback
+                domainCache[course] = fallback
             } finally {
                 isLoading = false
             }

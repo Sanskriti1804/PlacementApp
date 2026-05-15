@@ -71,4 +71,13 @@ class BackendApplicationsViewModel(
             }
         }
     }
+
+    /** Suspends until create completes; refreshes list on success. */
+    suspend fun createApplicationAwait(body: JobApplicationCreateRequest): ApiResult<JobApplicationResponse> {
+        val r = applications.create(body)
+        if (r is ApiResult.Success) {
+            refresh()
+        }
+        return r
+    }
 }

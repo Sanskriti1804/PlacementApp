@@ -4,10 +4,15 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.placementprojectmp.R
+import com.example.placementprojectmp.data.mapper.PlacementUiMappers
+import com.example.placementprojectmp.data.repo.BackendIntegrationRepository
+import com.example.placementprojectmp.integration.data.remote.ApiResult
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
+import kotlinx.coroutines.launch
 
 enum class PlacementTab { RESOURCES, NOTES }
 
@@ -71,13 +76,15 @@ data class PlacementWorkspaceState(
     val studentFilterTaggedOnly: Boolean = false
 )
 
-class PlacementWorkspaceViewModel : ViewModel() {
+class PlacementWorkspaceViewModel(
+    private val backend: BackendIntegrationRepository
+) : ViewModel() {
     private val favoriteTag = StudentTag("favorite", "Favorite")
     private val priorityTag = StudentTag("priority", "Priority")
     private val taggedTag = StudentTag("tagged", "Tagged")
 
     private val allResources = seededResources()
-    private val allStudents = seededStudents()
+    private var allStudents: List<WorkspaceStudent> = seededStudents()
     private val allNotes = seededNotes()
 
     private val _state = mutableStateOf(
@@ -88,6 +95,25 @@ class PlacementWorkspaceViewModel : ViewModel() {
         )
     )
     val state: State<PlacementWorkspaceState> = _state
+
+    init {
+        viewModelScope.launch { loadStudentsFromBackend() }
+    }
+
+    private suspend fun loadStudentsFromBackend() {
+        when (val r = backend.studentProfilesList()) {
+            is ApiResult.Success -> {
+                val mapped = r.data.mapIndexed { idx, p ->
+                    PlacementUiMappers.studentProfileToWorkspaceStudent(p, idx)
+                }
+                if (mapped.isNotEmpty()) {
+                    allStudents = mapped
+                    recompute()
+                }
+            }
+            else -> { /* keep seededStudents */ }
+        }
+    }
 
     fun selectTab(tab: PlacementTab) {
         _state.value = _state.value.copy(selectedTab = tab, showResourceActionsForId = null, showNoteActionsForId = null)
@@ -189,6 +215,7 @@ class PlacementWorkspaceViewModel : ViewModel() {
     fun taggedTag(): StudentTag = taggedTag
 
     private fun updateStudents(newAllStudents: List<WorkspaceStudent>) {
+        allStudents = newAllStudents
         val state = _state.value
         val keepSelected = state.bulkSelectedStudentIds
         val selectedStillExists = keepSelected.filter { id -> newAllStudents.any { it.id == id } }.toSet()

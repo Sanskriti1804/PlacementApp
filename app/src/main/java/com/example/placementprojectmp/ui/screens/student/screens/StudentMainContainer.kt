@@ -52,6 +52,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.placementprojectmp.data.local.OpportunitiesCatalogHolder
+import com.example.placementprojectmp.data.local.StudentOpportunitiesFallbackData
 import com.example.placementprojectmp.navigation.Routes
 import com.example.placementprojectmp.notification.PlacementNotifications
 import com.example.placementprojectmp.ui.screens.shared.screens.DriveDetailScreen
@@ -121,10 +123,9 @@ fun StudentMainContainer(
                     onApplyClick = navigateToApply,
                     onDriveRegisterClick = { driveId ->
                         uriHandler.openUri(studentDriveRegistrationUrl(driveId))
-                        val driveTitle = studentOpportunitiesDummyDrives()
-                            .firstOrNull { it.id == driveId }
-                            ?.driveName
-                            .orEmpty()
+                        val driveTitle = OpportunitiesCatalogHolder.drives.firstOrNull { it.id == driveId }?.driveName
+                            ?: StudentOpportunitiesFallbackData.drives.firstOrNull { it.id == driveId }?.driveName
+                            ?: ""
                         PlacementNotifications.notifyDriveRegistration(
                             context.applicationContext,
                             studentName,
@@ -154,10 +155,9 @@ fun StudentMainContainer(
                     driveId = driveId,
                     onRegisterClick = {
                         uriHandler.openUri(studentDriveRegistrationUrl(driveId))
-                        val driveTitle = studentOpportunitiesDummyDrives()
-                            .firstOrNull { it.id == driveId }
-                            ?.driveName
-                            .orEmpty()
+                        val driveTitle = OpportunitiesCatalogHolder.drives.firstOrNull { it.id == driveId }?.driveName
+                            ?: StudentOpportunitiesFallbackData.drives.firstOrNull { it.id == driveId }?.driveName
+                            ?: ""
                         PlacementNotifications.notifyDriveRegistration(
                             context.applicationContext,
                             studentName,
