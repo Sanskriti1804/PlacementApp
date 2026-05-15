@@ -48,7 +48,8 @@ fun SearchBar(
     onQueryChange: (String) -> Unit = {},
     onFilterClick: () -> Unit = {},
     searchIconResId: Int = 0,
-    filterIconResId: Int = 0
+    filterIconResId: Int = 0,
+    showFilterIcon: Boolean = true
 ) {
     val focusRequester = remember { FocusRequester() }
     var focused by remember { mutableStateOf(false) }
@@ -121,26 +122,30 @@ fun SearchBar(
             }
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Box(
-            modifier = Modifier
-                .size(24.dp)
-                .clickable(onClick = onFilterClick)
-        ) {
-            if (filterIconResId != 0) {
-                Icon(
-                    painter = painterResource(filterIconResId),
-                    contentDescription = "Filter",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(24.dp)
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.FilterList,
-                    contentDescription = "Filter",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(24.dp)
-                )
+        if (showFilterIcon) {
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable(onClick = onFilterClick)
+            ) {
+                if (filterIconResId != 0) {
+                    Icon(
+                        painter = painterResource(filterIconResId),
+                        contentDescription = "Filter",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.FilterList,
+                        contentDescription = "Filter",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
+        } else {
+            Spacer(modifier = Modifier.width(24.dp))
         }
     }
 }

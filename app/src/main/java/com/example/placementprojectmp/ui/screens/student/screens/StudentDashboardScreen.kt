@@ -1,8 +1,12 @@
 package com.example.placementprojectmp.ui.screens.student.screens
 
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 import com.example.placementprojectmp.ui.screens.shared.component.ApplicationsSection
@@ -31,7 +36,10 @@ import com.example.placementprojectmp.ui.components.DriveItem
 import com.example.placementprojectmp.ui.components.DriveSection
 import com.example.placementprojectmp.ui.screens.shared.component.JobItem
 import com.example.placementprojectmp.ui.screens.shared.component.JobSection
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import com.example.placementprojectmp.ui.screens.shared.component.AppSearchBar
 import com.example.placementprojectmp.ui.screens.student.component.AiChatButton
 import com.example.placementprojectmp.ui.screens.student.component.CourseDomainMappingFilter
@@ -89,6 +97,14 @@ fun StudentDashboardScreen(
     }
 
     var searchQuery by remember { mutableStateOf("") }
+    var showNotificationPanel by remember { mutableStateOf(false) }
+    val recentNotifications = remember {
+        listOf(
+            "Your application was submitted successfully",
+            "New campus drive added — check Opportunities",
+            "Reminder: complete your profile for better matches"
+        )
+    }
     var selectedDomains by remember { mutableStateOf(setOf<String>()) }
     val defaultJobs = remember {
         listOf(
@@ -99,21 +115,21 @@ fun StudentDashboardScreen(
     }
     var jobs by remember { mutableStateOf(defaultJobs) }
 
-    LaunchedEffect(jobBrowseState.jobs, selectedDomains) {
+    LaunchedEffect(jobBrowseState.jobs, selectedDomains, searchQuery) {
         val base = jobBrowseState.jobs.takeIf { it.isNotEmpty() }
             ?.map { PlacementUiMappers.jobToJobItem(it) }
             ?: defaultJobs
-        if (selectedDomains.isEmpty()) {
-            jobs = base
+        val afterDomain = if (selectedDomains.isEmpty()) {
+            base
         } else {
             val mappedRoles = selectedDomains.flatMap { domain ->
                 com.example.placementprojectmp.data.local.DummyJobRoleMapping.getJobRolesForDomain(domain)
             }.distinct()
 
             if (mappedRoles.isEmpty()) {
-                jobs = base
+                base
             } else {
-                jobs = mappedRoles.mapIndexed { index, role ->
+                mappedRoles.mapIndexed { index, role ->
                     val baseJob = base[index % base.size]
                     baseJob.copy(
                         id = "mapped_${index}",
@@ -121,6 +137,12 @@ fun StudentDashboardScreen(
                     )
                 }
             }
+        }
+        val q = searchQuery.trim()
+        jobs = if (q.isEmpty()) {
+            afterDomain
+        } else {
+            afterDomain.filter { it.companyName.contains(q, ignoreCase = true) }
         }
     }
     val defaultDrives = remember {
@@ -134,6 +156,11 @@ fun StudentDashboardScreen(
         driveBrowseState.drives.takeIf { it.isNotEmpty() }
             ?.map { PlacementUiMappers.driveToDriveItem(it) }
             ?: defaultDrives
+    }
+    val drivesDisplayed = remember(drives, searchQuery) {
+        val q = searchQuery.trim()
+        if (q.isEmpty()) drives
+        else drives.filter { it.companyName.contains(q, ignoreCase = true) }
     }
     val dummyApplications = remember {
         listOf(
@@ -207,7 +234,7 @@ fun StudentDashboardScreen(
         item {
             AppTopBar(
                 onMenuClick = onMenuClick,
-                onNotificationClick = onNotificationClick
+                onNotificationClick = { showNotificationPanel = true }
             )
         }
         item {
@@ -217,8 +244,19 @@ fun StudentDashboardScreen(
             AppSearchBar(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 query = searchQuery,
-                onQueryChange = { searchQuery = it }
+                onQueryChange = { searchQuery = it },
+                showFilterIcon = false
             )
+        }
+        if (searchQuery.isNotBlank() && jobs.isEmpty()) {
+            item {
+                Text(
+                    text = "Company not available",
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
         CourseDomainMappingFilter(
             courses = courses,
@@ -251,7 +289,7 @@ fun StudentDashboardScreen(
         item {
             DriveSection(
                 modifier = Modifier.padding(horizontal = 20.dp),
-                drives = drives
+                drives = drivesDisplayed
             )
         }
         item {
@@ -263,6 +301,44 @@ fun StudentDashboardScreen(
                 applications = applications
             )
         }
+        }
+        if (showNotificationPanel) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.28f))
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) { showNotificationPanel = false }
+            )
+            Card(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 8.dp, end = 12.dp)
+                    .fillMaxWidth(0.72f),
+                shape = MaterialTheme.shapes.medium,
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Notifications",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    recentNotifications.forEach { line ->
+                        Text(
+                            text = line,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
         }
         AiChatButton(
             onClick = onNavigateToChatbot,

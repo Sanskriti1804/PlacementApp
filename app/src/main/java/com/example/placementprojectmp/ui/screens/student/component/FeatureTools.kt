@@ -1,15 +1,18 @@
 package com.example.placementprojectmp.ui.screens.student.component
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,17 +55,25 @@ fun FeatureTools(
             color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.height(12.dp))
-        LazyRow(
+        val scrollState = rememberScrollState()
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(scrollState)
+                .height(IntrinsicSize.Min),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(
-                items = featureTools,
-                key = { it.label }
-            ) { item ->
-                if (item.showComingSoonLabel) {
-                    Box(modifier = Modifier.width(100.dp)) {
+            featureTools.forEach { item ->
+                Box(
+                    modifier = Modifier
+                        .width(100.dp)
+                        .fillMaxHeight()
+                ) {
+                    if (item.showComingSoonLabel) {
                         FeatureCard(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(),
                             label = item.label,
                             imageVector = item.imageVector,
                             onClick = item.onClick
@@ -74,14 +85,16 @@ fun FeatureTools(
                             color = FeatureToolComingSoonColor,
                             fontWeight = FontWeight.Light
                         )
+                    } else {
+                        FeatureCard(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(),
+                            label = item.label,
+                            imageVector = item.imageVector,
+                            onClick = item.onClick
+                        )
                     }
-                } else {
-                    FeatureCard(
-                        modifier = Modifier.width(100.dp),
-                        label = item.label,
-                        imageVector = item.imageVector,
-                        onClick = item.onClick
-                    )
                 }
             }
         }

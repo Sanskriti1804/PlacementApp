@@ -12,7 +12,8 @@ fun AppSearchBar(
     onQueryChange: (String) -> Unit = {},
     onFilterClick: () -> Unit = {},
     searchIconResId: Int = 0,
-    filterIconResId: Int = 0
+    filterIconResId: Int = 0,
+    showFilterIcon: Boolean = true
 ) {
     SearchBar(
         modifier = modifier,
@@ -21,6 +22,7 @@ fun AppSearchBar(
         onQueryChange = onQueryChange,
         onFilterClick = onFilterClick,
         searchIconResId = searchIconResId,
-        filterIconResId = filterIconResId
+        filterIconResId = filterIconResId,
+        showFilterIcon = showFilterIcon
     )
 }

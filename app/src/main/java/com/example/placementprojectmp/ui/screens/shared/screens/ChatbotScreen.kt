@@ -19,10 +19,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.placementprojectmp.ui.screens.shared.component.AppTopBar
 import com.example.placementprojectmp.ui.components.ChatInputBar
 import com.example.placementprojectmp.ui.components.ChatMessageBubble
+import com.example.placementprojectmp.ui.theme.NeonBlue
 
 private data class ChatMessage(
     val text: String,
@@ -53,14 +55,25 @@ fun ChatbotScreen(
                 .fillMaxWidth()
         ) {
             if (messages.isEmpty()) {
-                Text(
-                    text = "Ask anything related to preparation, academics, or placement guidance.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                Column(
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .padding(32.dp)
-                )
+                        .padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "Coming Soon",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = NeonBlue
+                    )
+                    Text(
+                        text = "Ask anything related to preparation, academics, or placement guidance.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                    )
+                }
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),

@@ -194,7 +194,7 @@ fun RoleSelectionScreen(
                 disabledContentColor = Color.White.copy(alpha = 0.75f)
             )
         ) {
-            Text(if (skipLoginEnabled) "Login Skipped. Select Role!" else "Enter without Login")
+            Text("Login")
         }
     }
 }

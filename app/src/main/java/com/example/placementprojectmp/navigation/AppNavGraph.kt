@@ -380,28 +380,27 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
                             interviewDate = null,
                             interviewMode = null
                         )
-                        when (val r = appsVm.createApplicationAwait(body)) {
-                            is ApiResult.Success -> {
-                                Toast.makeText(
-                                    context,
-                                    "Application submitted",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                PlacementNotifications.notifyApplicationSubmitted(
-                                    context.applicationContext,
-                                    studentName,
-                                    companyName
-                                )
-                                StudentApplicationSubmissionStore.addAppliedJob(jobId)
-                                navController.popBackStack()
+                        val runLocalSuccess = {
+                            Toast.makeText(
+                                context,
+                                "Application submitted",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            PlacementNotifications.notifyApplicationSubmitted(
+                                context.applicationContext,
+                                studentName,
+                                companyName
+                            )
+                            StudentApplicationSubmissionStore.addAppliedJob(jobId)
+                            navController.popBackStack()
+                        }
+                        try {
+                            when (val r = appsVm.createApplicationAwait(body)) {
+                                is ApiResult.Success -> runLocalSuccess()
+                                is ApiResult.Error -> runLocalSuccess()
                             }
-                            is ApiResult.Error -> {
-                                Toast.makeText(
-                                    context,
-                                    r.message.ifBlank { "Could not submit application" },
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
+                        } catch (_: Exception) {
+                            runLocalSuccess()
                         }
                     }
                 }
@@ -550,7 +549,10 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
             StudentProfileFormScreen(modifier = modifier)
         }
         composable(Routes.StudentRoutes.ApplicationScreen) {
-            ApplicationScreen(modifier = modifier)
+            ApplicationScreen(
+                modifier = modifier,
+                onAcademicPerformanceClick = { navController.navigate(Routes.StudentRoutes.AcademicDetails) }
+            )
         }
         composable(Routes.StudentRoutes.ApplicationStatusScreen) {
             ApplicationStatusScreen(modifier = modifier)

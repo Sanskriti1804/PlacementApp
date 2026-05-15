@@ -82,7 +82,8 @@ private fun staffStatusPhraseForNotification(status: String): String = when (sta
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
     onMenuClick: () -> Unit = {},
-    onNotificationClick: () -> Unit = {}
+    onNotificationClick: () -> Unit = {},
+    onAcademicPerformanceClick: () -> Unit = {}
 ) {
     val personalDraftViewModel: StudentPersonalDraftViewModel = koinViewModel()
     val personalDraft by personalDraftViewModel.draft.collectAsState()
@@ -108,8 +109,8 @@ fun ApplicationScreen(
     val overrideImageResId = overrideViewModel.savedStateHandle.get<Int>("imageResId")
     val isFromStaffModule = overrideViewModel.savedStateHandle.get<Boolean>("isFromStaffModule") ?: false
 
-    val resolvedName = overrideName?.takeIf { it.isNotBlank() } ?: personalDraft.fullName.takeIf { it.isNotBlank() } ?: "RAHUL SHARMA"
-    val resolvedHandle = personalDraft.username.takeIf { it.isNotBlank() }?.let { "@$it" } ?: "@rahuldev"
+    val resolvedName = overrideName?.takeIf { it.isNotBlank() } ?: personalDraft.fullName.takeIf { it.isNotBlank() } ?: "ARUSHI YADAV"
+    val resolvedHandle = personalDraft.username.takeIf { it.isNotBlank() }?.let { "@$it" } ?: "@arushi_yadav"
     val manualDob = listOf(personalDraft.day, personalDraft.month, personalDraft.year).filter { it.isNotBlank() }.joinToString(" ")
     val resolvedDob = manualDob.takeIf { it.isNotBlank() } ?: "12 Sep 2002"
     val resolvedEmail = if (isFromStaffModule) {
@@ -476,7 +477,7 @@ fun ApplicationScreen(
         }
         item {
             OutlinedButton(
-                onClick = {},
+                onClick = onAcademicPerformanceClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp),
