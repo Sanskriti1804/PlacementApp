@@ -23,11 +23,21 @@ internal object StudentApplicationSubmissionStore {
     private val _submittedApplications = MutableStateFlow<List<SubmittedApplicationEntry>>(emptyList())
     val submittedApplications: StateFlow<List<SubmittedApplicationEntry>> = _submittedApplications.asStateFlow()
 
-    fun addAppliedJob(jobId: String) {
+    fun addAppliedJob(jobId: String, companyNameFallback: String = "") {
         val job = OpportunitiesCatalogHolder.jobs.firstOrNull { it.id == jobId }
             ?: StudentOpportunitiesFallbackData.jobs.firstOrNull { it.id == jobId }
-            ?: return
-        addAppliedJob(job)
+        if (job != null) {
+            addAppliedJob(job)
+            return
+        }
+        val entry = SubmittedApplicationEntry(
+            companyName = companyNameFallback.trim().ifBlank { "Company" },
+            role = "—",
+            location = "—",
+            appliedDate = LocalDate.now().format(dateFormatter),
+            status = "Applied"
+        )
+        _submittedApplications.value = listOf(entry) + _submittedApplications.value
     }
 
     private fun addAppliedJob(job: JobUiModel) {

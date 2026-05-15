@@ -4,7 +4,6 @@ import android.os.SystemClock
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.getValue
@@ -41,10 +40,6 @@ import com.example.placementprojectmp.ui.screens.student.screens.PyqQuestionsScr
 import com.example.placementprojectmp.notification.PlacementNotifications
 import com.example.placementprojectmp.data.local.OpportunitiesCatalogHolder
 import com.example.placementprojectmp.data.local.StudentOpportunitiesFallbackData
-import com.example.placementprojectmp.data.remote.dto.JobApplicationCreateRequest
-import com.example.placementprojectmp.data.remote.dto.StudentProfileRequest
-import com.example.placementprojectmp.data.repo.BackendIntegrationRepository
-import com.example.placementprojectmp.integration.data.remote.ApiResult
 import com.example.placementprojectmp.ui.screens.student.screens.StudentApplicationSubmissionStore
 import com.example.placementprojectmp.ui.screens.staff.screens.StudentDetailsScreen
 import com.example.placementprojectmp.ui.screens.student.screens.StudentDashboardScreen
@@ -69,8 +64,6 @@ import com.example.placementprojectmp.ui.screens.system.screens.SystemDashboardS
 import com.example.placementprojectmp.ui.screens.system.screens.SystemManagementScreen
 import com.example.placementprojectmp.ui.screens.system.screens.SystemProfileScreen
 import com.example.placementprojectmp.ui.screens.system.screens.SystemSettingsScreen
-import com.example.placementprojectmp.viewmodel.BackendApplicationsViewModel
-import com.example.placementprojectmp.viewmodel.BackendDirectoryViewModel
 import com.example.placementprojectmp.viewmodel.StudentPersonalDraftViewModel
 import com.example.placementprojectmp.viewmodel.StudentOpportunitiesViewModel
 import kotlinx.coroutines.launch
@@ -265,33 +258,12 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
             val scope = rememberCoroutineScope()
             val tokenStore: com.example.placementprojectmp.auth.TokenStore = koinInject()
             val authEmail by tokenStore.emailFlow.collectAsState(initial = null)
-            val personalDraftVm = koinViewModel<StudentPersonalDraftViewModel>()
-            val personalDraft by personalDraftVm.draft.collectAsState()
-            val studentName = personalDraft.fullName.takeIf { it.isNotBlank() } ?: "Student"
             val opportunitiesVm = koinViewModel<StudentOpportunitiesViewModel>()
             val oppState by opportunitiesVm.state.collectAsState()
             val companyName = remember(jobId, oppState.jobs) {
                 oppState.jobs.firstOrNull { it.id == jobId }?.companyName
                     ?: StudentOpportunitiesFallbackData.jobs.firstOrNull { it.id == jobId }?.companyName
                     ?: ""
-            }
-            val appsVm = koinViewModel<BackendApplicationsViewModel>()
-            val backend = koinInject<BackendIntegrationRepository>()
-            val directoryVm = koinViewModel<BackendDirectoryViewModel>()
-            val dirState by directoryVm.state.collectAsState()
-
-            var resolvedStudentProfileId by remember { mutableStateOf<Long?>(null) }
-
-            LaunchedEffect(authEmail, dirState.users) {
-                resolvedStudentProfileId = null
-                val em = authEmail?.trim()?.lowercase() ?: return@LaunchedEffect
-                val uid = dirState.users.firstOrNull { it.email?.equals(em, ignoreCase = true) == true }?.id
-                    ?: return@LaunchedEffect
-                when (val r = backend.studentProfilesList()) {
-                    is ApiResult.Success ->
-                        resolvedStudentProfileId = r.data.firstOrNull { it.user?.id == uid }?.id
-                    else -> { /* submit path will retry list or create */ }
-                }
             }
 
             ApplyScreen(
@@ -302,8 +274,7 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
                 },
                 onSubmitClick = {
                     scope.launch {
-                        val jobLong = jobId.toLongOrNull()
-                        if (jobLong == null) {
+                        if (jobId.toLongOrNull() == null) {
                             Toast.makeText(context, "Invalid job", Toast.LENGTH_SHORT).show()
                             return@launch
                         }
@@ -312,96 +283,13 @@ private fun androidx.navigation.NavGraphBuilder.studentGraph(
                             Toast.makeText(context, "Not signed in.", Toast.LENGTH_SHORT).show()
                             return@launch
                         }
-                        val uid = dirState.users.firstOrNull { it.email?.equals(em, ignoreCase = true) == true }?.id
-                        if (uid == null) {
-                            Toast.makeText(
-                                context,
-                                "Could not match your account. Reopen the app or try again in a moment.",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            return@launch
-                        }
-
-                        var studentProfileId = resolvedStudentProfileId
-                        if (studentProfileId == null) {
-                            when (val listAgain = backend.studentProfilesList()) {
-                                is ApiResult.Success ->
-                                    studentProfileId = listAgain.data.firstOrNull { it.user?.id == uid }?.id
-                                is ApiResult.Error -> {
-                                    Toast.makeText(
-                                        context,
-                                        listAgain.message.ifBlank { "Could not load student profiles." },
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                    return@launch
-                                }
-                            }
-                        }
-                        if (studentProfileId == null) {
-                            val local = em.substringBefore("@").ifBlank { "student" }
-                            when (val created = backend.studentProfilesCreate(
-                                uid,
-                                StudentProfileRequest(
-                                    name = studentName.ifBlank { "Student" },
-                                    userEmail = em,
-                                    username = local
-                                )
-                            )) {
-                                is ApiResult.Success -> {
-                                    studentProfileId = created.data.id
-                                    resolvedStudentProfileId = studentProfileId
-                                }
-                                is ApiResult.Error -> {
-                                    Toast.makeText(
-                                        context,
-                                        created.message.ifBlank { "Could not create student profile for apply." },
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                    return@launch
-                                }
-                            }
-                        }
-
-                        val sid = studentProfileId
-                        if (sid == null) {
-                            Toast.makeText(
-                                context,
-                                "Could not resolve student profile. Try again in a moment.",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            return@launch
-                        }
-
-                        val body = JobApplicationCreateRequest(
-                            studentId = sid,
-                            jobId = jobLong,
-                            appliedDate = java.time.LocalDateTime.now().toString(),
-                            status = "APPLIED",
-                            interviewDate = null,
-                            interviewMode = null
-                        )
-                        val runLocalSuccess = {
-                            Toast.makeText(
-                                context,
-                                "Application submitted",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            PlacementNotifications.notifyApplicationSubmitted(
-                                context.applicationContext,
-                                studentName,
-                                companyName
-                            )
-                            StudentApplicationSubmissionStore.addAppliedJob(jobId)
-                            navController.popBackStack()
-                        }
-                        try {
-                            when (val r = appsVm.createApplicationAwait(body)) {
-                                is ApiResult.Success -> runLocalSuccess()
-                                is ApiResult.Error -> runLocalSuccess()
-                            }
-                        } catch (_: Exception) {
-                            runLocalSuccess()
-                        }
+                        StudentApplicationSubmissionStore.addAppliedJob(jobId, companyName)
+                        Toast.makeText(
+                            context,
+                            "Application submission successful",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        navController.popBackStack()
                     }
                 }
             )
